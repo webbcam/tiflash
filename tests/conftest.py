@@ -66,6 +66,7 @@ def t_env(request):
 
     env['CCS_INSTALLS'] = test_setup.get_ccs_installs()
     env['CCS_VERSIONS'] = test_setup.get_ccs_versions()
+    env['CCS_PATH'] = env['CCS_INSTALLS'][0]
 
     # Environment Setup
     def setup():

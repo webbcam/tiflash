@@ -30,7 +30,7 @@ class TestCCXML():
         expected = "TEST!!!"
         temp_ccxml = t_env['TEMP_DIR'] + '/NOSERNO.ccxml'
         shutil.copyfile(t_env['RESOURCE_DIR'] + '/no-serno.ccxml', temp_ccxml)
-        result = ccxml.add_serno(temp_ccxml, expected, t_env['CCS_INSTALLS'][0])
+        result = ccxml.add_serno(temp_ccxml, expected, t_env['CCS_PATH'])
         assert result is True
 
         result = ccxml.get_serno_from_ccxml(
@@ -38,35 +38,35 @@ class TestCCXML():
         assert result == expected
 
     def test_get_connection_xml(self, t_env):
-        expected = os.path.normpath(t_env['CCS_INSTALLS'][0] +
+        expected = os.path.normpath(t_env['CCS_PATH'] +
                                     "/ccs_base/common/targetdb/connections/"
                                     "TIXDS110_Connection.xml")
 
         result = ccxml.get_connection_xml(t_env['RESOURCE_DIR'] +
                                           "/cc1350.ccxml",
-                                          t_env['CCS_INSTALLS'][0])
+                                          t_env['CCS_PATH'])
 
         assert result == expected
 
     def test_get_device_xml(self, t_env):
         # CC1350
-        expected = os.path.normpath(t_env['CCS_INSTALLS'][0] +
+        expected = os.path.normpath(t_env['CCS_PATH'] +
                                     "/ccs_base/common/targetdb/devices/"
                                     "cc1350f128.xml")
 
         result = ccxml.get_device_xml(t_env['RESOURCE_DIR'] +
-                                      "/cc1350.ccxml", t_env['CCS_INSTALLS'][0])
+                                      "/cc1350.ccxml", t_env['CCS_PATH'])
 
         assert result == expected
 
         # CC3220SF
-        expected = os.path.normpath(t_env['CCS_INSTALLS'][0] +
+        expected = os.path.normpath(t_env['CCS_PATH'] +
                                     "/ccs_base/common/targetdb/devices/"
                                     "CC3220SF.xml")
 
         result = ccxml.get_device_xml(t_env['RESOURCE_DIR'] +
                                       "/cc3220sf.ccxml",
-                                      t_env['CCS_INSTALLS'][0])
+                                      t_env['CCS_PATH'])
 
         assert result == expected
 
