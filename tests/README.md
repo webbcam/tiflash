@@ -15,19 +15,21 @@ pip install pytest-html
 #### Hardware
 Most tests require to be run on an actual Launchpad device. To run the tests on
 your local machine you'll need to connect at least one Launchpad to your PC and
-update the *devices* section of the *setup.cfg* file with this device's information.
+create a device entry in *setup.cfg* file with this device's information.
 ```
 # setup.cfg	(see setup.cfg for example)
 
+# Device list (place all device entry names under this section)
+#   The boolean determines if device is included in testing
 [devices]
-Device Name
+DeviceName = Boolean
 
-[Device Name]
+# Device Entry Example
+[DeviceName]
 serno=<Device Serial Number>
 connection=<Connection Name>
 devicetype=<Devicetype Name>
 image=<Full path to a valid image hex file>
-enabled=true
 ```
 You can have multiple device entries (labeled by the [Device Name]) in your
 setup.cfg file. Each Device Name must be listed under the [devices] section
@@ -40,7 +42,6 @@ each of these devices.
 * **connection** - the full connection name of the device
 * **devicetype** - the full devicetype name of the device
 * **image** - the full path to the device specific image (.hex file)
-* **enabled** - boolean that enables/disables this device entry from being included in tests
 
 ## Core Tests
 
