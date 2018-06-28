@@ -44,6 +44,8 @@ def t_env(request):
     env = dict()
     system = platform.system()
 
+    env['DEVICES'] = test_setup.get_devices()
+
     env['TEST_DIR'] = os.path.normpath(os.path.dirname(__file__))
     env['RESOURCE_DIR'] = os.path.normpath(env['TEST_DIR'] + '/resources')
     env['TEMP_DIR'] = os.path.normpath(env['TEST_DIR'] + '/temp')
