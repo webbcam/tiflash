@@ -2,10 +2,10 @@ import pytest
 import platform
 import shutil
 import os
-import devicelist_parser
-ALL_DEVICES = devicelist_parser.get_devices()
+import setup_parser
 
-CCSV = '8'
+test_setup = setup_parser.TestSetup()
+ALL_DEVICES = test_setup.get_devices()
 
 # def pytest_addoption(parser):
 #    parser.addoption("--devicetype", action="append", default=None,
@@ -51,9 +51,6 @@ def t_env(request):
     HOME_VAR = 'USERPROFILE' if system == 'Windows' else 'HOME'
     env['HOME_PATH'] = os.environ[HOME_VAR]
 
-#    ROOT = 'SYSTEMDRIVE' if system == 'Windows' else 'HOME'
-#    env['ROOT_PATH'] = os.environ[ROOT]
-
     if system == 'Windows':
         env['ROOT_PATH'] = os.environ['SYSTEMDRIVE']
     elif system == 'Linux':
@@ -63,9 +60,16 @@ def t_env(request):
     else:
         raise Exception("Unsupported Operating System: %s" % system)
 
-    env['TARGET_CONFIG_PATH'] = os.path.normpath(
-        env['HOME_PATH'] + "/ti/CCSTargetConfigurations")
-    env['CCS_PATH'] = os.path.normpath(env['ROOT_PATH'] + '/ti/ccsv' + CCSV)
+    env['TARGET_CONFIG_PATH'] = test_setup.get_target_config_directory()
+
+
+#    env['TARGET_CONFIG_PATH'] = os.path.normpath(
+#        env['HOME_PATH'] + "/ti/CCSTargetConfigurations")
+
+#    env['CCS_PATH'] = os.path.normpath(env['ROOT_PATH'] + '/ti/ccsv' + CCSV)
+
+    env['CCS_INSTALLS'] = test_setup.get_ccs_installs()
+    env['CCS_VERSIONS'] = test_setup.get_ccs_versions()
 
     # Environment Setup
     def setup():
