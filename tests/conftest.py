@@ -62,12 +62,6 @@ def t_env(request):
 
     env['TARGET_CONFIG_PATH'] = test_setup.get_target_config_directory()
 
-
-#    env['TARGET_CONFIG_PATH'] = os.path.normpath(
-#        env['HOME_PATH'] + "/ti/CCSTargetConfigurations")
-
-#    env['CCS_PATH'] = os.path.normpath(env['ROOT_PATH'] + '/ti/ccsv' + CCSV)
-
     env['CCS_INSTALLS'] = test_setup.get_ccs_installs()
     env['CCS_VERSIONS'] = test_setup.get_ccs_versions()
 

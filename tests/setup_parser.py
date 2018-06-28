@@ -89,9 +89,7 @@ class TestSetup(object):
         return config_directory
 
 
-
-
-    def get_devices():
+    def get_devices(self):
         """Returns a dict of devices with specified configurations (devices.cfg)
 
         Returns:
