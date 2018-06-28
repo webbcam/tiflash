@@ -13,9 +13,14 @@ pip install pytest
 pip install pytest-html
 ```
 #### Hardware
-Most tests require to be run on an actual Launchpad device. To run the tests on your local machine you'll need to connect at least one Launchpad to your PC and update the *devices.cfg* file with this device's information.
+Most tests require to be run on an actual Launchpad device. To run the tests on
+your local machine you'll need to connect at least one Launchpad to your PC and
+update the *devices* section of the *setup.cfg* file with this device's information.
 ```
-# devices.cfg	(see devices.cfg for example)
+# setup.cfg	(see setup.cfg for example)
+
+[devices]
+Device Name
 
 [Device Name]
 serno=<Device Serial Number>
@@ -24,7 +29,11 @@ devicetype=<Devicetype Name>
 image=<Full path to a valid image hex file>
 enabled=true
 ```
-You can have multiple device entries (labeled by the [Device Name]) in your devices.cfg file. When you run any tests that interact with hardware, the test(s) will be run on each of these devices.
+You can have multiple device entries (labeled by the [Device Name]) in your
+setup.cfg file. Each Device Name must be listed under the [devices] section
+along with a boolean value stating whether to perform tests on this device.
+When you run any tests that interact with hardware, the test(s) will be run on
+each of these devices.
 
 * **[Device Name]** - unique identifier for the device entry
 * **serno** - serial number of device
@@ -47,7 +56,7 @@ pytest tests/core/test_api_flash.py
 
 ## Utils Tests
 
-These tests cover the utility/helper modules located in the tiflash/utils folder. 
+These tests cover the utility/helper modules located in the tiflash/utils folder.
 
 ```
 # Test all utils tests
