@@ -3,7 +3,8 @@ TI-Flash
 
 An *unofficial* Python flash programmer for `TI
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
-|
+
+
 Getting Started
 ---------------
 
@@ -16,7 +17,8 @@ flashing, erasing or resetting a device without having to spin up an
 entire CCS GUI session.
 
 Follow the steps below to get TIFlash set up on your computer.
-|
+
+
 Prerequisites
 ~~~~~~~~~~~~~
 
@@ -27,7 +29,8 @@ available in CCS’s Resource Explorer).
 
 You’ll also need `Python`_
 installed on your computer, either 2.7 or 3.6+ (preferred) will work.
-|
+
+
 Installing
 ~~~~~~~~~~
 
