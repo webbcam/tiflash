@@ -4,6 +4,8 @@ TI-Flash
 An *unofficial* Python flash programmer for `TI
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 
+`Read the Docs <https://tiflash.readthedocs.io>`__
+
 
 Getting Started
 ---------------

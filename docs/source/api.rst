@@ -3,8 +3,8 @@
 API Reference
 =============
 
-Below are the APIs for each flavor of flashing module (core, ccflash, mspflash,
-etc.)
+Below are the Python APIs for each flavor of flashing module
+(core, ccflash, mspflash, etc.)
 
 .. toctree::
     :maxdepth: 2
