@@ -14,13 +14,11 @@ from tiflash.core.args import (
     get_session_args
 )
 
-
-def parse_args():
-    """ Parses input parameters and displays help message.
+def generate_parser():
+    """Generates an argument parser
 
     Returns:
-        argparse.Namespace: provided arguments
-
+        argparse.ArgumentParser
     """
     main_parser = argparse.ArgumentParser(prog="TIFlash",
                                           parents=[SessionParser])
@@ -33,6 +31,20 @@ def parse_args():
     sub_parsers.add_parser('verify', parents=[VerifyParser])
     sub_parsers.add_parser('flash', parents=[FlashParser])
 
+    return main_parser
+
+
+def parse_args():
+    """Parses input parameters and displays help message.
+
+    Returns:
+        argparse.Namespace: provided arguments
+
+    """
+    # Generate parser
+    main_parser = generate_parser()
+
+    # Parser arguments
     args = main_parser.parse_args()
 
     return args

@@ -413,17 +413,17 @@ def get_option(option_id, pre_operation=None, ccs=None,
 def reset(options=None, ccs=None, **session_args):
     """Performs a Board Reset on device
 
-    Args:
-        options (dict): dictionary of options in the format
-            {option_id: option_val}; These options are set first before
-            calling reset function.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
-        session_args (**dict): keyword arguments containing settings for
-            the device connection
+      Args:
+          options (dict): dictionary of options in the format
+              {option_id: option_val}; These options are set first before
+              calling reset function.
+          ccs (int or str): Version Number of CCS to use or path to
+              custom installation
+          session_args (**dict): keyword arguments containing settings for
+              the device connection
 
-        Returns:
-            bool: True if reset was successful; False otherwise
+      Returns:
+          bool: True if reset was successful; False otherwise
     """
     ccs_path = __handle_ccs(ccs)
 
@@ -435,20 +435,20 @@ def reset(options=None, ccs=None, **session_args):
 def erase(options=None, ccs=None, **session_args):
     """Erases device; setting 'options' before erasing device
 
-    Args:
-        options (dict): dictionary of options in the format
-            {option_id: option_val}; These options are set first before
-            calling erase function.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
-        session_args (**dict): keyword arguments containing settings for
-            the device connection
+      Args:
+          options (dict): dictionary of options in the format
+              {option_id: option_val}; These options are set first before
+              calling erase function.
+          ccs (int or str): Version Number of CCS to use or path to
+              custom installation
+          session_args (**dict): keyword arguments containing settings for
+              the device connection
 
-    Returns:
-        bool: Result of erase operation (success/failure)
+      Returns:
+          bool: Result of erase operation (success/failure)
 
-    Raises:
-        TIFlashError: raises error if option invalid
+      Raises:
+          TIFlashError: raises error if option invalid
     """
     ccs_path = __handle_ccs(ccs)
 
