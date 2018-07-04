@@ -12,14 +12,14 @@ class CustomInstallCommand(install):
         # Do Custom installation stuff here
         install.run(self)
 
-with open('README.md') as f:
+with open('README.rst') as f:
     long_description = f.read()
 
 setup(  name='tiflash',
         version=version_string,
         description=DESC,
         long_description=long_description,
-        long_description_content_type='text/markdown',
+        #long_description_content_type='text/markdown',
         url=URL,
         download_url=URL+'/tarball/'+version_string,
         author=AUTHOR,
