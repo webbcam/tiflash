@@ -11,8 +11,6 @@ class TestFindCCS():
                               "Could not find ccs version %d installation" \
                               % version
 
-#    @pytest.mark.skipif(len(t_env['CCS_VERSIONS']) < 2,
-#                     "Need more than one CCS installation to run this test")
     def test_ccsfind_second_version(self, t_env):
         if len(t_env['CCS_VERSIONS']) < 2:
             pytest.skip("Need more than one CCS installation to run this test")
