@@ -4,6 +4,8 @@ from tiflash.version import version_string
 
 DESC = "Unofficial python module for flashing TI devices."
 URL = "https://github.com/webbcam/tiflash"
+DOCS_URL = "https://tiflash.readthedocs.io"
+
 AUTHOR = "Cameron Webb"
 EMAIL = "webbjcam@gmail.com"
 
@@ -20,7 +22,8 @@ setup(  name='tiflash',
         description=DESC,
         long_description=long_description,
         #long_description_content_type='text/markdown',
-        url=URL,
+        #url=URL,
+        url=DOCS_URL,
         download_url=URL+'/tarball/'+version_string,
         author=AUTHOR,
         author_email=EMAIL,
