@@ -34,6 +34,7 @@ Contents
    api
    contributing
    license
+   disclaimer
 
 .. External Links
 .. _Debug Server Scripting: http://software-dl.ti.com/ccs/esd/documents/users_guide/sdto_dss_handbook.html
