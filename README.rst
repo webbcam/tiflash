@@ -1,17 +1,20 @@
 TI-Flash
 ========
 
-An *unofficial* Python flash programmer for `TI
+An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 
-`Read the Docs <https://tiflash.readthedocs.io>`__
+Read The Docs
+-------------
+
+Please see the `readthedocs page <https://tiflash.readthedocs.io>`__ for the
+most up to date documentation.
 
 
 Getting Started
 ---------------
 
-TIFlash uses TI’s Code Composer Studio scripting interface (`Debug
-Server
+TIFlash uses Texas Instruments’s Code Composer Studio scripting interface (`Debug Server
 Scripting <http://software-dl.ti.com/ccs/esd/documents/users_guide/sdto_dss_handbook.html>`__)
 to flash devices. It’s essentially a python/command line interface for
 CCS. This is helpful when just needing to perform simple actions like
@@ -29,7 +32,7 @@ Studio <http://www.ti.com/tool/CCSTUDIO>`__ installed along with drivers
 for any devices you plan to use (offered during installation of CCS or
 available in CCS’s Resource Explorer).
 
-You’ll also need `Python`_
+You’ll also need `Python <https://www.python.org/>`__
 installed on your computer, either 2.7 or 3.6+ (preferred) will work.
 
 
@@ -68,7 +71,7 @@ From a command prompt:
     tiflash -h      # display help menu
     tiflash -s L4000CE flash /path/to/image.hex -o ResetOnRestart True
 
-For more commandline examples see the `EXAMPLES.md <EXAMPLES.md>`__ file
+For more commandline examples see the `EXAMPLES.rst <EXAMPLES.rst>`__ file
 
 Python
 ^^^^^^
@@ -80,24 +83,13 @@ TIFlash can also be used directly in your Python scripts.
     import tiflash
     tiflash.flash(serno='L4000CE', image='/path/to/image.hex', options={'ResetOnRestart':True})
 
-For more python examples see the `EXAMPLES.md <EXAMPLES.md>`__ file
+For more python examples see the `EXAMPLES.rst <EXAMPLES.rst>`__ file
 
 Contributing
 ------------
 
-Please read `CONTRIBUTING.md <CONTRIBUTING.md>`__ for details on the
+Please read `CONTRIBUTING.rst <CONTRIBUTING.rst>`__ for details on the
 process for submitting pull requests to us.
-
-To Do
------
-
-Below is a list of features that will be added eventually.
-
--  Add read/write to memory option
--  Add read symbols option
--  Write wrapper modules for device platform (ie CCFlash, MSPFlash, etc)
--  Add Target Detection
--  Add Attaching of CCS Session
 
 Versioning
 ----------
@@ -119,7 +111,12 @@ License
 -------
 
 This project is licensed under the MIT License - see the
-`LICENSE.md <LICENSE.md>`__ file for details
+`LICENSE <LICENSE>`__ file for details
+
+Disclaimer
+----------
+
+Please see the `Disclaimer <DISCLAIMER>`__.
 
 Acknowledgments
 ---------------
