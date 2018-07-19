@@ -14,7 +14,7 @@ CC26XX devices.
 
 IEEE Address
 ------------
-Below demonstrates how you can obtain a device's IEEE Address.
+Obtaining a device's IEEE Address.
 
 
 **Python**
@@ -39,7 +39,7 @@ Below demonstrates how you can obtain a device's IEEE Address.
 
 BLE Address
 ------------
-Below demonstrates how you can obtain a device's BLE Address.
+Obtaining a device's BLE Address.
 
 **Python**
 
@@ -63,7 +63,7 @@ Below demonstrates how you can obtain a device's BLE Address.
 
 Flash Erase All
 ---------------
-Erase entire Flash on device before flashing image
+Erase entire Flash on device before flashing image.
 
 **Python**
 
@@ -88,9 +88,8 @@ Erase entire Flash on device before flashing image
 
 Flash Erase Necessary Sectors Only
 ----------------------------------
-Erase only Necessary Sectors Only of Flash on device before flashing image
-NOTE: This is the default flash option and therefore you do not need to
-actually specify this.
+Erase Necessary Sectors Only of Flash on device before flashing image.
+*NOTE: This is the default flash option and therefore you do not need to actually specify this.*
 
 **Python**
 
@@ -115,7 +114,8 @@ actually specify this.
 
 Flash Erase Program Load Only
 -----------------------------
-Program Load Only (do not erase any sectors of flash) when flashing image on to device
+Program Load Only (do not erase any sectors of flash) when flashing image on to
+device.
 
 **Python**
 
@@ -140,7 +140,7 @@ Program Load Only (do not erase any sectors of flash) when flashing image on to 
 
 Reset After Flash
 -----------------
-Reset the device after flashing
+Reset the device after flashing.
 
 **Python**
 
@@ -166,7 +166,7 @@ Reset the device after flashing
 
 Device Revision
 ---------------
-Get Device's Revision Number
+Get device's Revision Number.
 
 **Python**
 
@@ -190,7 +190,7 @@ Get Device's Revision Number
 
 Device RAM Size
 ---------------
-Get RAM size on device
+Get RAM size on device.
 
 **Python**
 
@@ -214,7 +214,7 @@ Get RAM size on device
 
 Device Flash Size
 -----------------
-Get Flash size on device
+Get Flash size on device.
 
 **Python**
 
