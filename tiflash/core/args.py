@@ -124,7 +124,7 @@ MemoryParser.add_argument('-w', '--write', action='store_true',
                             help="Write bytes to device memory")
 MemoryParser.add_argument('-a', '--address', required=True,
                             help="Address in memory to read/write from/to")
-MemoryParser.add_argument('-d', '--data', action='append',
+MemoryParser.add_argument('-d', '--data', nargs='+',
                             help="Space separated list of bytes (in hex) to \
                             write (WRITE ONLY)")
 MemoryParser.add_argument('-n', '--num', dest='num_bytes', default=1,

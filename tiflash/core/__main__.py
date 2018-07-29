@@ -205,8 +205,12 @@ def handle_memory(args):
         except Exception as e:
             print(e)
     elif args.write:
-        print("Memory Write not implemented yet.")
-        pass
+        try:
+            result = core.memory_write(args.address, args.data, args.page,
+                **session_args)
+        except Exception as e:
+            print(e)
+
 
 
 def main(args=None):

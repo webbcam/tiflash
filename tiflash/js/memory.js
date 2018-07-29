@@ -18,6 +18,10 @@ function read_memory(session, scriptEnv, page, address, numBytes)
         session.target.connect();
     }
 
+    page = Number(page);
+    address = Number(address);
+    numBytes = Number(numBytes);
+
     return session.memory.readData(page, address, 8, numBytes);
 }
 
@@ -35,7 +39,12 @@ function write_memory(session, scriptEnv, page, address, data)
     if (!session.target.isConnected()) {
         session.target.connect();
     }
+    var data_list = Array()
 
-    session.memory.writeData(page, address, 8, data);
+    for (var i = 0; i < data.length; i++) {
+        data_list.push(Number(data[i]));
+    }
+
+    session.memory.writeData(page, address, data, 8);
     return true;
 }

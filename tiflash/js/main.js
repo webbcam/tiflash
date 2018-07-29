@@ -231,7 +231,7 @@ function main()
         } else if (args.memory.write) {
             try {
                 result = write_memory(debugSession, scriptEnv,
-                args.memory.page, args.memory.address, args.memory.data)
+                    args.memory.page, args.memory.address, args.memory.data)
             } catch (e) {
                 result = e;
                 retcode = -1;

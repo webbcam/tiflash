@@ -601,3 +601,31 @@ class TIFlash(object):
             parsed_result.reverse() # Reverse order
             parsed_result = [ int(e) for e in parsed_result ]
             return parsed_result
+
+
+    def memory_write(self, address, data, page=0):
+        """Writes specified data to memory
+
+        Args:
+            address (long): memory address to read from
+            data (list): list of bytes to write to memory
+            page (int, optional): page number to read memory from
+
+        Raises:
+            TIFlashError: raises error when memory read error received
+        """
+        memory_args = {'write': True}
+        memory_args['address'] = str(address)
+        data = [ str(e) for e in list(data) ]
+        memory_args['data'] = ' '.join(data)
+        memory_args['page'] = str(page)
+
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+        args['memory'] = memory_args
+
+        # call memory_write
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
