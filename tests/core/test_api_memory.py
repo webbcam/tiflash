@@ -48,10 +48,9 @@ class TestMemoryApi():
         assert result == answer
 
 
-    @pytest.mark.xfail
     def test_basic_memory_write(self, device):
         """Tests simple memory write"""
-        WRITE_ADDRESS = 0x10000000
+        WRITE_ADDRESS = 0x20000000
         WRITE_DATA = [0x11, 0x22, 0x33]
         core.memory_write(WRITE_ADDRESS, WRITE_DATA,
                         serno=device['serno'],
