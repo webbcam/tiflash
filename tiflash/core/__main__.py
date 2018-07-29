@@ -10,6 +10,7 @@ from tiflash.core.args import (
     EraseParser,
     VerifyParser,
     FlashParser,
+    MemoryParser,
 
     get_session_args
 )
@@ -30,6 +31,7 @@ def generate_parser():
     sub_parsers.add_parser('erase', parents=[EraseParser])
     sub_parsers.add_parser('verify', parents=[VerifyParser])
     sub_parsers.add_parser('flash', parents=[FlashParser])
+    sub_parsers.add_parser('memory', parents=[MemoryParser])
 
     return main_parser
 
@@ -189,6 +191,28 @@ def handle_flash(args):
         print(e)
 
 
+def handle_memory(args):
+    """Helper function for handling 'memory' command"""
+    session_args = get_session_args(args)
+
+    if args.read:
+        try:
+            result = core.memory_read(args.address, args.num_bytes, args.page,
+                **session_args)
+            if args.hex:
+                result = [ hex(h) for h in result ]
+            print(result)
+        except Exception as e:
+            print(e)
+    elif args.write:
+        try:
+            result = core.memory_write(args.address, args.data, args.page,
+                **session_args)
+        except Exception as e:
+            print(e)
+
+
+
 def main(args=None):
     """Runs main TIFlash script
 
@@ -222,6 +246,10 @@ def main(args=None):
     # Flash
     elif args.cmd == 'flash':
         handle_flash(args)
+
+    # Memory
+    elif args.cmd == 'memory':
+        handle_memory(args)
 
 
 if __name__ == "__main__":

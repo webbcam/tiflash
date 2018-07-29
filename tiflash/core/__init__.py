@@ -1,4 +1,4 @@
-from tiflash.core.core import TIFlashError
+from tiflash.core.core import TIFlashError, TIFlash
 from tiflash.core.api import(   get_connections,
                                 get_devices,
                                 get_cpus,
@@ -10,7 +10,9 @@ from tiflash.core.api import(   get_connections,
                                 reset,
                                 erase,
                                 verify,
-                                flash
+                                flash,
+                                memory_read,
+                                memory_write
                             )
 # Remove anything that shouldn't be included at api level
 del core

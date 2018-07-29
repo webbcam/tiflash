@@ -1,4 +1,4 @@
-/** 
+/**
  * main.js - Main script that uses all other import scripts,
  * only script that should be called directly
  */
@@ -217,6 +217,32 @@ function main()
         quit(retcode);
     }
 
+    //  Memory operations
+    if (args.memory) {
+        load(scriptEnv.toAbsolutePath("memory.js"));
+        if (args.memory.read) {
+            try {
+                result = read_memory(debugSession, scriptEnv, args.memory.page,
+                    args.memory.address, args.memory.numBytes);
+            } catch (e) {
+                result = e;
+                retcode = -1;
+            }
+        } else if (args.memory.write) {
+            try {
+                result = write_memory(debugSession, scriptEnv,
+                    args.memory.page, args.memory.address, args.memory.data)
+            } catch (e) {
+                result = e;
+                retcode = -1;
+            }
+        }
+
+        send_result(scriptEnv, port, result);
+        quit(retcode);
+    }
+
+
     send_result(scriptEnv, port, result);
     quit(retcode);
 }
@@ -235,7 +261,6 @@ function send_result(scriptEnv, port, result)
 
     //  Post Result to Python Socket
     return post_result(port, result_str);
-    //print(result_str);
 }
 
 function quit(retcode)
