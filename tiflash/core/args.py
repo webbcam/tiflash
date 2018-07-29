@@ -115,3 +115,21 @@ FlashParser.add_argument('-a', '--address', metavar='address',
 FlashParser.add_argument('-o', '--option', nargs=2, action='append',
                          dest='options', metavar=('optionID', 'optionValue'),
                          help='sets an option before running flash cmd')
+
+# Memory Parser
+MemoryParser = argparse.ArgumentParser(add_help=False)
+MemoryParser.add_argument('-r', '--read', action='store_true',
+                            help="Read bytes from device memory")
+MemoryParser.add_argument('-w', '--write', action='store_true',
+                            help="Write bytes to device memory")
+MemoryParser.add_argument('-a', '--address', required=True,
+                            help="Address in memory to read/write from/to")
+MemoryParser.add_argument('-d', '--data', action='append',
+                            help="Space separated list of bytes (in hex) to \
+                            write (WRITE ONLY)")
+MemoryParser.add_argument('-n', '--num', dest='num_bytes', default=1,
+                            help="Number of bytes to read (READ ONLY)")
+MemoryParser.add_argument('-p', '--page', default=0,
+                            help="Page number in memory to access address")
+MemoryParser.add_argument('-H', '--hex', action='store_true',
+                            help="Displays output in hex (READ ONLY)")

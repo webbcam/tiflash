@@ -513,3 +513,25 @@ def flash(image, binary=False, address=None, options=None, ccs=None,
     flash = __handle_session(ccs_path, **session_args)
 
     return flash.flash(image, binary=binary, address=address, options=options)
+
+
+def memory_read(address, num_bytes=1, page=0, ccs=None, **session_args):
+    """Reads specified bytes from memory
+
+    Args:
+        address (long): memory address to read from
+        num_bytes (int): number of bytes to read
+        page (int, optional): page number to read memory from
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        list: Returns list of bytes read from memory
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.memory_read(address, num_bytes, page)

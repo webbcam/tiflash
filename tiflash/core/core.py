@@ -570,3 +570,34 @@ class TIFlash(object):
             return False
         else:
             return True
+
+    def memory_read(self, address, num_bytes=1, page=0):
+        """Reads specified bytes from memory
+
+        Args:
+            address (long): memory address to read from
+            num_bytes (int): number of bytes to read
+            page (int, optional): page number to read memory from
+
+        Returns:
+            list: Returns list of bytes read from memory
+        """
+        memory_args = {'read': True}
+        memory_args['address'] = str(address)
+        memory_args['numBytes'] = str(num_bytes)
+        memory_args['page'] = str(page)
+
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+        args['memory'] = memory_args
+
+        # call memory_read
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+        else:
+            parsed_result = dss.parse_response_list(result)
+            parsed_result.reverse() # Reverse order
+            parsed_result = [ int(e) for e in parsed_result ]
+            return parsed_result
