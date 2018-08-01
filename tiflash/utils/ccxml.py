@@ -36,7 +36,11 @@ def get_ccxml_directory():
     else:
         raise CCXMLError("Unsupported Operating System: %s" % system)
 
-    return os.path.normpath(ccxml_directory)
+    ccxml_dir =  os.path.normpath(ccxml_directory)
+    if not os.path.isdir(ccxml_dir):
+        os.mkdir(ccxml_dir)
+
+    return ccxml_dir
 
 
 def get_serno_from_ccxml(ccxml_path):
