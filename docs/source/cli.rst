@@ -161,6 +161,14 @@ Memory
     # Write to a device's memory
     $ tiflash memory --write --address 0x500012F0 --data 0x01 0x02 0x03
 
+Evaluate
+^^^^^^
+
+::
+
+    # Evaluate a C or GEL expression on a device
+    $ tiflash evaluate "MassErase()"
+
 Get Option Value
 ^^^^^^^^^^^^^^^^
 

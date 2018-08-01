@@ -133,3 +133,7 @@ MemoryParser.add_argument('-p', '--page', default=0,
                             help="Page number in memory to access address")
 MemoryParser.add_argument('-H', '--hex', action='store_true',
                             help="Displays output in hex (READ ONLY)")
+
+# Expression Parser
+ExpressionParser = argparse.ArgumentParser(add_help=False)
+ExpressionParser.add_argument('expression', help="C or GEL expression to execute")

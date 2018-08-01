@@ -629,3 +629,29 @@ class TIFlash(object):
 
         if not code:
             raise TIFlashError(result)
+
+    def evaluate(self, expr):
+        """Evaluates the given C/GEL expression
+
+        Args:
+            expr (str): C or GEL expression
+
+        Returns:
+            str: String result from evaluating expression
+
+        Raises:
+            TIFlashError: raises error when expression error is raised
+        """
+        expression_args = {'expression': expr}
+
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+        args['evaluate'] = expression_args
+
+        # call expression
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+
+        return result
