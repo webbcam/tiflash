@@ -242,6 +242,21 @@ function main()
         quit(retcode);
     }
 
+    //  Expression Function
+    if (args.expression) {
+        load(scriptEnv.toAbsolutePath("expression.js"));
+        try {
+            result = evaluate_expression(debugSession, scriptEnv, args.expression);
+        } catch (e) {
+            result = e;
+            retcode = -1;
+        }
+
+        send_result(scriptEnv, port, result);
+        quit(retcode);
+
+    }
+
 
     send_result(scriptEnv, port, result);
     quit(retcode);
