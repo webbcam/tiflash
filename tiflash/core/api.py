@@ -557,3 +557,23 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     flash.memory_write(address, data, page=0)
+
+
+def expression(expr, ccs=None, **session_args):
+    """Evaluates the given C/GEL expression
+
+    Args:
+        expr (str): C or GEL expression
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error when expression error is raised
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.expression(expr)
