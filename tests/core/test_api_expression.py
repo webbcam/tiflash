@@ -8,7 +8,7 @@ class TestExpressionApi():
     def test_basic_expression(self, device):
         """Runs a simple gel command"""
         EXPRESSION = "MassErase();"
-        result = core.expression(EXPRESSION,
+        result = core.evaluate(EXPRESSION,
                             serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
@@ -20,7 +20,7 @@ class TestExpressionApi():
 
         EXPRESSION = "var i = 0"
         with pytest.raises(TIFlashError):
-            result = core.expression(EXPRESSION,
+            result = core.evaluate(EXPRESSION,
                                 serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])

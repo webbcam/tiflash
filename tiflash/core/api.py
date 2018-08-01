@@ -559,7 +559,7 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     flash.memory_write(address, data, page=0)
 
 
-def expression(expr, ccs=None, **session_args):
+def evaluate(expr, ccs=None, **session_args):
     """Evaluates the given C/GEL expression
 
     Args:
@@ -570,7 +570,7 @@ def expression(expr, ccs=None, **session_args):
             the device connection
 
     Returns:
-        str: String result of expression
+        str: String result from evaluating expression
 
     Raises:
         TIFlashError: raises error when expression error is raised
@@ -579,4 +579,4 @@ def expression(expr, ccs=None, **session_args):
 
     flash = __handle_session(ccs_path, **session_args)
 
-    return flash.expression(expr)
+    return flash.evaluate(expr)
