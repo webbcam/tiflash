@@ -75,3 +75,22 @@ class TestCCXML():
 
         for r in result:
             assert r.endswith('.ccxml')
+
+    def test_no_CCSTargetConfigurations_directory(self, t_env):
+        ccxml_dir = ccxml.get_ccxml_directory()
+        ccxml_dir_tmp = ccxml_dir + "_temporary"
+
+        # Delete CCXML Directory by renaming it
+        os.rename(ccxml_dir, ccxml_dir_tmp)
+
+        # Verify CCXML Directory was removed successfully
+        assert os.path.exists(ccxml_dir) is False
+
+        # Calling this should create the CCSTargetConfigurations directory
+        ccxml_dir = ccxml.get_ccxml_directory()
+
+        # Verify CCXML Directory was created successfully
+        assert os.path.exists(ccxml_dir) is True
+
+        # Restore CCSTargetConfigurations directory
+        os.rename(ccxml_dir_tmp, ccxml_dir)
