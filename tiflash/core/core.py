@@ -636,6 +636,9 @@ class TIFlash(object):
         Args:
             expr (str): C or GEL expression
 
+        Returns:
+            str: String result of expression
+
         Raises:
             TIFlashError: raises error when expression error is raised
         """

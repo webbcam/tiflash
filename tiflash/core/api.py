@@ -569,6 +569,9 @@ def expression(expr, ccs=None, **session_args):
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
+    Returns:
+        str: String result of expression
+
     Raises:
         TIFlashError: raises error when expression error is raised
     """
