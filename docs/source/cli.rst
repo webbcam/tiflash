@@ -150,6 +150,17 @@ Verify Image
     # Verify an image in device's flash
     $ tiflash verify /path/to/image.hex
 
+Memory
+^^^^^^
+
+::
+
+    # Read to a device's memory
+    $ tiflash memory --read --address 0x500012F0 --num 8 --hex
+
+    # Write to a device's memory
+    $ tiflash memory --write --address 0x500012F0 --data 0x01 0x02 0x03
+
 Get Option Value
 ^^^^^^^^^^^^^^^^
 
