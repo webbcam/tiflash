@@ -2,7 +2,7 @@
  * expression.js - Expression include file that contains functions used
  * by main.js to evaluate expressions on devices.
  */
-function evaluate_expression(session, scriptEnv, exp)
+function evaluate_expression(session, scriptEnv, expr)
 {
     var retval = false;
 
@@ -11,8 +11,8 @@ function evaluate_expression(session, scriptEnv, exp)
     }
 
     //  Evaluate Expression
-    retval = session.expression.evaluate(exp);
-    //retval = session.expression.evaluateToString(exp);
+    retval = session.expression.evaluate(expr.expr);
+    //retval = session.expression.evaluateToString(expr.expr);
 
     return retval;
 }
