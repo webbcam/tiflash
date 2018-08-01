@@ -32,6 +32,7 @@ Contents
    started
    cli
    api
+   examples
    contributing
    license
    disclaimer
