@@ -10,7 +10,7 @@ Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 Getting Started
 ---------------
 
-TIFlash uses TI’s Code Composer Studio scripting interface (`Debug
+TIFlash uses Texas Instrument’s Code Composer Studio scripting interface (`Debug
 Server
 Scripting <http://software-dl.ti.com/ccs/esd/documents/users_guide/sdto_dss_handbook.html>`__)
 to flash devices. It’s essentially a python/command line interface for
