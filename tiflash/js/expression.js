@@ -10,6 +10,11 @@ function evaluate_expression(session, scriptEnv, eval)
         session.target.connect();
     }
 
+    //  Load Symbols
+    if (eval.symbols) {
+        session.symbol.load(eval.symbols);
+    }
+
     //  Evaluate Expression
     retval = session.expression.evaluate(eval.expression);
 

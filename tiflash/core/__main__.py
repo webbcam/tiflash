@@ -219,7 +219,8 @@ def handle_expression(args):
     session_args = get_session_args(args)
 
     try:
-        result = core.evaluate(args.expression, **session_args)
+        result = core.evaluate(args.expression, symbol_file=args.symbols,
+                                **session_args)
         print(result)
     except Exception as e:
         print(e)

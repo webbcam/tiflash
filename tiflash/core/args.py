@@ -137,3 +137,6 @@ MemoryParser.add_argument('-H', '--hex', action='store_true',
 # Expression Parser
 ExpressionParser = argparse.ArgumentParser(add_help=False)
 ExpressionParser.add_argument('expression', help="C or GEL expression to execute")
+ExpressionParser.add_argument('--symbols', required=False, default=None,
+                            help=""".out or GEL symbol file to load before
+                            evaluating expression.""")
