@@ -559,11 +559,12 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     flash.memory_write(address, data, page=0)
 
 
-def evaluate(expr, ccs=None, **session_args):
+def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     """Evaluates the given C/GEL expression
 
     Args:
         expr (str): C or GEL expression
+        symbol_file (str): .out or GEL symbol file to load before evaluating
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
         session_args (**dict): keyword arguments containing settings for
@@ -579,4 +580,4 @@ def evaluate(expr, ccs=None, **session_args):
 
     flash = __handle_session(ccs_path, **session_args)
 
-    return flash.evaluate(expr)
+    return flash.evaluate(expr, symbol_file=symbol_file)

@@ -31,6 +31,8 @@ note the general format for commands.
         erase   : erase flash on a device
         reset   : reset device
         verify  : verify an image in device's flash
+        memory  : read/write memory location on device
+        evaluate: evaluate an expression on device
         option  : get/set an option
         list    : list device information
 
@@ -49,10 +51,10 @@ commands to use with the TIFlash CLI
 
     usage: TIFlash [-h] [-s SERNO] [-d DEVICETYPE] [--ccs CCS] [--ccxml CCXML]
                    [--connection CONNECTION] [--chip CHIP] [-F] [-D]
-                   {option,list,reset,erase,verify,flash} ...
+                   {option,list,reset,erase,verify,flash, memory, evaluate} ...
 
     positional arguments:
-      {option,list,reset,erase,verify,flash}
+      {option,list,reset,erase,verify,flash, memory, evaluate}
                             commands
 
     optional arguments:
@@ -168,6 +170,7 @@ Evaluate
 
     # Evaluate a C or GEL expression on a device
     $ tiflash -s L4000CE evaluate "MassErase()"
+    $ tiflash -s L4000CE evaluate "Image_specificVariable" --symbols "/path/to/image.out"
 
 Get Option Value
 ^^^^^^^^^^^^^^^^
