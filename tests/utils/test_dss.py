@@ -1,5 +1,6 @@
 import os
 import platform
+import pytest
 
 from tiflash.utils import dss
 
@@ -27,6 +28,6 @@ class TestDSS():
         dss_path = os.path.normpath(t_env['CCS_PATH'] +
                                     "/eclipse/" + eclipsec)
 
-        result = dss.call_dss(dss_path, [])
+        result = dss.call_dss(dss_path, [], 60)
 
         assert result == expected
