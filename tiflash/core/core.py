@@ -7,6 +7,8 @@ from tiflash.utils import devices
 from tiflash.utils import cpus
 from tiflash.utils import flash_properties
 
+CMD_DEFAULT_TIMEOUT = 60
+
 
 class TIFlashError(Exception):
     """Generic TI Flash error"""
@@ -25,6 +27,7 @@ class TIFlash(object):
         self.set_ccs_path(ccs_path)
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
+        self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
 
     def __run_cmd(self, args):
@@ -45,7 +48,7 @@ class TIFlash(object):
         """
         arg_list = dss.format_args(args)
 
-        (retcode, retval) = dss.call_dss(self.dss_path, arg_list)
+        (retcode, retval) = dss.call_dss(self.dss_path, arg_list, self.timeout)
 
         return (retcode, retval)
 
@@ -104,6 +107,25 @@ class TIFlash(object):
             self.args['session'] = dict()
 
         self.args['session']['chip'] = chip
+
+    def set_timeout(self, timeout):
+        """Explicitly set timeout to use when starting a Debug Server Session.
+
+        Args:
+            timeout (float): timeout value to give command (in seconds)
+        """
+
+        # Set timeout to default if None provided
+        if timeout is None:
+            timeout = CMD_DEFAULT_TIMEOUT
+
+        self.timeout = timeout
+
+        if 'session' not in self.args.keys():
+            self.args['session'] = dict()
+
+        # Adjust timeout for javascript side to be in seconds (default in ms)
+        self.args['session']['timeout'] = int(self.timeout * 1000)
 
     def set_session(self, ccxml_path, chip):
         """Sets the session information (ccxml file to use and chip to use)

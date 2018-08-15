@@ -188,8 +188,9 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
     return ccxml_path
 
 
-def __handle_session(ccs_path, chip=None, devicetype=None, ccxml=None,
-                     connection=None, serno=None, debug=False, fresh=False):
+def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
+                     ccxml=None, connection=None, serno=None, debug=False,
+                     fresh=False):
     """Takes session args and returns a TIFlash object with given session
     settings
 
@@ -202,6 +203,7 @@ def __handle_session(ccs_path, chip=None, devicetype=None, ccxml=None,
     Args:
         ccs_path (str): path to ccs installation
         chip (str, optional): chip/cpu name to use when starting a DS session
+        timeout (float, optional): timeout value to give command
         ccxml (str): name (full path) to ccxml file to use (only arg needed if
             ccxml already exists).
         devicetype (str): devicetype to use when generating new ccxml file
@@ -226,6 +228,7 @@ def __handle_session(ccs_path, chip=None, devicetype=None, ccxml=None,
     flash = TIFlash(ccs_path)
     flash.set_debug(on=debug)
     flash.set_session(ccxml_path, chip)
+    flash.set_timeout(timeout)
 
     return flash
 

@@ -19,6 +19,7 @@ ECLIPSE_SUBPATH = "/eclipse"
 DSS_ARGS = ['-nosplash', '-application', 'com.ti.ccstudio.apps.runScript',
             '-product', 'com.ti.ccstudio.branding.product', '-dss.rhinoArgs']
 
+CMD_DEFAULT_TIMEOUT = 60
 
 class DSSError(Exception):
     """Generic DSS Error"""
@@ -71,7 +72,7 @@ def find_dss(ccs_path):
     return script_launcher_path
 
 
-def call_dss(dss_path, commands):
+def call_dss(dss_path, commands, timeout):
     """Calls js/main.js via new script runner (eclipsec)
 
     Makes a subprocess call to main.js by using the given eclipsec exe
@@ -79,6 +80,7 @@ def call_dss(dss_path, commands):
     Args:
         dss_path (str): Path to dss.bat/.sh installation to use
         commands (list): list of string commands to pass to main.js
+        timeout (int):  time to give command to complete (negative == infinite)
 
     Returns:
         (bool, str): returns tuple with (bool=result, str=value)
@@ -89,6 +91,10 @@ def call_dss(dss_path, commands):
     result_server = ResultServer(debug=False)
     port = result_server.start()
     result = None
+
+    # Remove timeout if negative number provided (inifinite timeout)
+    if timeout < 0:
+        timeout = None
 
     main_js = os.path.abspath(os.path.dirname(
         __file__) + "/../" + MAIN_JS_PATH)
@@ -116,7 +122,7 @@ def call_dss(dss_path, commands):
         return (False, "Command Failed")
 
     # Wait on result to be populated
-    result = result_server.get_result(timeout=60)
+    result = result_server.get_result(timeout=timeout)
 
     return (retcode == 0, result)
 

@@ -17,6 +17,8 @@ def get_session_args(args):
         session_args['ccs'] = args.ccs
     if args.ccxml:
         session_args['ccxml'] = args.ccxml
+    if args.timeout:
+        session_args['timeout'] = args.timeout
     if args.devicetype:
         session_args['devicetype'] = args.devicetype
     if args.connection:
@@ -43,6 +45,8 @@ SessionParser.add_argument('--ccxml', help='ccxml (full path) file to use')
 SessionParser.add_argument('--connection', default=None,
                            help='connection type to use for device')
 SessionParser.add_argument('--chip', help='core to use')
+SessionParser.add_argument('-t', '--timeout', default=None, type=float,
+                           help='timeout to use for command')
 SessionParser.add_argument('-F', '--fresh', action='store_true',
                            help='generate new (fresh) ccxml')
 SessionParser.add_argument('-D', '--debug', action='store_true',
