@@ -23,6 +23,7 @@ note the general format for commands.
         Connection      (-c): The connection type of the target device
         CCXML           (--ccxml): The full path to an existing ccxml file to use (can replace need for Serial Number)
         Chip            (--chip): The cpu/chip to connect to
+        Timeout         (-t): The timeout value to set for the command
         Debug           (--debug): Turn on debugging output
         CCS             (--ccs): Specify CCS version to use
 
@@ -68,6 +69,8 @@ commands to use with the TIFlash CLI
       --connection CONNECTION
                             connection type to use for device
       --chip CHIP           core to use
+      -t TIMEOUT, --timeout TIMEOUT
+                            timeout to use for the command
       -F, --fresh           generate new (fresh) ccxml
       -D, --debug           display debugging output
 
