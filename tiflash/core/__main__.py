@@ -1,7 +1,8 @@
 import argparse
+from platform import python_version
 from pprint import pprint
 
-from tiflash import core
+from tiflash import core, __version__
 from tiflash.core.args import (
     SessionParser,
     OptionsParser,
@@ -22,8 +23,16 @@ def generate_parser():
     Returns:
         argparse.ArgumentParser
     """
+    version = "tiflash: %s - python: %s" % (__version__, python_version())
+
     main_parser = argparse.ArgumentParser(prog="TIFlash",
                                           parents=[SessionParser])
+    main_parser.add_argument('-v', '--version', action='version',
+                        version=__version__,
+                        help='print tiflash version')
+    main_parser.add_argument('-V', '--VERSION', action='version',
+                        version=version,
+                        help='print tiflash & python version')
 
     sub_parsers = main_parser.add_subparsers(help='commands', dest='cmd')
     sub_parsers.add_parser('option', parents=[OptionsParser])
@@ -34,6 +43,7 @@ def generate_parser():
     sub_parsers.add_parser('flash', parents=[FlashParser])
     sub_parsers.add_parser('memory', parents=[MemoryParser])
     sub_parsers.add_parser('evaluate', parents=[ExpressionParser])
+
 
     return main_parser
 
@@ -235,6 +245,11 @@ def main(args=None):
     """
     if not args:
         args = parse_args()
+
+    # Version
+    if args.version:
+        print("tiflash: %s" % __version__)
+        print("python: %s" % python_version())
 
     # Options
     if args.cmd == 'option':
