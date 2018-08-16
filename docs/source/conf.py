@@ -18,6 +18,7 @@
 
 
 # -- Project information -----------------------------------------------------
+from tiflash import __version__
 
 project = 'tiflash'
 copyright = '2018, Cameron Webb'
@@ -26,7 +27,7 @@ author = 'Cameron Webb'
 # The short X.Y version
 version = ''
 # The full version, including alpha/beta/rc tags
-release = '0.1.0'
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -41,6 +42,7 @@ release = '0.1.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
+    'sphinxarg.ext',
 #    'sphinxarg.ext',
 #    'sphinx.ext.autosummary'
 ]
