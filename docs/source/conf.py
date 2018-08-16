@@ -25,7 +25,7 @@ copyright = '2018, Cameron Webb'
 author = 'Cameron Webb'
 
 # The short X.Y version
-version = ''
+version = __version__
 # The full version, including alpha/beta/rc tags
 release = __version__
 
