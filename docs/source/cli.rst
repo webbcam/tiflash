@@ -17,7 +17,7 @@ understand the general format for commands.
 .. note::
 
     tiflash
-        Command for invoking the command-line interface.
+        Command for invoking the command-line tool.
 
     SESSION ARGS
         These are the arguments provided to specify which device to connect to and
