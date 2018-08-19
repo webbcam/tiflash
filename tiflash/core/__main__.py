@@ -34,15 +34,23 @@ def generate_parser():
                         version=version,
                         help='print tiflash & python version')
 
-    sub_parsers = main_parser.add_subparsers(help='commands', dest='cmd')
-    sub_parsers.add_parser('option', parents=[OptionsParser])
-    sub_parsers.add_parser('list', parents=[ListParser])
-    sub_parsers.add_parser('reset', parents=[ResetParser])
-    sub_parsers.add_parser('erase', parents=[EraseParser])
-    sub_parsers.add_parser('verify', parents=[VerifyParser])
-    sub_parsers.add_parser('flash', parents=[FlashParser])
-    sub_parsers.add_parser('memory', parents=[MemoryParser])
-    sub_parsers.add_parser('evaluate', parents=[ExpressionParser])
+    sub_parsers = main_parser.add_subparsers(dest='cmd')
+    sub_parsers.add_parser('option', parents=[OptionsParser],
+        description="Get or set a device option.")
+    sub_parsers.add_parser('list', parents=[ListParser],
+        description="List device/environment information.")
+    sub_parsers.add_parser('reset', parents=[ResetParser],
+        description="Reset a device. (Board Reset)")
+    sub_parsers.add_parser('erase', parents=[EraseParser],
+        description="Erase a device's flash.")
+    sub_parsers.add_parser('verify', parents=[VerifyParser],
+        description="Verify an image on a device's flash.")
+    sub_parsers.add_parser('flash', parents=[FlashParser],
+        description="Flash a device with an image(s).")
+    sub_parsers.add_parser('memory', parents=[MemoryParser],
+        description="Read/Write memory location on a device.")
+    sub_parsers.add_parser('evaluate', parents=[ExpressionParser],
+        description="Evaluate a C/GEL expression on a device.")
 
 
     return main_parser
@@ -245,11 +253,6 @@ def main(args=None):
     """
     if not args:
         args = parse_args()
-
-    # Version
-    if args.version:
-        print("tiflash: %s" % __version__)
-        print("python: %s" % python_version())
 
     # Options
     if args.cmd == 'option':

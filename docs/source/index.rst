@@ -3,7 +3,7 @@
 TI-Flash Documentation
 ======================
 
-An *unofficial* Python flash programmer for `TI
+An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 
 Overview
