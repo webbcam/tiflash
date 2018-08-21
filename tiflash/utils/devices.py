@@ -262,11 +262,18 @@ def get_device_xml_by_serno(serno, ccs_path):
     if not os.path.isdir(devices_directory):
         raise DeviceError("Could not find 'devices' directory.")
 
-    # Uncomment below once CCS Cloud corrects this file
-    board_ids_path = os.path.normpath(os.path.dirname(__file__) +
-                                      "/board_ids.json")
+    # Allow for using custom boards_id file by placing custom file in utils/
+    custom_board_ids_path = os.path.normpath(os.path.dirname(__file__) + '/' +
+                                             CUSTOM_BOARD_IDS_FILE)
+
+    if os.path.isfile(custom_board_ids_path):
+        board_ids_path = custom_board_ids_path
+    else:
+        board_ids_path = os.path.normpath(ccs_path + "/" + BOARD_IDS_PATH)
+
     if not os.path.isfile(board_ids_path):
-        raise DeviceError("Could not find 'board_ids.json' file.")
+        raise DeviceError("Could not find 'board_ids.json' file: %s"
+                          % board_ids_path)
 
     with open(board_ids_path) as board_ids_f:
         board_ids = json.load(board_ids_f)
@@ -305,37 +312,6 @@ def get_device_by_serno(serno, ccs_path):
             determined by given serial number
 
     """
-    devices_directory = ccs_path + DEVICES_DIR
-    if not os.path.isdir(devices_directory):
-        raise DeviceError("Could not find 'devices' directory.")
+    dxml_fullpath = get_device_xml_by_serno(serno, ccs_path)
 
-    # Allow for using custom boards_id file by placing custom file in utils/
-    custom_board_ids_path = os.path.normpath(os.path.dirname(__file__) + '/' +
-                                             CUSTOM_BOARD_IDS_FILE)
-
-    if os.path.isfile(custom_board_ids_path):
-        board_ids_path = custom_board_ids_path
-    else:
-        board_ids_path = os.path.normpath(ccs_path + "/" + BOARD_IDS_PATH)
-
-    if not os.path.isfile(board_ids_path):
-        raise DeviceError("Could not find 'board_ids.json' file: %s"
-                          % board_ids_path)
-
-    with open(board_ids_path) as board_ids_f:
-        board_ids = json.load(board_ids_f)
-
-        sernos = board_ids.keys()
-        for s in sernos:
-            if serno.startswith(s):
-                dxml = board_ids[s]['deviceXml'] + ".xml"
-                break
-        else:
-            raise DeviceError(
-                "Could not determine devicetype from %s." % serno)
-
-        dxml_fullpath = devices_directory + "/" + dxml
-        if not os.path.isfile(dxml_fullpath):
-            raise DeviceError("Could not find '%s' file." % dxml)
-
-        return get_device_name(dxml_fullpath)
+    return get_device_name(dxml_fullpath)
