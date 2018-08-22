@@ -176,8 +176,9 @@ def get_text_from_element(element):
         text_elements = [te for te in children if te.nodeName == '#text']
 
     if len(text_elements) == 0:
-        raise XMLHelperError("Could not find text from given element")
-
-    text = text_elements[0].nodeValue
+        #raise XMLHelperError("Could not find text from given element")
+        text = ''
+    else:
+        text = text_elements[0].nodeValue
 
     return text

@@ -291,10 +291,12 @@ class TIFlash(object):
         devicexml = ccxml.get_device_xml(self.ccxml, self.ccs_path)
         devicetype = devices.get_device_name(devicexml)
 
-        prop_xml = flash_properties.get_properties_xml(devicetype,
+        dev_prop_xml = flash_properties.get_device_properties_xml(devicetype,
                                                        self.ccs_path)
+        gen_prop_xml = flash_properties.get_generic_properties_xml(self.ccs_path)
 
-        property_elements = flash_properties.get_property_elements(prop_xml)
+        property_elements = flash_properties.get_property_elements(dev_prop_xml)
+        property_elements.extend(flash_properties.get_property_elements(gen_prop_xml, target="generic"))
 
         # Convert elements to dictionaries
         options = dict()

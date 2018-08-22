@@ -16,6 +16,7 @@ from xml.dom import minidom
 from tiflash.utils import xmlhelper
 
 PROPERTIES_DIR = "/ccs_base/DebugServer/propertyDB"
+PROPERTIESDB_XML = "PropertiesDB.xml"
 
 #   flashproperties translator for mapping devicetrype -> flashproperties file
 FLASH_PROPERTIES_TRANSLATOR = "FlashPropertiesTranslator.xml"
@@ -90,7 +91,37 @@ def __translate_to_property_xml(devicetype, translator_xml):
     return prop_file
 
 
-def get_properties_xml(devicetype, ccs_path):
+def get_generic_properties_xml(ccs_path):
+    """Returns the flashproperty file (full path) for generic devices
+    Args:
+        ccs_path (str): full path to ccs installation to use
+
+    Returns:
+        str: PropertiesDB.xml file (full path)
+
+    Raises:
+        FlashPropertiesError: raises exception if properties file can
+            not be found
+    """
+    # Property File
+    prop_file = None
+
+    # Set Properties directory
+    properties_directory = ccs_path + PROPERTIES_DIR
+    if not os.path.isdir(properties_directory):
+        raise FlashPropertiesError("Could not find 'properties' directory.")
+
+    prop_file = properties_directory + '/' + PROPERTIESDB_XML
+
+    if not os.path.isfile(prop_file):
+        raise FlashPropertiesError("Could not find 'PropertiesDB' file: %s" %
+                                   prop_file)
+
+    return os.path.abspath(prop_file)
+
+
+
+def get_device_properties_xml(devicetype, ccs_path):
     """ Returns flashproperty file (full path) for given device
 
     Uses the devicetype to determine the properties file
@@ -137,7 +168,7 @@ def get_properties_xml(devicetype, ccs_path):
     return prop_file
 
 
-def get_property_elements(xmlfile, exclude_tags=None):
+def get_property_elements(xmlfile, target=None, exclude_tags=None):
     """ Returns list of properties in given xmlfile
 
     Opens property xml file and reads 'property' tags
@@ -169,6 +200,15 @@ def get_property_elements(xmlfile, exclude_tags=None):
                     break
             else:
                 property_elements.append(p)
+
+    if target is not None:
+        def get_target_name(e):
+            target_element = xmlhelper.get_unique_element_by(e, tag='target')
+            target_name = xmlhelper.get_text_from_element(target_element)
+            return target_name
+
+        property_elements = [ p for p in property_elements if get_target_name(p) == target ]
+
 
     return property_elements
 
