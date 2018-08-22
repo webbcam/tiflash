@@ -1,9 +1,7 @@
 import pytest
 import intelhex
 
-
-from tiflash import core, TIFlashError
-
+import tiflash
 
 @pytest.mark.usefixtures("device")
 class TestFlashApi():
@@ -11,7 +9,7 @@ class TestFlashApi():
     def test_basic_flash(self, device):
         """Tests simple flash on each device in devices.cfg"""
         assert device['image'] is not None
-        result = core.flash(device['image'], serno=device['serno'],
+        result = tiflash.flash(device['image'], serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
 
@@ -36,19 +34,19 @@ class TestFlashApi():
         intelhex.hex2bin(hex_path, bin_path)
 
         # Basic Binary Test
-        result = core.flash(bin_path, binary=True, serno=device['serno'],
+        result = tiflash.flash(bin_path, binary=True, serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
         assert result is True
 
         # Flashing binary without specifying binary=True
-        with pytest.raises(TIFlashError):
-            result = core.flash(bin_path, binary=False, serno=device['serno'],
+        with pytest.raises(tiflash.TIFlashError):
+            result = tiflash.flash(bin_path, binary=False, serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])
 
         # Flashing hex image with specifying binary image = True
-        with pytest.raises(TIFlashError):
-            result = core.flash(hex_path, binary=True, serno=device['serno'],
+        with pytest.raises(tiflash.TIFlashError):
+            result = tiflash.flash(hex_path, binary=True, serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])

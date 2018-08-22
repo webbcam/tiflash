@@ -4,7 +4,7 @@ API Reference
 =============
 
 Below are the Python APIs for each flavor of flashing module
-(core, ccflash, mspflash, etc.)
+(tiflash, ccflash, mspflash, etc.)
 
 .. toctree::
     :maxdepth: 1
@@ -16,9 +16,9 @@ Below are the Python APIs for each flavor of flashing module
 
 .. container::
 
-    :ref:`Core <core>`
+    :ref:`TIFlash <core>`
 
-the core module contains all the core functionality of TIFlash.
+the tiflash module contains all the core functionality of TIFlash.
 
 .. container::
 

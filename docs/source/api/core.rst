@@ -1,7 +1,7 @@
 .. _core:
 
-Core
-====
+TIFlash
+=======
 
 This module contains the core functions used for interacting with
 CCS. These functions are not specific to any particular device family and thus
@@ -10,8 +10,8 @@ this one.
 
 .. code-block:: python
 
-    # All core functions are accessed through the core module
-    from tiflash import core
+    # All core functions are provided in the tiflash module
+    import tiflash
 
 .. automodule:: tiflash.core.api
     :members:

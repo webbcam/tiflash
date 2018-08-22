@@ -1,6 +1,7 @@
 # import pytest
 
 # from tiflash import core, TIFlashError
+import tiflash
 
 
 class TestHandleCCXML():

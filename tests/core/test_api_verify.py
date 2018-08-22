@@ -1,8 +1,7 @@
 import pytest
 import intelhex
 
-
-from tiflash import core, TIFlashError
+import tiflash
 
 
 @pytest.mark.usefixtures("device")
@@ -13,14 +12,14 @@ class TestVerifyApi():
         if device['image'] is None:
             pytest.skip("No image provided in setup.cfg for this device")
 
-        result = core.flash(device['image'], serno=device['serno'],
+        result = tiflash.flash(device['image'], serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
         if result is False:
             pytest.skip("Flashing of image needs to work in order for this"
                 "test to run")
 
-        result = core.verify(device['image'], serno=device['serno'],
+        result = tiflash.verify(device['image'], serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
 
@@ -46,7 +45,7 @@ class TestVerifyApi():
         intelhex.hex2bin(hex_path, bin_path)
 
         # Basic Binary Test
-        result = core.flash(bin_path, binary=True, serno=device['serno'],
+        result = tiflash.flash(bin_path, binary=True, serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
 
@@ -54,19 +53,19 @@ class TestVerifyApi():
             pytest.skip("Flashing of image needs to work in order for this"
                 "test to run")
 
-        result = core.verify(bin_path, binary=True, serno=device['serno'],
+        result = tiflash.verify(bin_path, binary=True, serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
         assert result is True
 
         # Verifying binary without specifying binary=True
-        with pytest.raises(TIFlashError):
-            result = core.verify(bin_path, binary=True, serno=device['serno'],
+        with pytest.raises(tiflash.TIFlashError):
+            result = tiflash.verify(bin_path, binary=True, serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])
 
         # Verifying hex image with specifying binary image = True
-        with pytest.raises(TIFlashError):
-            result = core.verify(hex_path, binary=True, serno=device['serno'],
+        with pytest.raises(tiflash.TIFlashError):
+            result = tiflash.verify(hex_path, binary=True, serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])

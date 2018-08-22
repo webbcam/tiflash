@@ -1,4 +1,4 @@
-from tiflash.core.core import TIFlashError, TIFlash
+from tiflash.core.core import TIFlashError  #, TIFlash
 from tiflash.core.api import(   get_connections,
                                 get_devices,
                                 get_cpus,

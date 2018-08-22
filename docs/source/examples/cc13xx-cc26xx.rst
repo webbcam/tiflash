@@ -23,7 +23,7 @@ Obtaining a device's IEEE Address.
 
 ::
 
-    >>> core.get_option("DeviceIeeePrimary", pre_operation="ReadPriIeee", serno="L4000CE")
+    >>> tiflash.get_option("DeviceIeeePrimary", pre_operation="ReadPriIeee", serno="L4000CE")
 
     00:12:4B:00:11:22:33:44
 
@@ -47,7 +47,7 @@ Obtaining a device's BLE Address.
 
 ::
 
-    >>> core.get_option("DeviceBlePrimary", pre_operation="ReadPriBle", serno="L4000CE")
+    >>> tiflash.get_option("DeviceBlePrimary", pre_operation="ReadPriBle", serno="L4000CE")
 
     00:81:F9:11:22:33
 
@@ -72,7 +72,7 @@ Erase entire Flash on device before flashing image.
 ::
 
     >>> opts = {"FlashEraseSetting" : "All Unprotected Sectors"}
-    >>> core.flash("/path/to/image.hex", options=opts, serno="L4000CE")
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="L4000CE")
 
     True
 
@@ -98,7 +98,7 @@ Erase Necessary Sectors Only of Flash on device before flashing image.
 ::
 
     >>> opts = {"FlashEraseSetting" : "Necessary Sectors Only"}
-    >>> core.flash("/path/to/image.hex", options=opts, serno="L4000CE")
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="L4000CE")
 
     True
 
@@ -124,7 +124,7 @@ device.
 ::
 
     >>> opts = {"FlashEraseSetting" : "Program Load Only (do not erase sectors)"}
-    >>> core.flash("/path/to/image.hex", options=opts, serno="L4000CE")
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="L4000CE")
 
     True
 
@@ -149,7 +149,7 @@ Reset the device after flashing.
 ::
 
     >>> opts = {"ResetOnRestart" : True}
-    >>> core.flash("/path/to/image.hex", options=opts, serno="L4000CE")
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="L4000CE")
 
     True
 
@@ -174,7 +174,7 @@ Get device's Revision Number.
 
 ::
 
-    >>> core.get_option("DeviceInfoRevision", serno="L4000CE")
+    >>> tiflash.get_option("DeviceInfoRevision", serno="L4000CE")
 
     "2.1"
 
@@ -198,7 +198,7 @@ Get RAM size on device.
 
 ::
 
-    >>> core.get_option("DeviceInfoRAMSize", serno="L4000CE")
+    >>> tiflash.get_option("DeviceInfoRAMSize", serno="L4000CE")
 
     "80 KB"
 
@@ -222,7 +222,7 @@ Get Flash size on device.
 
 ::
 
-    >>> core.get_option("DeviceInfoFlashSize", serno="L4000CE")
+    >>> tiflash.get_option("DeviceInfoFlashSize", serno="L4000CE")
 
     "352 KB"
 

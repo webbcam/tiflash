@@ -1,6 +1,6 @@
 import pytest
 
-from tiflash import core, TIFlashError
+import tiflash
 
 @pytest.mark.usefixtures("device")
 class TestExpressionApi():
@@ -8,7 +8,7 @@ class TestExpressionApi():
     def test_basic_expression(self, device):
         """Runs a simple gel command"""
         EXPRESSION = "MassErase();"
-        result = core.evaluate(EXPRESSION,
+        result = tiflash.evaluate(EXPRESSION,
                             serno=device['serno'],
                             connection=device['connection'],
                             devicetype=device['devicetype'])
@@ -19,8 +19,8 @@ class TestExpressionApi():
         """Tries using expression command with invalid C syntax"""
 
         EXPRESSION = "var i = 0"
-        with pytest.raises(TIFlashError):
-            result = core.evaluate(EXPRESSION,
+        with pytest.raises(tiflash.TIFlashError):
+            result = tiflash.evaluate(EXPRESSION,
                                 serno=device['serno'],
                                 connection=device['connection'],
                                 devicetype=device['devicetype'])
@@ -35,7 +35,7 @@ class TestExpressionApi():
         EXPRESSION = device['symbol']
         SYMBOL_FILE = device['symbol_image']
 
-        result = core.evaluate(EXPRESSION,
+        result = tiflash.evaluate(EXPRESSION,
                             symbol_file=SYMBOL_FILE,
                             serno=device['serno'],
                             connection=device['connection'],
