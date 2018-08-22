@@ -43,4 +43,3 @@ __author__ = "Cameron Webb (webbjcam@gmail.com)"
 # Remove any imported modules we don't want exported
 del version
 del core
-del utils
