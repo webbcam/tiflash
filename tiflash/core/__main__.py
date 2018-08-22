@@ -2,7 +2,7 @@ import argparse
 from platform import python_version
 from pprint import pprint
 
-from tiflash import core, __version__
+import tiflash
 from tiflash.core.args import (
     SessionParser,
     OptionsParser,
@@ -23,12 +23,12 @@ def generate_parser():
     Returns:
         argparse.ArgumentParser
     """
-    version = "tiflash: %s - python: %s" % (__version__, python_version())
+    version = "tiflash: %s - python: %s" % (tiflash.__version__, python_version())
 
     main_parser = argparse.ArgumentParser(prog="TIFlash",
                                           parents=[SessionParser])
     main_parser.add_argument('-v', '--version', action='version',
-                        version=__version__,
+                        version=tiflash.__version__,
                         help='print tiflash version')
     main_parser.add_argument('-V', '--VERSION', action='version',
                         version=version,
@@ -78,7 +78,7 @@ def handle_option(args):
     # Get Option
     if args.get:
         try:
-            value = core.get_option(args.get, pre_operation=args.operation,
+            value = tiflash.get_option(args.get, pre_operation=args.operation,
                                    **session_args)
             print(value)
         except Exception as e:
@@ -92,8 +92,8 @@ def handle_option(args):
     # Display Option Information
     else:
         # TODO: Make this prettier
-        # core.print_options(option_id=args.info, **session_args)
-        options = core.list_options(option_id=args.optionID, **session_args)
+        # tiflash.print_options(option_id=args.info, **session_args)
+        options = tiflash.list_options(option_id=args.optionID, **session_args)
         print("Options (%s):" % args.optionID if args.optionID else "Options:")
         pprint(options)  # lazy
 
@@ -103,14 +103,14 @@ def handle_list(args):
     results = []
     session_args = get_session_args(args)
     if args.devices:
-        results = core.get_devices(args.ccs)
+        results = tiflash.get_devices(args.ccs)
     elif args.connections:
-        results = core.get_connections(args.ccs)
+        results = tiflash.get_connections(args.ccs)
     elif args.cpus:
-        results = core.get_cpus(args.ccs)
+        results = tiflash.get_cpus(args.ccs)
     elif args.options:
-        # core.print_options(**session_args)
-        results = core.list_options(**session_args)
+        # tiflash.print_options(**session_args)
+        results = tiflash.list_options(**session_args)
 
     for e in results:
         print(e)
@@ -132,7 +132,7 @@ def handle_reset(args):
         options = None
 
     try:
-        result = core.reset(options=options, **session_args)
+        result = tiflash.reset(options=options, **session_args)
         print(result)
     except Exception as e:
         print(e)
@@ -154,7 +154,7 @@ def handle_erase(args):
         options = None
 
     try:
-        result = core.erase(options=options, **session_args)
+        result = tiflash.erase(options=options, **session_args)
         print(result)
     except Exception as e:
         print(e)
@@ -177,7 +177,7 @@ def handle_verify(args):
 
     # TODO: Add multi image verifying
     try:
-        result = core.verify(args.image[0], options=options, **session_args)
+        result = tiflash.verify(args.image[0], options=options, **session_args)
         print(result)
     except Exception as e:
         print(e)
@@ -204,7 +204,7 @@ def handle_flash(args):
 
     # TODO: Add multi image flashing
     try:
-        result = core.flash(images[0], binary=args.bin, options=options,
+        result = tiflash.flash(images[0], binary=args.bin, options=options,
                            address=args.address, **session_args)
         print(result)
     except Exception as e:
@@ -217,7 +217,7 @@ def handle_memory(args):
 
     if args.read:
         try:
-            result = core.memory_read(args.address, args.num_bytes, args.page,
+            result = tiflash.memory_read(args.address, args.num_bytes, args.page,
                 **session_args)
             if args.hex:
                 result = [ hex(h) for h in result ]
@@ -226,7 +226,7 @@ def handle_memory(args):
             print(e)
     elif args.write:
         try:
-            result = core.memory_write(args.address, args.data, args.page,
+            result = tiflash.memory_write(args.address, args.data, args.page,
                 **session_args)
         except Exception as e:
             print(e)
@@ -237,7 +237,7 @@ def handle_expression(args):
     session_args = get_session_args(args)
 
     try:
-        result = core.evaluate(args.expression, symbol_file=args.symbols,
+        result = tiflash.evaluate(args.expression, symbol_file=args.symbols,
                                 **session_args)
         print(result)
     except Exception as e:
