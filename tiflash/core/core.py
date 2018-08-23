@@ -8,6 +8,7 @@ from tiflash.utils import cpus
 from tiflash.utils import flash_properties
 
 CMD_DEFAULT_TIMEOUT = 60
+CMD_DEFAULT_WORKSPACE = "tiflash"
 
 
 class TIFlashError(Exception):
@@ -27,6 +28,7 @@ class TIFlash(object):
         self.set_ccs_path(ccs_path)
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
+        self.workspace = CMD_DEFAULT_WORKSPACE
         self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
 
@@ -48,7 +50,8 @@ class TIFlash(object):
         """
         arg_list = dss.format_args(args)
 
-        (retcode, retval) = dss.call_dss(self.dss_path, arg_list, self.timeout)
+        (retcode, retval) = dss.call_dss(self.dss_path, arg_list,
+                                        self.workspace, self.timeout)
 
         return (retcode, retval)
 
@@ -107,6 +110,16 @@ class TIFlash(object):
             self.args['session'] = dict()
 
         self.args['session']['chip'] = chip
+
+    def set_workspace(self, workspace):
+        """Explicitly set workspace to use when starting a Debug Server Session.
+
+        Args:
+            workspace (str): workspace name to use
+        """
+
+        # Set workspace
+        self.workspace = workspace
 
     def set_timeout(self, timeout):
         """Explicitly set timeout to use when starting a Debug Server Session.

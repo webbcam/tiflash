@@ -225,9 +225,13 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
 
     chip = chip or __get_cpu_from_ccxml(ccxml_path, ccs_path)
 
+    workspace = os.path.basename(ccxml_path)
+    workspace = os.path.splitext(workspace)[0]
+
     flash = TIFlash(ccs_path)
     flash.set_debug(on=debug)
     flash.set_session(ccxml_path, chip)
+    flash.set_workspace(workspace)
     flash.set_timeout(timeout)
 
     return flash
