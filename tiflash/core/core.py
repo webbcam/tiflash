@@ -28,6 +28,7 @@ class TIFlash(object):
         self.set_ccs_path(ccs_path)
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
+        self.attach = False
         self.workspace = CMD_DEFAULT_WORKSPACE
         self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
@@ -70,6 +71,19 @@ class TIFlash(object):
         # Turn Debugging off
         elif 'debug' in self.args.keys():
             self.args.pop('debug')
+
+    def set_attach(self, attach=True):
+        """Attaches CCS session after action completes.
+
+        Args:
+            attach (bool): True = attach; False = do not attach
+        """
+        if attach:
+            self.args['attach'] = True
+
+        # Turn Attach
+        elif 'attach' in self.args.keys():
+            self.args.pop('attach')
 
     def set_ccs_path(self, ccs_path):
         """Explicitly sets the ccs_path and updates the dss_path automatically

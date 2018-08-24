@@ -190,7 +190,7 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
 
 def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
                      ccxml=None, connection=None, serno=None, debug=False,
-                     fresh=False):
+                     fresh=False, attach=False):
     """Takes session args and returns a TIFlash object with given session
     settings
 
@@ -210,9 +210,12 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
         connection type (str): connection type to use when generating new
             ccxml file
         serno (str, optional): serialnumber to use when creating new ccxml file
-        new (bool): option create new ccxml (ignoring if ccxml already exists
-            or not)
         debug (bool): option to display all output when running
+        fresh (bool): option create new ccxml (ignoring if ccxml already exists
+            or not)
+        attach (bool): option to attach CCS session to device after completing
+            an action
+
 
     Returns:
         core.TIFlash: returns a TIFlash object with given session settings
@@ -233,6 +236,7 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
     flash.set_session(ccxml_path, chip)
     flash.set_workspace(workspace)
     flash.set_timeout(timeout)
+    flash.set_attach(attach)
 
     return flash
 

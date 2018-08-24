@@ -31,6 +31,8 @@ def get_session_args(args):
         session_args['debug'] = args.debug
     if args.fresh:
         session_args['fresh'] = args.fresh
+    if args.attach:
+        session_args['attach'] = args.attach
 
     return session_args
 
@@ -51,6 +53,8 @@ SessionParser.add_argument('-F', '--fresh', action='store_true',
                            help='Generate new (fresh) ccxml')
 SessionParser.add_argument('-D', '--debug', action='store_true',
                            help='Display debugging output')
+SessionParser.add_argument('-A', '--attach', action='store_true',
+                           help='Attach CCS to Device after performing action')
 
 
 # Option Parser - used for getting/setting options
