@@ -3,6 +3,8 @@
  * Debug Server Session commands
  */
 
+importPackage(Packages.java.lang)
+
 /**
  * Public function for handling session commands
 
@@ -36,3 +38,27 @@ function start_session(server, scriptEnv, args)
     return debugSession;
 }
 
+/**
+ * Public function for attaching CCS to Debug Server Session
+
+ * @param {session} DSS Session object for device.
+ * @param {scriptEnv} DSS Scripting Environment object.
+ * @param {args} session arguments
+ *
+ * @returns {session} Debug Server Session
+ */
+function attach_ccs(session, scriptEnv, args)
+{
+    scriptEnv.traceSetConsoleLevel(Packages.com.ti.ccstudio.scripting.environment.TraceLevel.OFF);
+
+    var ccsServer = scriptEnv.getServer('CCSServer.1');
+    var ccsSession = ccsServer.openSession(session.getName());
+
+    var stdin = new BufferedReader( new InputStreamReader(System['in']) );
+    while (!stdin.ready()) {
+        java.lang.Thread.sleep(500);
+    }
+
+    ccsSession.terminate();
+    ccsServer.stop();
+}
