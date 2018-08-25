@@ -61,8 +61,8 @@ Obtaining a device's BLE Address.
 
     00:81:F9:11:22:33
 
-Flash Erase All
----------------
+Flash Erase - All Unprotected Sectors
+-------------------------------------
 Erase entire Flash on device before flashing image.
 
 **Python**
@@ -86,10 +86,13 @@ Erase entire Flash on device before flashing image.
 
     True
 
-Flash Erase Necessary Sectors Only
-----------------------------------
+Flash Erase - Necessary Sectors Only
+------------------------------------
 Erase Necessary Sectors Only of Flash on device before flashing image.
-*NOTE: This is the default flash option and therefore you do not need to actually specify this.*
+
+.. note::
+
+    This is the default flash option and therefore you do *not* need to actually specify this.
 
 **Python**
 
@@ -112,8 +115,8 @@ Erase Necessary Sectors Only of Flash on device before flashing image.
 
     True
 
-Flash Erase Program Load Only
------------------------------
+Flash Erase - Program Load Only
+-------------------------------
 Program Load Only (do not erase any sectors of flash) when flashing image on to
 device.
 
