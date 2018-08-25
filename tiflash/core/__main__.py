@@ -91,11 +91,10 @@ def handle_option(args):
 
     # Display Option Information
     else:
-        # TODO: Make this prettier
-        # tiflash.print_options(option_id=args.info, **session_args)
         options = tiflash.list_options(option_id=args.optionID, **session_args)
-        print("Options (%s):" % args.optionID if args.optionID else "Options:")
-        #pprint(options)  # lazy
+        header = "Options (%s):" % args.optionID if args.optionID else "Options:"
+        print(header)
+        print("-" * len(header))
         __print_options(options)
 
 
@@ -103,26 +102,28 @@ def __print_options(options):
     """Helper function for printing the options returned from
     tiflash.list_options() in a clean format.
     """
-
-    opt_str = "Options:"
     ids = options.keys()
     for opt_id in ids:
         opt = options[opt_id]
         opt_keys = opt.keys()
-        opt_str += "\n%s:" % opt_id
 
-        if "type" in opt_keys:
-            opt_str += "\n\ttype: %s" % opt["type"]
+        opt_type = opt["type"] if "type" in opt_keys else None
+        opt_choices = opt["choices"] if "choices" in opt_keys else None
+        opt_default = opt["default"] if "default" in opt_keys else None
 
-        if "default" in opt_keys:
-            opt_str += "\n\tdefault: %s" % opt["default"]
+        print("%s:" % opt_id)
+        print("\ttype: %s" % opt_type)
+        if opt_default:
+            if opt_type == "Boolean":
+                opt_default = opt_default == "1"
+            else:
+                opt_default = "\"%s\"" % opt_default
+            print("\tdefault: %s" % opt_default)
 
-        if "choices" in opt_keys:
-            opt_str += "\n\tchoices:"
-            for choice in opt["choices"]:
-                opt_str += "\n\t\t%s" % choice
-
-    print(opt_str)
+        if opt_choices:
+            print("\tchoices:")
+            for choice in opt_choices:
+                print("\t\t\"%s\"" % choice)
 
 
 def handle_list(args):
