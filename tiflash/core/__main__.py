@@ -95,7 +95,34 @@ def handle_option(args):
         # tiflash.print_options(option_id=args.info, **session_args)
         options = tiflash.list_options(option_id=args.optionID, **session_args)
         print("Options (%s):" % args.optionID if args.optionID else "Options:")
-        pprint(options)  # lazy
+        #pprint(options)  # lazy
+        __print_options(options)
+
+
+def __print_options(options):
+    """Helper function for printing the options returned from
+    tiflash.list_options() in a clean format.
+    """
+
+    opt_str = "Options:"
+    ids = options.keys()
+    for opt_id in ids:
+        opt = options[opt_id]
+        opt_keys = opt.keys()
+        opt_str += "\n%s:" % opt_id
+
+        if "type" in opt_keys:
+            opt_str += "\n\ttype: %s" % opt["type"]
+
+        if "default" in opt_keys:
+            opt_str += "\n\tdefault: %s" % opt["default"]
+
+        if "choices" in opt_keys:
+            opt_str += "\n\tchoices:"
+            for choice in opt["choices"]:
+                opt_str += "\n\t\t%s" % choice
+
+    print(opt_str)
 
 
 def handle_list(args):
