@@ -14,6 +14,11 @@ class TIFlashAPIError(TIFlashError):
     """Generic TIFlash API Error"""
     pass
 
+session_args = {
+    # What
+    "d": True
+}
+
 
 def __get_connection_from_ccxml(ccxml_path, ccs_path):
     """Returns the connection name determined from the ccxml file
@@ -194,11 +199,10 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
     """Takes session args and returns a TIFlash object with given session
     settings
 
-    CCXML args can be the ccxml file name itself or the necessary
-    components to create a ccxml file (serno, devicetype, connection type).
-    You can also provide the chip name to start a session with. If no chip
-    name is provided, an attempt will be made to get the default chip used for
-    the given devicetype.
+    At the very least you'll need to provide a device serno (serial
+    number). TIFlash will attempt to determine the rest of the necessary
+    information. If any information cannot be determined an error will be
+    thrown. In this case you'll need to provide that specific argument.
 
     Args:
         ccs_path (str): path to ccs installation
