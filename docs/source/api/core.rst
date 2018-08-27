@@ -14,16 +14,16 @@ can be used on any device.
 
 .. data:: **session_args
 
-        ``**session_args`` are a set of key-word arguments (\*\*kwargs) that specify
+        ``**session_args`` are a set of keyword arguments (\*\*kwargs) that specify
         how to connect to a device when running a command.
 
         Each argument can be provided in any function that takes
-        ``**session_args``. Just provide the argument in the function call as a
-        keyword argument:
+        ``**session_args``. Just provide the particular argument in the function
+        call as a keyword argument:
 
         .. code-block:: python
 
-            # Example of providing session_args
+            # Example of providing session args: 'serno' and 'ccs'
             function_name(serno="LXXXXXX", ccs=7)
 
         .. warning::
