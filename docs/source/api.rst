@@ -17,7 +17,7 @@ Below are the Python APIs for each flavor of flashing module
 
     :ref:`Session Args <session>`
 
-the session args are a common set of arguments used for many functions
+the session args are a common set of arguments used for most functions
 
 .. container::
 
