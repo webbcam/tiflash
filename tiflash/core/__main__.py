@@ -13,6 +13,7 @@ from tiflash.core.args import (
     FlashParser,
     MemoryParser,
     ExpressionParser,
+    AttachParser,
 
     get_session_args
 )
@@ -51,6 +52,10 @@ def generate_parser():
         description="Read/Write memory location on a device.")
     sub_parsers.add_parser('evaluate', parents=[ExpressionParser],
         description="Evaluate a C/GEL expression on a device.")
+    sub_parsers.add_parser('attach', parents=[ExpressionParser],
+        description="Evaluate a C/GEL expression on a device.")
+    sub_parsers.add_parser('attach', parents=[AttachParser],
+        description="Open up CCS session & attach to device")
 
 
     return main_parser
@@ -272,6 +277,17 @@ def handle_expression(args):
         print(e)
 
 
+def handle_attach(args):
+    """Helper function for handling 'attach' command"""
+    session_args = get_session_args(args)
+
+    try:
+        result = tiflash.attach(**session_args)
+        #print(result)
+    except Exception as e:
+        print(e)
+
+
 def main(args=None):
     """Runs main TIFlash script
 
@@ -313,6 +329,10 @@ def main(args=None):
     # Expression
     elif args.cmd == 'evaluate':
         handle_expression(args)
+
+    # Attach
+    elif args.cmd == 'attach':
+        handle_attach(args)
 
 
 if __name__ == "__main__":

@@ -8,6 +8,7 @@ from tiflash.utils import cpus
 from tiflash.utils import flash_properties
 
 CMD_DEFAULT_TIMEOUT = 60
+CMD_DEFAULT_WORKSPACE = "tiflash"
 
 
 class TIFlashError(Exception):
@@ -27,6 +28,8 @@ class TIFlash(object):
         self.set_ccs_path(ccs_path)
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
+        self.attach = False
+        self.workspace = CMD_DEFAULT_WORKSPACE
         self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
 
@@ -48,7 +51,8 @@ class TIFlash(object):
         """
         arg_list = dss.format_args(args)
 
-        (retcode, retval) = dss.call_dss(self.dss_path, arg_list, self.timeout)
+        (retcode, retval) = dss.call_dss(self.dss_path, arg_list,
+                                        self.workspace, self.timeout)
 
         return (retcode, retval)
 
@@ -67,6 +71,19 @@ class TIFlash(object):
         # Turn Debugging off
         elif 'debug' in self.args.keys():
             self.args.pop('debug')
+
+    def set_attach(self, attach=True):
+        """Attaches CCS session after action completes.
+
+        Args:
+            attach (bool): True = attach; False = do not attach
+        """
+        if attach:
+            self.args['attach'] = True
+
+        # Turn Attach
+        elif 'attach' in self.args.keys():
+            self.args.pop('attach')
 
     def set_ccs_path(self, ccs_path):
         """Explicitly sets the ccs_path and updates the dss_path automatically
@@ -107,6 +124,16 @@ class TIFlash(object):
             self.args['session'] = dict()
 
         self.args['session']['chip'] = chip
+
+    def set_workspace(self, workspace):
+        """Explicitly set workspace to use when starting a Debug Server Session.
+
+        Args:
+            workspace (str): workspace name to use
+        """
+
+        # Set workspace
+        self.workspace = workspace
 
     def set_timeout(self, timeout):
         """Explicitly set timeout to use when starting a Debug Server Session.
@@ -683,3 +710,22 @@ class TIFlash(object):
             raise TIFlashError(result)
 
         return result
+
+    def nop(self):
+        """No-op command. This essentially just calls the dss script with the
+        set arguments.
+
+        Raises:
+            TIFlashError: raises error when expression error is raised
+        """
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+
+        # call dss
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+
+        # No return on a no-op
+        #return result
