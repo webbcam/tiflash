@@ -710,3 +710,22 @@ class TIFlash(object):
             raise TIFlashError(result)
 
         return result
+
+    def nop(self):
+        """No-op command. This essentially just calls the dss script with the
+        set arguments.
+
+        Raises:
+            TIFlashError: raises error when expression error is raised
+        """
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+
+        # call dss
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+
+        # No return on a no-op
+        #return result

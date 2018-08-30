@@ -148,3 +148,6 @@ ExpressionParser.add_argument('expression', help="C or GEL expression to execute
 ExpressionParser.add_argument('--symbols', required=False, default=None,
                             help=""".out or GEL symbol file to load before
                             evaluating expression.""")
+
+# Attach Parser
+AttachParser = argparse.ArgumentParser(add_help=False)

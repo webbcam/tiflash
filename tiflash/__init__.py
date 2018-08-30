@@ -33,6 +33,7 @@ from tiflash.core import    (   get_connections,
                                 memory_read,
                                 memory_write,
                                 evaluate,
+                                attach,
 
                                 TIFlashError
                             )

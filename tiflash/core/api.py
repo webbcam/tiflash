@@ -592,3 +592,45 @@ def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     return flash.evaluate(expr, symbol_file=symbol_file)
+
+
+def attach(ccs=None, **session_args):
+    """Attach command; opens a CCS session and attaches to device.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error when expression error is raised
+    """
+    # Set attach for session args
+    session_args['attach'] = True
+
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    flash.nop()
+
+
+def nop(ccs=None, **session_args):
+    """No-op command. This essentially just calls the dss with the provided
+    session args.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error when expression error is raised
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    flash.nop()
