@@ -10,7 +10,14 @@ Below are the Python APIs for each flavor of flashing module
     :maxdepth: 1
     :hidden:
 
+    api/session
     api/core
+
+.. container::
+
+    :ref:`Session Args <session>`
+
+the session args are a common set of arguments used for many functions
 
 .. container::
 
