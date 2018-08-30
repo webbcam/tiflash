@@ -14,6 +14,7 @@ from tiflash.core.api import(   get_connections,
                                 memory_read,
                                 memory_write,
                                 evaluate,
+                                attach,
                             )
 # Remove anything that shouldn't be included at api level
 del core

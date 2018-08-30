@@ -195,7 +195,7 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
 
 def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
                      ccxml=None, connection=None, serno=None, debug=False,
-                     fresh=False):
+                     fresh=False, attach=False):
     """Takes session args and returns a TIFlash object with given session
     settings
 
@@ -214,9 +214,12 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
         connection type (str): connection type to use when generating new
             ccxml file
         serno (str, optional): serialnumber to use when creating new ccxml file
-        new (bool): option create new ccxml (ignoring if ccxml already exists
-            or not)
         debug (bool): option to display all output when running
+        fresh (bool): option create new ccxml (ignoring if ccxml already exists
+            or not)
+        attach (bool): option to attach CCS session to device after completing
+            an action
+
 
     Returns:
         core.TIFlash: returns a TIFlash object with given session settings
@@ -229,10 +232,15 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
 
     chip = chip or __get_cpu_from_ccxml(ccxml_path, ccs_path)
 
+    workspace = os.path.basename(ccxml_path)
+    workspace = os.path.splitext(workspace)[0]
+
     flash = TIFlash(ccs_path)
     flash.set_debug(on=debug)
     flash.set_session(ccxml_path, chip)
+    flash.set_workspace(workspace)
     flash.set_timeout(timeout)
+    flash.set_attach(attach)
 
     return flash
 
@@ -588,3 +596,45 @@ def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     return flash.evaluate(expr, symbol_file=symbol_file)
+
+
+def attach(ccs=None, **session_args):
+    """Attach command; opens a CCS session and attaches to device.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error when expression error is raised
+    """
+    # Set attach for session args
+    session_args['attach'] = True
+
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    flash.nop()
+
+
+def nop(ccs=None, **session_args):
+    """No-op command. This essentially just calls the dss with the provided
+    session args.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error when expression error is raised
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    flash.nop()

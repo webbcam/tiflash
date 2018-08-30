@@ -15,6 +15,7 @@ Commands
     evaluate
     list
     option
+    attach
 
 Below is a list of commands you can call with TIFlash.
 
@@ -69,3 +70,8 @@ Below is a list of commands you can call with TIFlash.
 
 *get/set an option on a device*
 
+.. container::
+
+    :ref:`Attach <attach>`
+
+*attach a CCS session to device*

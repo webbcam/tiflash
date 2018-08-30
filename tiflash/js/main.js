@@ -14,6 +14,8 @@ port = parseInt(this.arguments[1]);
 scriptEnv = null;
 debugServer = null;
 debugSession = null;
+ccsServer = null;
+ccsSession = null;
 
 main();
 
@@ -185,8 +187,8 @@ function main()
             result = e;
             retcode = -1;
         }
-        send_result(scriptEnv, port, result);
-        quit(retcode);
+        //send_result(scriptEnv, port, result);
+        //quit(retcode);
     }
 
     //  Standalone Verify function
@@ -259,6 +261,13 @@ function main()
 
 
     send_result(scriptEnv, port, result);
+
+    if (args.attach) {
+        load(scriptEnv.toAbsolutePath("session.js"));
+
+        attach_ccs(debugSession, scriptEnv, args.session);
+    }
+
     quit(retcode);
 }
 

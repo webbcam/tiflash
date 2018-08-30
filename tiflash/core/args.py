@@ -31,6 +31,8 @@ def get_session_args(args):
         session_args['debug'] = args.debug
     if args.fresh:
         session_args['fresh'] = args.fresh
+    if args.attach:
+        session_args['attach'] = args.attach
 
     return session_args
 
@@ -51,6 +53,8 @@ SessionParser.add_argument('-F', '--fresh', action='store_true',
                            help='Generate new (fresh) ccxml')
 SessionParser.add_argument('-D', '--debug', action='store_true',
                            help='Display debugging output')
+SessionParser.add_argument('-A', '--attach', action='store_true',
+                           help='Attach CCS to Device after performing action')
 
 
 # Option Parser - used for getting/setting options
@@ -117,7 +121,7 @@ FlashParser.add_argument('-b', '--bin', action='store_true',
 FlashParser.add_argument('-a', '--address', metavar='address',
                          help='Address to begin flashing image(s)')
 FlashParser.add_argument('-o', '--option', nargs=2, action='append',
-                         dest='Options', metavar=('optionID', 'optionValue'),
+                         dest='options', metavar=('optionID', 'optionValue'),
                          help='sets an option before running flash cmd')
 
 # Memory Parser
@@ -144,3 +148,6 @@ ExpressionParser.add_argument('expression', help="C or GEL expression to execute
 ExpressionParser.add_argument('--symbols', required=False, default=None,
                             help=""".out or GEL symbol file to load before
                             evaluating expression.""")
+
+# Attach Parser
+AttachParser = argparse.ArgumentParser(add_help=False)
