@@ -121,7 +121,7 @@ FlashParser.add_argument('-b', '--bin', action='store_true',
 FlashParser.add_argument('-a', '--address', metavar='address',
                          help='Address to begin flashing image(s)')
 FlashParser.add_argument('-o', '--option', nargs=2, action='append',
-                         dest='Options', metavar=('optionID', 'optionValue'),
+                         dest='options', metavar=('optionID', 'optionValue'),
                          help='sets an option before running flash cmd')
 
 # Memory Parser
