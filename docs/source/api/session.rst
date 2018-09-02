@@ -32,7 +32,7 @@ Session Args
 
         :Optional:  - **devicetype** *(str)* - full devicetype name
 
-                        * *HINT*: you can see a list of devicetypes with the `tiflash.core.api.get_devices`_ function
+                        * *HINT*: you can see a list of devicetypes with the `get_devices() <core.html#tiflash.core.api.get_devices>`_ function
 
                     - **ccs** *(int)* - version of ccs to use
 
@@ -40,11 +40,11 @@ Session Args
 
                     - **chip** *(str)* - cpu/chip of device to connect to
 
-                        * *HINT*: you can see a list of chips with the `tiflash.core.api.get_cpus`_ function
+                        * *HINT*: you can see a list of chips with the `get_cpus() <core.html#tiflash.core.api.get_cpus>`_ function
 
                     - **connection** *(str)* - full name of connection to use
 
-                        * *HINT*: you can see a list of connections with the `tiflash.core.api.get_connections`_ function
+                        * *HINT*: you can see a list of connections with the `get_connections() <core.html#tiflash.core.api.get_connections>`_ function
 
                     - **ccxml** *(str)* - path to a specific ccxml file to use
 

@@ -151,3 +151,12 @@ ExpressionParser.add_argument('--symbols', required=False, default=None,
 
 # Attach Parser
 AttachParser = argparse.ArgumentParser(add_help=False)
+
+# XDS110 Parser
+XDS110Parser = argparse.ArgumentParser(add_help=False)
+XDS110Parser.add_argument('-r', '--reset', action='store_true',
+                        help="Calls xds110reset on specified device")
+XDS110Parser.add_argument('-l', '--list', action='store_true',
+                        help="Lists sernos of connected XDS110 devices")
+XDS110Parser.add_argument('-u', '--upgrade', action='store_true',
+                        help="Upgrades XDS110 firmware on device")

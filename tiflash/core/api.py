@@ -638,3 +638,74 @@ def nop(ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     flash.nop()
+
+
+def xds110reset(ccs=None, **session_args):
+    """Calls XDS110reset command on specified serno.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        bool: True if xds110reset was successful
+
+    Raises:
+        TIFlashError: raises if serno not set
+        XDS110Error: raises if xds110reset fails
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.xds110reset()
+
+def xds110list(ccs=None, **session_args):
+    """Returns list of sernos of connected XDS110 devices.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        list: list of sernos of connected XDS110 devices
+
+    Raises:
+        XDS110Error: raises if xdsdfu does not exist or fails
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = TIFlash(ccs_path)
+
+    return flash.xds110list()
+
+
+def xds110upgrade(ccs=None, **session_args):
+    """Upgrades/Flashes XDS110 firmware on board.
+
+    Firmware flashed is found in xds110 directory (firmware.bin). This function
+    uses the 'xdsdfu' executable to put device in DFU mode. Then performs the
+    flash + reset functions of xdsdfu to flash the firmware.bin image
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        bool: True if successful
+
+    Raises:
+        XDS110Error: raises if xds110 firmware update fails
+    """
+
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.xds110upgrade()

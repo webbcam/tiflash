@@ -6,6 +6,7 @@ from tiflash.utils import connections
 from tiflash.utils import devices
 from tiflash.utils import cpus
 from tiflash.utils import flash_properties
+from tiflash.utils import xds110
 
 CMD_DEFAULT_TIMEOUT = 60
 
@@ -17,7 +18,7 @@ class TIFlashError(Exception):
 class TIFlash(object):
     """TIFlash class for performing TIFlash commands on an object"""
 
-    def __init__(self, ccs_path, custom_cfg_path=None):
+    def __init__(self, ccs_path):
         """Initializes TIFlash object.
 
         Args:
@@ -728,3 +729,53 @@ class TIFlash(object):
 
         # No return on a no-op
         #return result
+
+    def xds110reset(self):
+        """Calls XDS110reset command on specified serno.
+
+        Returns:
+            bool: True if xds110reset was successful
+
+        Raises:
+            TIFlashError: raises if serno not set
+            XDS110Error: raises if xds110reset fails
+        """
+        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+
+        if not serno:
+            raise TIFlashError("Must provide 'serno' to call xds110reset")
+
+        return xds110.xds110reset(self.ccs_path, serno=serno)
+
+
+    def xds110list(self):
+        """Returns a list of sernos of currently connected XDS110 devices
+
+        Returns:
+            list: list of sernos of connected XDS110 devices
+
+        Raises:
+            XDS110Error: raises if xdsdfu does not exist or fails
+        """
+        return xds110.xds110list(self.ccs_path)
+
+
+    def xds110upgrade(self):
+        """Upgrades/Flashes XDS110 firmware on board.
+
+        Firmware flashed is found in xds110 directory (firmware.bin). This function
+        uses the 'xdsdfu' executable to put device in DFU mode. Then performs the
+        flash + reset functions of xdsdfu to flash the firmware.bin image
+
+        Returns:
+            bool: True if successful/False if unsuccessful
+
+        Raises:
+            XDS110Error: raises if xds110 firmware update fails
+        """
+        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+
+        if not serno:
+            raise TIFlashError("Must provide 'serno' to call xds110upgrade")
+
+        return xds110.xds110upgrade(self.ccs_path, serno=serno)
