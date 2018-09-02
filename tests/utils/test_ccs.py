@@ -1,7 +1,7 @@
 import pytest
-from tiflash.utils.ccsfinder import FindCCSError, find_ccs
+from tiflash.utils.ccs import FindCCSError, find_ccs, get_workspace_dir
 
-class TestFindCCS():
+class TestCCS():
     """Test suite for testing ccsfinder unit"""
 
     def test_ccsfind_first_version(self, t_env):
@@ -36,6 +36,7 @@ class TestFindCCS():
                               "Could not find ccs version %d installation" \
                               % version
 
+
     def test_ccsfind_missing_installation(self, t_env):
         version = max(t_env['CCS_VERSIONS']) + 1
         with pytest.raises(FindCCSError):
@@ -44,3 +45,10 @@ class TestFindCCS():
         version = min(t_env['CCS_VERSIONS']) - 1
         with pytest.raises(FindCCSError):
             find_ccs(version)
+
+
+    def test_get_workspace_dir(self, t_env):
+        answer = "@user.home/workspace_tiflash"
+
+        assert get_workspace_dir() == answer
+
