@@ -28,6 +28,6 @@ class TestDSS():
         dss_path = os.path.normpath(t_env['CCS_PATH'] +
                                     "/eclipse/" + eclipsec)
 
-        result = dss.call_dss(dss_path, [], 60)
+        result = dss.call_dss(dss_path, [], timeout=60)
 
         assert result == expected
