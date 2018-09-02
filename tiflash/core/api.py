@@ -3,7 +3,7 @@ import os
 from tiflash.core.core import TIFlash, TIFlashError
 from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
                                  get_connection_xml, get_ccxml_path)
-from tiflash.utils.ccsfinder import find_ccs, FindCCSError
+from tiflash.utils.ccs import find_ccs, FindCCSError
 from tiflash.utils import cpus
 from tiflash.utils import connections
 from tiflash.utils import devices
