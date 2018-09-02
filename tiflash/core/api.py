@@ -644,10 +644,10 @@ def xds110reset(ccs=None, **session_args):
     """Calls XDS110reset command on specified serno.
 
     Args:
-    ccs (int or str): Version Number of CCS to use or path to
-        custom installation
-    session_args (**dict): keyword arguments containing settings for
-        the device connection
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
 
     Returns:
         bool: True if xds110reset was successful
@@ -661,3 +661,24 @@ def xds110reset(ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     return flash.xds110reset()
+
+def xds110list(ccs=None, **session_args):
+    """Returns list of sernos of connected XDS110 devices.
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        list: list of sernos of connected XDS110 devices
+
+    Raises:
+        XDS110Error: raises if xdsdfu does not exist or fails
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = TIFlash(ccs_path)
+
+    return flash.xds110list()

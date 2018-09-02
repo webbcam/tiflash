@@ -302,6 +302,17 @@ def handle_xds110(args):
         except Exception as e:
             print(e)
 
+    elif args.list:
+        try:
+            result = tiflash.xds110list(**session_args)
+            header = "XDS110 Devices:"
+            print(header)
+            print('-' * len(header))
+            for serno in result:
+                print(serno)
+        except Exception as e:
+            print(e)
+
 
 def main(args=None):
     """Runs main TIFlash script

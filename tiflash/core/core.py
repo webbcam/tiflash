@@ -18,7 +18,7 @@ class TIFlashError(Exception):
 class TIFlash(object):
     """TIFlash class for performing TIFlash commands on an object"""
 
-    def __init__(self, ccs_path, custom_cfg_path=None):
+    def __init__(self, ccs_path):
         """Initializes TIFlash object.
 
         Args:
@@ -746,3 +746,15 @@ class TIFlash(object):
             raise TIFlashError("Must provide 'serno' to call xds110reset")
 
         return xds110.xds110reset(self.ccs_path, serno)
+
+
+    def xds110list(self):
+        """Returns a list of sernos of currently connected XDS110 devices
+
+        Returns:
+            list: list of sernos of connected XDS110 devices
+
+        Raises:
+            XDS110Error: raises if xdsdfu does not exist or fails
+        """
+        return xds110.xds110list(self.ccs_path)

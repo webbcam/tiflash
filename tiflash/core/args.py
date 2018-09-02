@@ -156,3 +156,5 @@ AttachParser = argparse.ArgumentParser(add_help=False)
 XDS110Parser = argparse.ArgumentParser(add_help=False)
 XDS110Parser.add_argument('-r', '--reset', action='store_true',
                         help="Calls xds110reset on specified device")
+XDS110Parser.add_argument('-l', '--list', action='store_true',
+                        help="Lists sernos of connected XDS110 devices")
