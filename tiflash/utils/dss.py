@@ -72,7 +72,7 @@ def find_dss(ccs_path):
     return script_launcher_path
 
 
-def call_dss(dss_path, commands, workspace, timeout):
+def call_dss(dss_path, commands, workspace=None, timeout=CMD_DEFAULT_TIMEOUT):
     """Calls js/main.js via new script runner (eclipsec)
 
     Makes a subprocess call to main.js by using the given eclipsec exe
@@ -106,7 +106,8 @@ def call_dss(dss_path, commands, workspace, timeout):
 
     # Create list of args for calling dss exec
     cmd = [dss_path]
-    cmd.extend(["-data", workspace])
+    if workspace:
+        cmd.extend(["-data", workspace])
     cmd.extend(DSS_ARGS)
 
     # Create list of args for js script

@@ -1,5 +1,5 @@
 """
-helper module for finding CCS install paths
+helper module for CCS specifc functions
 
 
 Author: Cameron Webb
@@ -19,6 +19,18 @@ TI_DIRECTORY = "ti"
 class FindCCSError(Exception):
     """Generic FindCCS Error"""
     pass
+
+
+def get_workspace_dir():
+    """Returns the workspace directory to use for tiflash.
+
+    Returns:
+        str: workspace to use for tiflash (fullpath)
+    """
+    # Uses user's home directory
+    workspace = "@user.home/workspace_tiflash"
+
+    return workspace
 
 
 def find_ccs(version=None):

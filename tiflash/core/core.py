@@ -8,8 +8,6 @@ from tiflash.utils import cpus
 from tiflash.utils import flash_properties
 
 CMD_DEFAULT_TIMEOUT = 60
-CMD_DEFAULT_WORKSPACE = "tiflash"
-
 
 class TIFlashError(Exception):
     """Generic TI Flash error"""
@@ -29,7 +27,7 @@ class TIFlash(object):
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
         self.attach = False
-        self.workspace = CMD_DEFAULT_WORKSPACE
+        self.workspace = None
         self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
 
@@ -52,7 +50,8 @@ class TIFlash(object):
         arg_list = dss.format_args(args)
 
         (retcode, retval) = dss.call_dss(self.dss_path, arg_list,
-                                        self.workspace, self.timeout)
+                                        workspace=self.workspace,
+                                        timeout=self.timeout)
 
         return (retcode, retval)
 

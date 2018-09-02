@@ -3,7 +3,7 @@ import os
 from tiflash.core.core import TIFlash, TIFlashError
 from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
                                  get_connection_xml, get_ccxml_path)
-from tiflash.utils.ccsfinder import find_ccs, FindCCSError
+from tiflash.utils.ccs import find_ccs, get_workspace_dir, FindCCSError
 from tiflash.utils import cpus
 from tiflash.utils import connections
 from tiflash.utils import devices
@@ -13,11 +13,6 @@ from tiflash.utils import dss
 class TIFlashAPIError(TIFlashError):
     """Generic TIFlash API Error"""
     pass
-
-session_args = {
-    # What
-    "d": True
-}
 
 
 def __get_connection_from_ccxml(ccxml_path, ccs_path):
@@ -232,15 +227,20 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
 
     chip = chip or __get_cpu_from_ccxml(ccxml_path, ccs_path)
 
-    workspace = os.path.basename(ccxml_path)
-    workspace = os.path.splitext(workspace)[0]
-
     flash = TIFlash(ccs_path)
     flash.set_debug(on=debug)
     flash.set_session(ccxml_path, chip)
-    flash.set_workspace(workspace)
     flash.set_timeout(timeout)
     flash.set_attach(attach)
+    if attach:
+        workspace = os.path.basename(ccxml_path)
+        workspace = os.path.splitext(workspace)[0]
+
+        workspace_dir = get_workspace_dir()
+
+        workspace_path = workspace_dir + os.sep + workspace
+
+        flash.set_workspace(workspace_path)
 
     return flash
 
