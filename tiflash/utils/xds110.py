@@ -124,7 +124,7 @@ def xds110list(ccs_path):
     if ret != 0:
         raise XDS110Error(out)
 
-    matches = re.findall(regex, out)
+    matches = re.findall(regex, str(out))
 
     return matches
 
@@ -148,7 +148,6 @@ def xds110upgrade(ccs_path, serno=None):
         XDS110Error: raises if xds110 firmware update fails
     """
     xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
-    xds_exe = [ xdsdfu_path]
     firmware_path = os.path.abspath(get_xds110_dir(ccs_path) + '/'+ "firmware.bin")
 
     if not os.path.exists(firmware_path):
@@ -156,8 +155,8 @@ def xds110upgrade(ccs_path, serno=None):
             firmware_path)
 
     serno_list = xds110list(ccs_path)
-    xds_dfu_cmd = xds_exe
-    xds_flash_cmd = xds_exe
+    xds_dfu_cmd = [ xdsdfu_path]
+    xds_flash_cmd = [ xdsdfu_path]
 
     # Get Device Index using Serno
     if serno:
@@ -167,7 +166,9 @@ def xds110upgrade(ccs_path, serno=None):
             raise XDS110Error("Device: %s not connected." % serno)
 
         xds_dfu_cmd += ['-i', str(index)]
-        xds_flash_cmd += ['-i', str(index)]
+
+        # After putting device in DFU mode, its index will be 0
+        xds_flash_cmd += ['-i', '0']
 
     # Put device in DFU mode first
     xds_dfu_cmd += ['-m']
