@@ -124,7 +124,7 @@ def xds110list(ccs_path):
     if ret != 0:
         raise XDS110Error(out)
 
-    matches = re.findall(regex, out)
+    matches = re.findall(regex, str(out))
 
     return matches
 
@@ -167,7 +167,9 @@ def xds110upgrade(ccs_path, serno=None):
             raise XDS110Error("Device: %s not connected." % serno)
 
         xds_dfu_cmd += ['-i', str(index)]
-        xds_flash_cmd += ['-i', str(index)]
+
+        # After putting device in DFU mode, its index will be 0
+        xds_flash_cmd += ['-i', '0']
 
     # Put device in DFU mode first
     xds_dfu_cmd += ['-m']
