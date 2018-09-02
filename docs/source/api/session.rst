@@ -1,4 +1,4 @@
-.. _session:
+.. _session_api:
 
 Session Args
 ============
@@ -20,7 +20,7 @@ Session Args
         .. warning::
 
             *At the very minimum you'll need to provide the device's serial number
-            (serno).*
+            (serno) or devicetype.*
 
             TIFlash will try to determine the rest of the information from
             there. If a piece of information cannot be determined, an error will be

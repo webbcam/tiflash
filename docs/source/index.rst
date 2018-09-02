@@ -9,11 +9,10 @@ Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 Overview
 --------
 
-**TIFlash** uses TI’s `Code Composer Studio`_ scripting interface (`Debug Server
-Scripting`_)
-to flash devices. It’s essentially a python/command-line interface for
-CCS. This is extremely useful for python scripts/test automation using Texas
-Instruments devices. In addition, TIFlash makes it easy to perform simple actions
+*TIFlash* is a python/command-line interface for Texas Instruments’ `Code Composer Studio`_.
+It uses CCS's scripting interface (`Debug Server
+Scripting`_) to flash devices. This is extremely useful for python scripts/test automation using Texas
+Instruments devices. In addition, TIFlash makes it easier to perform simple actions
 like flashing, erasing or resetting a device without having to spin up an entire
 CCS GUI session.
 

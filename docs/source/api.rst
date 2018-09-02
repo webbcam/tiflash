@@ -3,8 +3,7 @@
 API Reference
 =============
 
-Below are the Python APIs for each flavor of flashing module
-(tiflash, ccflash, mspflash, etc.)
+Below is the TIFlash Python API.
 
 .. toctree::
     :maxdepth: 1
@@ -15,7 +14,7 @@ Below are the Python APIs for each flavor of flashing module
 
 .. container::
 
-    :ref:`Session Args <session>`
+    :ref:`Session Args <session_api>`
 
 the session args are a common set of arguments used for most functions
 

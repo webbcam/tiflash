@@ -16,3 +16,4 @@ can be used on any device.
     :members:
     :undoc-members:
     :show-inheritance:
+    :exclude-members: nop, get_float_option, get_bool_option, print_options
