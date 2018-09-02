@@ -13,6 +13,7 @@ Commands
     verify
     memory
     evaluate
+    xds110
     list
     option
     attach
@@ -57,6 +58,12 @@ Below is a list of commands you can call with TIFlash.
     :ref:`Evaluate <evaluate>`
 
 *evaluate a C/GEL expression on a device*
+
+.. container::
+
+    :ref:`XDS110 <xds110>`
+
+*run an xds110 command*
 
 .. container::
 
