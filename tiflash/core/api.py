@@ -682,3 +682,30 @@ def xds110list(ccs=None, **session_args):
     flash = TIFlash(ccs_path)
 
     return flash.xds110list()
+
+
+def xds110upgrade(ccs=None, **session_args):
+    """Upgrades/Flashes XDS110 firmware on board.
+
+    Firmware flashed is found in xds110 directory (firmware.bin). This function
+    uses the 'xdsdfu' executable to put device in DFU mode. Then performs the
+    flash + reset functions of xdsdfu to flash the firmware.bin image
+
+    Args:
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        bool: True if successful
+
+    Raises:
+        XDS110Error: raises if xds110 firmware update fails
+    """
+
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.xds110upgrade()

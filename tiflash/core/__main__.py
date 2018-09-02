@@ -312,6 +312,13 @@ def handle_xds110(args):
                 print(serno)
         except Exception as e:
             print(e)
+    elif args.upgrade:
+        try:
+            result = tiflash.xds110upgrade(**session_args)
+            print(result)
+        except Exception as e:
+            print(e)
+
 
 
 def main(args=None):

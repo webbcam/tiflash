@@ -745,7 +745,7 @@ class TIFlash(object):
         if not serno:
             raise TIFlashError("Must provide 'serno' to call xds110reset")
 
-        return xds110.xds110reset(self.ccs_path, serno)
+        return xds110.xds110reset(self.ccs_path, serno=serno)
 
 
     def xds110list(self):
@@ -758,3 +758,24 @@ class TIFlash(object):
             XDS110Error: raises if xdsdfu does not exist or fails
         """
         return xds110.xds110list(self.ccs_path)
+
+
+    def xds110upgrade(self):
+        """Upgrades/Flashes XDS110 firmware on board.
+
+        Firmware flashed is found in xds110 directory (firmware.bin). This function
+        uses the 'xdsdfu' executable to put device in DFU mode. Then performs the
+        flash + reset functions of xdsdfu to flash the firmware.bin image
+
+        Returns:
+            bool: True if successful/False if unsuccessful
+
+        Raises:
+            XDS110Error: raises if xds110 firmware update fails
+        """
+        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+
+        if not serno:
+            raise TIFlashError("Must provide 'serno' to call xds110upgrade")
+
+        return xds110.xds110upgrade(self.ccs_path, serno=serno)

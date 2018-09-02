@@ -31,3 +31,18 @@ class TestXDS110Api():
 
         for serno in serno_list:
             assert serno in result
+
+    def test_basic_xds110upgrade(self, device):
+        """Tests simple xds110upgrade on each device in devices.cfg"""
+        result = tiflash.xds110upgrade(serno=device['serno'],
+                            connection=device['connection'],
+                            devicetype=device['devicetype'])
+
+        assert result is True
+
+    def test_basic_xds110upgrade_fail(self, device):
+        """Tests xds110upgrade fails when garbage serno used"""
+        with pytest.raises(Exception):
+            result = tiflash.xds110upgrade(serno="GARBAGE",
+                                connection=device['connection'],
+                                devicetype=device['devicetype'])
