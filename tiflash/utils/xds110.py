@@ -8,6 +8,7 @@ Contact: webbc92@gmail.com
 
 """
 import os
+import platform
 import re
 import time
 import subprocess
@@ -36,11 +37,12 @@ def get_xds110_dir(ccs_path):
 
     return xds110_path
 
-def get_xdsdfu_path(ccs_path):
-    """Returns full path xdsdfu executable
+def get_xds110_exe_path(ccs_path, exe):
+    """Returns full path xds110 executable
 
     Args:
         ccs_path (str): full path to ccs installation directory
+        exe (str): name of executable
 
     Returns:
         str: full path to xdsdfu executable
@@ -49,13 +51,16 @@ def get_xdsdfu_path(ccs_path):
         XDS110Error: raises if xdsdfu executable cannot be found.
     """
     xds_dir = get_xds110_dir(ccs_path)
-    xds_path = os.path.abspath(xds_dir + '/' + 'xdsdfu')
+    xds_exe_path = os.path.abspath(xds_dir + '/' + exe)
 
-    if not os.path.exists(xds_path):
+    if platform.system() == "Windows":
+        xds_exe_path += ".exe"
+
+    if not os.path.exists(xds_exe_path):
         raise XDS110Error("Could not find xdsdfu executable (%s)"
-            % xds_path)
+            % xds_exe_path)
 
-    return xds_path
+    return xds_exe_path
 
 
 def xds110reset(ccs_path, serno=None):
@@ -72,12 +77,10 @@ def xds110reset(ccs_path, serno=None):
     Raises:
         XDS110Error: raises if xds110reset.exe fails
     """
-    xds_dir = get_xds110_dir(ccs_path)
-    xds_exe = [ os.path.abspath(xds_dir + '/' + 'xds110reset') ]
+    xdsreset_path = get_xds110_exe_path(ccs_path, 'xds110reset')
 
-    if not os.path.exists(xds_exe[0]):
-        raise XDS110Error("Could not find xds110reset executable (%s)"
-            % xds_exe)
+    xds_exe = [ xdsreset_path ]
+
 
     if serno:
         xds_exe.extend(['-s', serno])
@@ -109,7 +112,8 @@ def xds110list(ccs_path):
     serno_pattern = "Serial Num\:\s+([A-Z0-9]{8})"
     regex = re.compile(serno_pattern)
 
-    xds_exe = [ get_xdsdfu_path(ccs_path) ]
+    xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
+    xds_exe = [ xdsdfu_path]
 
     xds_exe.extend(['-e'])
 
@@ -143,7 +147,8 @@ def xds110upgrade(ccs_path, serno=None):
     Raises:
         XDS110Error: raises if xds110 firmware update fails
     """
-    xds_exe = [ get_xdsdfu_path(ccs_path) ]
+    xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
+    xds_exe = [ xdsdfu_path]
     firmware_path = os.path.abspath(get_xds110_dir(ccs_path) + '/'+ "firmware.bin")
 
     if not os.path.exists(firmware_path):

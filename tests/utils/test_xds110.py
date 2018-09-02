@@ -1,7 +1,7 @@
 import os
 import pytest
 from tiflash.utils.xds110 import (XDS110Error, get_xds110_dir,
-                                get_xdsdfu_path, xds110upgrade,
+                                get_xds110_exe_path, xds110upgrade,
                                 xds110reset, xds110list)
 
 XDS110_DIRECTORY = "ccs_base/common/uscif/xds110"
@@ -17,12 +17,12 @@ class TestXDS110():
 
         assert expected == result
 
-    def test_get_xdsdfu_path(self, t_env):
+    def test_get_xds110_exe_path(self, t_env):
         ccs_path = t_env['CCS_INSTALLS'][0]
         expected = os.path.abspath(ccs_path + '/' + XDS110_DIRECTORY
                                     + '/' + 'xdsdfu')
 
-        result = get_xdsdfu_path(ccs_path)
+        result = get_xds110_exe_path(ccs_path, 'xdsdfu')
 
         assert expected == result
 
