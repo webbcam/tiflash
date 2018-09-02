@@ -32,6 +32,7 @@ from tiflash.core import    (   get_connections,
                                 memory_write,
                                 evaluate,
                                 attach,
+                                xds110reset,
 
                                 TIFlashError
                             )

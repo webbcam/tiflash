@@ -638,3 +638,26 @@ def nop(ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     flash.nop()
+
+
+def xds110reset(ccs=None, **session_args):
+    """Calls XDS110reset command on specified serno.
+
+    Args:
+    ccs (int or str): Version Number of CCS to use or path to
+        custom installation
+    session_args (**dict): keyword arguments containing settings for
+        the device connection
+
+    Returns:
+        bool: True if xds110reset was successful
+
+    Raises:
+        TIFlashError: raises if serno not set
+        XDS110Error: raises if xds110reset fails
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.xds110reset()

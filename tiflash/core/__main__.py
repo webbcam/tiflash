@@ -14,6 +14,7 @@ from tiflash.core.args import (
     MemoryParser,
     ExpressionParser,
     AttachParser,
+    XDS110Parser,
 
     get_session_args
 )
@@ -56,6 +57,8 @@ def generate_parser():
         description="Evaluate a C/GEL expression on a device.")
     sub_parsers.add_parser('attach', parents=[AttachParser],
         description="Open up CCS session & attach to device")
+    sub_parsers.add_parser('xds110', parents=[XDS110Parser],
+        description="Perform an xds110 command on a device")
 
 
     return main_parser
@@ -288,6 +291,18 @@ def handle_attach(args):
         print(e)
 
 
+def handle_xds110(args):
+    """Helper function for handling 'xds110' command"""
+    session_args = get_session_args(args)
+
+    if args.reset:
+        try:
+            result = tiflash.xds110reset(**session_args)
+            print(result)
+        except Exception as e:
+            print(e)
+
+
 def main(args=None):
     """Runs main TIFlash script
 
@@ -333,6 +348,10 @@ def main(args=None):
     # Attach
     elif args.cmd == 'attach':
         handle_attach(args)
+
+    # XDS110
+    elif args.cmd == 'xds110':
+        handle_xds110(args)
 
 
 if __name__ == "__main__":

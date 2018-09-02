@@ -151,3 +151,8 @@ ExpressionParser.add_argument('--symbols', required=False, default=None,
 
 # Attach Parser
 AttachParser = argparse.ArgumentParser(add_help=False)
+
+# XDS110 Parser
+XDS110Parser = argparse.ArgumentParser(add_help=False)
+XDS110Parser.add_argument('-r', '--reset', action='store_true',
+                        help="Calls xds110reset on specified device")

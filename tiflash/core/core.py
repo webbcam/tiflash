@@ -6,6 +6,7 @@ from tiflash.utils import connections
 from tiflash.utils import devices
 from tiflash.utils import cpus
 from tiflash.utils import flash_properties
+from tiflash.utils import xds110
 
 CMD_DEFAULT_TIMEOUT = 60
 
@@ -728,3 +729,20 @@ class TIFlash(object):
 
         # No return on a no-op
         #return result
+
+    def xds110reset(self):
+        """Calls XDS110reset command on specified serno.
+
+        Returns:
+            bool: True if xds110reset was successful
+
+        Raises:
+            TIFlashError: raises if serno not set
+            XDS110Error: raises if xds110reset fails
+        """
+        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+
+        if not serno:
+            raise TIFlashError("Must provide 'serno' to call xds110reset")
+
+        return xds110.xds110reset(self.ccs_path, serno)
