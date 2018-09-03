@@ -110,12 +110,13 @@ VerifyParser.add_argument('-o', '--option', nargs=2, action='append',
 
 # Flash Parser
 FlashParser = argparse.ArgumentParser(add_help=False)
-FlashParser.add_argument('images', metavar='image1 [image2, ...]', nargs='+',
-                         help='''Image(s) to flash. any images specified by '-i'
-                        option are appended to the image list provided here''')
-FlashParser.add_argument('-i', '--image', dest='images',
-                         required=False, action='append', metavar='image',
-                         help='Image to flash can repeat -i/--image command')
+FlashParser.add_argument('images', metavar='image', help='''Image to flash.''')
+#FlashParser.add_argument('images', metavar='image1 [image2, ...]', nargs='+',
+#                         help='''Image(s) to flash. any images specified by '-i'
+#                        option are appended to the image list provided here''')
+#FlashParser.add_argument('-i', '--image', dest='images',
+#                         required=False, action='append', metavar='image',
+#                         help='Image to flash can repeat -i/--image command')
 FlashParser.add_argument('-b', '--bin', action='store_true',
                          help='Specify if image(s) are binary images')
 FlashParser.add_argument('-a', '--address', metavar='address',

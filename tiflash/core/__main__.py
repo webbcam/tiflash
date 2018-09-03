@@ -37,7 +37,7 @@ def generate_parser():
                         help='print tiflash & python version')
 
     sub_parsers = main_parser.add_subparsers(dest='cmd')
-    sub_parsers.add_parser('option', parents=[OptionsParser],
+    sub_parsers.add_parser('options', parents=[OptionsParser],
         description="Get or set a device option.")
     sub_parsers.add_parser('list', parents=[ListParser],
         description="List device/environment information.")
@@ -80,7 +80,7 @@ def parse_args():
     return args
 
 
-def handle_option(args):
+def handle_options(args):
     """Helper function for handling 'option' command"""
     session_args = get_session_args(args)
     # Get Option
@@ -332,8 +332,8 @@ def main(args=None):
         args = parse_args()
 
     # Options
-    if args.cmd == 'option':
-        handle_option(args)
+    if args.cmd == 'options':
+        handle_options(args)
 
     # Lists
     elif args.cmd == 'list':

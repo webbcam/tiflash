@@ -335,7 +335,7 @@ class TIFlash(object):
         if option_id:
             option_keys = list(options.keys())
             for oid in option_keys:
-                if oid != option_id:
+                if option_id not in oid:
                     options.pop(oid)
 
         return options
