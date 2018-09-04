@@ -15,7 +15,7 @@ Commands
     evaluate
     xds110
     list
-    option
+    options
     attach
 
 Below is a list of commands you can call with TIFlash.
@@ -73,7 +73,7 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
-    :ref:`Option <option>`
+    :ref:`Options <options>`
 
 *get/set an option on a device*
 
