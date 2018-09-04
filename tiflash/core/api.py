@@ -251,7 +251,7 @@ def get_connections(ccs=None, search=None):
     Args:
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
-        search (str): String to filter devices by
+        search (str): String to filter connections by
 
     Returns:
         list: list of connection types installed in ccs
@@ -304,7 +304,7 @@ def get_cpus(ccs=None, search=None):
     Args:
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
-        search (str): String to filter devices by
+        search (str): String to filter cpus by
 
     Returns:
         list: list of cpus types installed in ccs
