@@ -139,11 +139,11 @@ def handle_list(args):
     results = []
     session_args = get_session_args(args)
     if args.devices:
-        results = tiflash.get_devices(args.ccs)
+        results = tiflash.get_devices(args.ccs, search=args.search)
     elif args.connections:
-        results = tiflash.get_connections(args.ccs)
+        results = tiflash.get_connections(args.ccs, search=args.search)
     elif args.cpus:
-        results = tiflash.get_cpus(args.ccs)
+        results = tiflash.get_cpus(args.ccs, search=args.search)
     elif args.options:
         # tiflash.print_options(**session_args)
         results = tiflash.list_options(**session_args)

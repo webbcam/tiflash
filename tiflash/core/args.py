@@ -83,6 +83,8 @@ ListParser.add_argument('-cfg', '--cfgs', action='store_true',
                         help='Prints list of installed target cfgs')
 ListParser.add_argument('-o', '--options', action='store_true',
                         help='Prints list of target options')
+ListParser.add_argument('-f', '--filter', dest='search', type=str,
+                        help='String to filter results by')
 
 
 # Reset Parser

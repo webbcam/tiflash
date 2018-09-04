@@ -245,12 +245,13 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
     return flash
 
 
-def get_connections(ccs=None):
+def get_connections(ccs=None, search=None):
     """Gets list of all connections installed on machine (ccs installation)
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
+        search (str): String to filter devices by
 
     Returns:
         list: list of connection types installed in ccs
@@ -264,15 +265,20 @@ def get_connections(ccs=None):
 
     connection_list = flash.get_connections()
 
+    if search:
+        connection_list = [ connection for connection in connection_list \
+                            if search in connection ]
+
     return connection_list
 
 
-def get_devices(ccs=None):
+def get_devices(ccs=None, search=None):
     """Gets list of all devices installed on machine (ccs installation)
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
+        search (str): String to filter devices by
 
     Returns:
         list: list of device types installed in ccs
@@ -286,15 +292,19 @@ def get_devices(ccs=None):
 
     device_list = flash.get_devices()
 
+    if search:
+        device_list = [ dev for dev in device_list if search in dev ]
+
     return device_list
 
 
-def get_cpus(ccs=None):
+def get_cpus(ccs=None, search=None):
     """Gets list of all cpus installed on machine (ccs installation)
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
             custom installation
+        search (str): String to filter devices by
 
     Returns:
         list: list of cpus types installed in ccs
@@ -307,6 +317,9 @@ def get_cpus(ccs=None):
     flash = TIFlash(ccs_path)
 
     cpu_list = flash.get_cpus()
+
+    if search:
+        cpu_list = [ cpu for cpu in cpu_list if search in cpu ]
 
     return cpu_list
 
