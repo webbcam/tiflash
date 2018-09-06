@@ -112,7 +112,7 @@ VerifyParser.add_argument('-o', '--option', nargs=2, action='append',
 
 # Flash Parser
 FlashParser = argparse.ArgumentParser(add_help=False)
-FlashParser.add_argument('images', metavar='image', help='''Image to flash.''')
+FlashParser.add_argument('images', metavar='image', nargs=1, help='''Image to flash.''')
 #FlashParser.add_argument('images', metavar='image1 [image2, ...]', nargs='+',
 #                         help='''Image(s) to flash. any images specified by '-i'
 #                        option are appended to the image list provided here''')
