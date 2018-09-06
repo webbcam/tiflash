@@ -297,14 +297,14 @@ def handle_xds110(args):
 
     if args.reset:
         try:
-            result = tiflash.xds110reset(**session_args)
+            result = tiflash.xds110_reset(**session_args)
             print(result)
         except Exception as e:
             print(e)
 
     elif args.list:
         try:
-            result = tiflash.xds110list(**session_args)
+            result = tiflash.xds110_list(**session_args)
             header = "XDS110 Devices:"
             print(header)
             print('-' * len(header))
@@ -314,7 +314,7 @@ def handle_xds110(args):
             print(e)
     elif args.upgrade:
         try:
-            result = tiflash.xds110upgrade(**session_args)
+            result = tiflash.xds110_upgrade(**session_args)
             print(result)
         except Exception as e:
             print(e)
