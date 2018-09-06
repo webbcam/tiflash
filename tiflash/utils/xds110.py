@@ -63,7 +63,7 @@ def get_xds110_exe_path(ccs_path, exe):
     return xds_exe_path
 
 
-def xds110reset(ccs_path, serno=None):
+def xds110_reset(ccs_path, serno=None):
     """Calls the xds110reset.exe in the xds110 directory
 
     Args:
@@ -95,7 +95,7 @@ def xds110reset(ccs_path, serno=None):
     return ret == 0
 
 
-def xds110list(ccs_path):
+def xds110_list(ccs_path):
     """Returns list of xds110 devices connected to the PC
 
     Uses xdsdfu -e command and parses output for sernos
@@ -129,7 +129,7 @@ def xds110list(ccs_path):
     return matches
 
 
-def xds110upgrade(ccs_path, serno=None):
+def xds110_upgrade(ccs_path, serno=None):
     """Upgrades/Flashes XDS110 firmware on board.
 
     Firmware flashed is found in xds110 directory (firmware.bin). This function
@@ -154,7 +154,7 @@ def xds110upgrade(ccs_path, serno=None):
         raise XDS110Error("Could not find firmware.bin file (%s)" %
             firmware_path)
 
-    serno_list = xds110list(ccs_path)
+    serno_list = xds110_list(ccs_path)
     xds_dfu_cmd = [ xdsdfu_path]
     xds_flash_cmd = [ xdsdfu_path]
 

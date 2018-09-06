@@ -730,25 +730,25 @@ class TIFlash(object):
         # No return on a no-op
         #return result
 
-    def xds110reset(self):
-        """Calls XDS110reset command on specified serno.
+    def xds110_reset(self):
+        """Calls xds110_reset command on specified serno.
 
         Returns:
-            bool: True if xds110reset was successful
+            bool: True if xds110_reset was successful
 
         Raises:
             TIFlashError: raises if serno not set
-            XDS110Error: raises if xds110reset fails
+            XDS110Error: raises if xds110_reset fails
         """
         serno = ccxml.get_serno_from_ccxml(self.ccxml)
 
         if not serno:
-            raise TIFlashError("Must provide 'serno' to call xds110reset")
+            raise TIFlashError("Must provide 'serno' to call xds110_reset")
 
-        return xds110.xds110reset(self.ccs_path, serno=serno)
+        return xds110.xds110_reset(self.ccs_path, serno=serno)
 
 
-    def xds110list(self):
+    def xds110_list(self):
         """Returns a list of sernos of currently connected XDS110 devices
 
         Returns:
@@ -757,10 +757,10 @@ class TIFlash(object):
         Raises:
             XDS110Error: raises if xdsdfu does not exist or fails
         """
-        return xds110.xds110list(self.ccs_path)
+        return xds110.xds110_list(self.ccs_path)
 
 
-    def xds110upgrade(self):
+    def xds110_upgrade(self):
         """Upgrades/Flashes XDS110 firmware on board.
 
         Firmware flashed is found in xds110 directory (firmware.bin). This function
@@ -776,6 +776,6 @@ class TIFlash(object):
         serno = ccxml.get_serno_from_ccxml(self.ccxml)
 
         if not serno:
-            raise TIFlashError("Must provide 'serno' to call xds110upgrade")
+            raise TIFlashError("Must provide 'serno' to call xds110_upgrade")
 
-        return xds110.xds110upgrade(self.ccs_path, serno=serno)
+        return xds110.xds110_upgrade(self.ccs_path, serno=serno)

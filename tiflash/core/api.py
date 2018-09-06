@@ -653,8 +653,8 @@ def nop(ccs=None, **session_args):
     flash.nop()
 
 
-def xds110reset(ccs=None, **session_args):
-    """Calls XDS110reset command on specified serno.
+def xds110_reset(ccs=None, **session_args):
+    """Calls xds110reset command on specified serno.
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
@@ -667,15 +667,15 @@ def xds110reset(ccs=None, **session_args):
 
     Raises:
         TIFlashError: raises if serno not set
-        XDS110Error: raises if xds110reset fails
+        XDS110Error: raises if xds110_reset fails
     """
     ccs_path = __handle_ccs(ccs)
 
     flash = __handle_session(ccs_path, **session_args)
 
-    return flash.xds110reset()
+    return flash.xds110_reset()
 
-def xds110list(ccs=None, **session_args):
+def xds110_list(ccs=None, **session_args):
     """Returns list of sernos of connected XDS110 devices.
 
     Args:
@@ -694,10 +694,10 @@ def xds110list(ccs=None, **session_args):
 
     flash = TIFlash(ccs_path)
 
-    return flash.xds110list()
+    return flash.xds110_list()
 
 
-def xds110upgrade(ccs=None, **session_args):
+def xds110_upgrade(ccs=None, **session_args):
     """Upgrades/Flashes XDS110 firmware on board.
 
     Firmware flashed is found in xds110 directory (firmware.bin). This function
@@ -721,4 +721,4 @@ def xds110upgrade(ccs=None, **session_args):
 
     flash = __handle_session(ccs_path, **session_args)
 
-    return flash.xds110upgrade()
+    return flash.xds110_upgrade()
