@@ -5,7 +5,7 @@ flash_properties.py    --   helper module for gathering device specific
 
 @author: Cameron Webb
 @date: March 2018
-@contact: webbc92@gmai.com
+@contact: webbjcam@gmail.com
 
 """
 

@@ -5,7 +5,7 @@ command results to (used for IPC)
 
 Author: Cameron Webb
 Date: March 2018
-Contact: webbc92@gmail.com
+Contact: webbjcam@gmail.com
 
 """
 

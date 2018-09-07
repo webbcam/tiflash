@@ -4,7 +4,7 @@ ccxml.py    --   helper module for modifying a ccxml file
 
 @author: Cameron Webb
 @date: March 2018
-@contact: webbc92@gmail.com
+@contact: webbjcam@gmail.com
 
 """
 

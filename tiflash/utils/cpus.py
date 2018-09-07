@@ -4,7 +4,7 @@ helper module for finding installed cpu types
 
 Author: Cameron Webb
 Date: March 2018
-Contact: webbc92@gmail.com
+Contact: webbjcam@gmail.com
 
 """
 
