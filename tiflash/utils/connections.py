@@ -10,7 +10,6 @@ Contact: webbjcam@gmail.com
 
 import os
 import re
-from xml.dom import minidom
 
 from tiflash.utils import xmlhelper
 
@@ -60,11 +59,7 @@ def get_connections(ccs_path):
     connections_directory = get_connections_directory(ccs_path)
 
     #   Get connections xmls
-    connection_xmls = list()
-    for x in os.listdir(connections_directory):
-        x_fullpath = connections_directory + "/" + x
-        if os.path.isfile(x_fullpath) and x_fullpath.endswith(".xml"):
-            connection_xmls.append(x_fullpath)
+    connection_xmls = get_connection_xmls(ccs_path, full_path=True)
 
     connection_list = list()
     for cxml in connection_xmls:
@@ -77,8 +72,7 @@ def get_connections(ccs_path):
     return connection_list
 
 
-# TODO: Not implemented
-def get_connection_xml(xml_name, ccs_path):
+def get_connection_xml_path(xml_name, ccs_path):
     """Returns full path to connection xml if exists, else returns None.
 
     Args:
@@ -99,20 +93,42 @@ def get_connection_xml(xml_name, ccs_path):
         xml_name += ".xml"
 
     #   Set Connections directory
-    connections_directory = ccs_path + CONNECTIONS_DIR
-    if not os.path.isdir(connections_directory):
-        raise ConnectionsError("Could not find 'connections' directory.")
+    connection_xmls = get_connection_xmls(ccs_path)
+
+    if xml_name in connection_xmls:
+        connection_xml = os.path.normpath(
+                            get_connections_directory(ccs_path) + "/" + xml_name)
 
     return connection_xml
 
 
-def get_connection_name(xmlfile):
+
+def get_connection_xmls(ccs_path, full_path=False):
+    """Gets a list of the connection xmls files
+
+    Args:
+        ccs_path (str): path to ccs installation
+        full_path (boolean, optional): returns full path of each connection xml
+
+    Returns:
+        list: list of connection xml files
+    """
+    conn_dir = get_connections_directory(ccs_path)
+    conns = [f for f in os.listdir(conn_dir) if f.endswith('.xml')]
+
+    if full_path:
+        conns = [ os.path.abspath(conn_dir + '/' + c) for c in conns ]
+
+    return conns
+
+
+def get_connection_name(conn_xml):
     """ Returns full connection name (as specified in connectionxml)
 
     Opens connection xml file and reads 'desc' of connection tag.
 
     Args:
-        xmlfile (str): full path to connection xml file to parse
+        conn_xml (str): full path to connection xml file to parse
 
     Returns:
         str: connection name
@@ -121,10 +137,12 @@ def get_connection_name(xmlfile):
         ConnectionsError: raises exception xml is unable to be parsed
 
     """
-    xmldoc = minidom.parse(xmlfile)
-    connection_element = xmlhelper.get_unique_element_by(xmldoc,
-                                                    'desc', tag='connection')
-    connection_name = xmlhelper.get_attribute_value(connection_element, 'desc')
+    root = __get_connection_root(conn_xml)
+
+    if root.tag != "connection":
+        raise ConnectionsError("Error parsing connection xml: %s" % conn_xml)
+
+    connection_name = xmlhelper.get_attrib_value(root.attrib, ["desc", "id"])
 
     return connection_name
 
@@ -155,3 +173,20 @@ def find_connection(connection_name, ccs_path):
             match_list.append(c)
 
     return match_list
+
+def __get_connection_root(connection_path):
+    """Returns the root Element of the connection file
+
+    Args:
+        connection_path (str): full path to connection file to parse
+
+    Returns:
+        xml.Element: root element of connection file
+    """
+    if not os.path.exists(connection_path):
+        raise ConnectionsError("Could not find connection xml: %s" %
+            connection_path)
+
+    root = xmlhelper.get_xml_root(connection_path)
+
+    return root

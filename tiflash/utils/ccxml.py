@@ -10,7 +10,7 @@ ccxml.py    --   helper module for modifying a ccxml file
 
 import platform
 import os
-from xml.dom import minidom
+#import xml.etree.ElementTree as ET
 
 from tiflash.utils.connections import get_connections_directory
 from tiflash.utils.devices import get_devices_directory
@@ -43,7 +43,52 @@ def get_ccxml_directory():
     return ccxml_dir
 
 
-def get_serno_from_ccxml(ccxml_path):
+def get_devicetype(ccxml_path):
+    """Returns the devicetype from the ccxml file
+
+    Args:
+        ccxml_path (str): full path to ccxml file to parse
+
+    Returns:
+        str: devicetype set in ccxml file
+    """
+    devicetype = None
+    root = __get_ccxml_root(ccxml_path)
+
+    instance = root.find("configuration/connection/platform/instance")
+
+    if instance is None:
+        raise CCXMLError("Error parsing devicetype from ccxml.")
+
+    devicetype = xmlhelper.get_attrib_value(instance.attrib, ["desc", "id"])
+
+    return devicetype
+
+
+def get_connection(ccxml_path):
+    """Returns the connection from the ccxml file
+
+    Args:
+        ccxml_path (str): full path to ccxml file to parse
+
+    Returns:
+        str: connection set in ccxml file
+    """
+    connection = None
+    root = __get_ccxml_root(ccxml_path)
+
+    instance = root.find("configuration/connection")
+
+    if instance is None:
+        raise CCXMLError("Error parsing connection from ccxml.")
+
+    connection = xmlhelper.get_attrib_value(instance.attrib, ["id"])
+
+    return connection
+
+
+
+def get_serno(ccxml_path):
     """Returns the serno from the ccxml file
 
     Args:
@@ -52,19 +97,18 @@ def get_serno_from_ccxml(ccxml_path):
     Returns:
         str: serial number set in ccxml file
     """
-    xmldoc = minidom.parse(ccxml_path)
+    serno = None
+    root = __get_ccxml_root(ccxml_path)
 
-    try:
-        debugprobe_property = xmlhelper.get_unique_element_by(
-            xmldoc, tag='property', id='Debug Probe Selection')
-    except Exception:
-        raise CCXMLError("""%s does not support Debug Probe Selection
-            """ % ccxml_path)
+    instance = root.find("configuration/connection/"
+                            "property[@id='Debug Probe Selection']/"
+                            "choice[@Name='Select by serial number']/property")
 
-    serno_property = xmlhelper.get_unique_element_by(debugprobe_property,
-                                                     tag='property')
+    if instance is None:
+        raise CCXMLError("%s does not support Debug Probe Selection"
+                            % ccxml_path)
 
-    serno = xmlhelper.get_attribute_value(serno_property, 'Value')
+    serno = xmlhelper.get_attrib_value(instance.attrib, ["Value"])
 
     return serno
 
@@ -82,16 +126,21 @@ def add_serno(ccxml_path, serno, ccs_path):
     # Get Serial Number Element from Connection XML File
     serno_property = _create_serno_property(serno, conn_xml)
 
-    # Add serno property to ccxml file
-    ccxml_doc = minidom.parse(ccxml_path)
-    connection_element = xmlhelper.get_unique_element_by(ccxml_doc,
-                                                         tag='connection')
-    platform_element = xmlhelper.get_unique_element_by(ccxml_doc,
-                                                       tag='platform')
+    tree = xmlhelper.get_xml_tree(ccxml_path)
+    root = tree.getroot()
 
-    connection_element.insertBefore(serno_property, platform_element)
+    connection_element = root.find("configuration/connection")
+    last_property_element = connection_element.find("property[last()]")
 
-    ccxml_doc.writexml(open(ccxml_path, 'w'))
+    # Get index of where to insert serno property
+    children = connection_element.getchildren()
+    serno_index = children.index(last_property_element) + 1
+
+    # Insert serno property
+    connection_element.insert(serno_index, serno_property)
+
+    # Update ccxml file
+    tree.write(ccxml_path, encoding='utf-8', xml_declaration=True)
 
     return True
 
@@ -109,44 +158,41 @@ def _create_serno_property(serno, conn_xml):
         xml.Element: an xml.Element representing the serial number property to
             be added to an xml tree
     """
-    xmldoc = minidom.parse(conn_xml)
 
-    try:
-        serno_property = xmlhelper.get_unique_element_by(
-            xmldoc, tag='property', ID='SEPK.POD_PORT')
-    except Exception:
-        raise CCXMLError("""This connection does support
-            Serial Number specification""")
+    tree = xmlhelper.get_xml_tree(conn_xml)
+    root = tree.getroot()
 
-    serno_property.setAttribute('id', serno_property.attributes['Name'].value)
-    serno_property.removeAttribute('Name')
+    debugprobe_property = root.find("property[@Name='Debug Probe Selection']")
 
-    if serno_property.hasAttribute('desc'):
-        serno_property.removeAttribute('desc')
+    if debugprobe_property is None:
+        raise CCXMLError("This connection does support "
+                        "Serial Number specification")
 
-    serno_property.setAttribute('Value', '1')
+    debugprobe_property.attrib['id'] = debugprobe_property.attrib.pop('Name')
 
-    serno_property.removeAttribute('ID')
+    debugprobe_property.attrib.pop('desc', None)
 
-    serno_choice = xmlhelper.get_unique_element_by(
-        serno_property, tag='choice', Name='Select by serial number')
+    debugprobe_property.attrib['Value'] = '1'
 
-    prop = xmlhelper.get_unique_element_by(serno_choice, tag='property',
-                                           ID='SEPK.POD_SERIAL')
+    debugprobe_property.attrib.pop('ID')
 
-    prop.setAttribute('Value', serno)
-    prop.setAttribute('id', prop.getAttribute('Name'))
-    prop.removeAttribute('ID')
-    prop.removeAttribute('Name')
+    serno_property = debugprobe_property.find(
+        "choice[@Name='Select by serial number']"
+        "/property[@ID='SEPK.POD_SERIAL']")
 
-    choice_list = xmlhelper.get_elements_by(serno_property, tag='choice')
+    serno_property.attrib['Value'] = serno
+    serno_property.attrib['id'] = serno_property.attrib.pop('Name')
+    serno_property.attrib.pop('ID')
 
-    # Remove any extra choices
-    for choice in choice_list:
-        if choice is not serno_choice:
-            serno_property.removeChild(choice)
+    serno_choice = debugprobe_property.find(
+                        "choice[@Name='Select by serial number']")
 
-    return serno_property
+    choices = debugprobe_property.getchildren()
+    for choice in choices:
+        if choice != serno_choice:
+            debugprobe_property.remove(choice)
+
+    return debugprobe_property
 
 
 def get_connection_xml(ccxml_path, ccs_path):
@@ -159,16 +205,17 @@ def get_connection_xml(ccxml_path, ccs_path):
     Returns:
         (str) path to connection xml
     """
-    xmldoc = minidom.parse(ccxml_path)
+    root = xmlhelper.get_xml_root(ccxml_path)
     xmlpath = None
 
-    try:
-        connection_element = xmlhelper.get_unique_element_by(
-            xmldoc, 'xml', tag='instance', xmlpath='connections')
-    except Exception:
+    connection_name = get_connection(ccxml_path)
+    connection_instance = root.find("configuration/instance[@id='%s']"
+                                    % connection_name)
+    if connection_instance is None:
         raise CCXMLError("Could not find connection xml from given ccxml file")
 
-    xmlname = xmlhelper.get_attribute_value(connection_element, 'xml')
+    xmlname = connection_instance.attrib['xml']
+
     xmlpath = get_connections_directory(ccs_path) + '/' + xmlname
     xmlpath = os.path.normpath(xmlpath)
 
@@ -185,30 +232,36 @@ def get_device_xml(ccxml_path, ccs_path):
     Returns:
         (str) path to device xml
     """
-    xmldoc = minidom.parse(ccxml_path)
+    root = xmlhelper.get_xml_root(ccxml_path)
     xmlpath = None
 
-    try:
-        device_element = xmlhelper.get_unique_element_by(
-            xmldoc, 'xml', tag='instance', xmlpath='devices')
-    except Exception:
+    device_instance = root.find("configuration/connection/platform/instance[@xml]")
+    if device_instance is None:
         raise CCXMLError("Could not find device xml from given ccxml file")
 
-    xmlname = xmlhelper.get_attribute_value(device_element, 'xml')
+    xmlname = device_instance.attrib['xml']
+
     xmlpath = get_devices_directory(ccs_path) + '/' + xmlname
     xmlpath = os.path.normpath(xmlpath)
 
     return xmlpath
 
 
-def get_ccxmls():
+def get_ccxmls(full_path=False):
     """Gets a list of the target configurations (ccxml files)
+
+    Args:
+        full_path (boolean, optional): returns full path of each ccxml
 
     Returns:
         list: list of target configurations (ccxml files)
     """
     ccxml_dir = get_ccxml_directory()
     ccxmls = [f for f in os.listdir(ccxml_dir) if f.endswith('.ccxml')]
+
+    if full_path:
+        ccxmls = [ os.path.abspath(ccxml_dir + '/' + c) for c in ccxmls ]
+
 
     return ccxmls
 
@@ -232,3 +285,20 @@ def get_ccxml_path(ccxml_name):
         ccxml_path = os.path.normpath(get_ccxml_directory() + "/" + ccxml_name)
 
     return ccxml_path
+
+
+def __get_ccxml_root(ccxml_path):
+    """Returns the root Element of the ccxml file
+
+    Args:
+        ccxml_path (str): full path to ccxml file to parse
+
+    Returns:
+        xml.Element: root element of ccxml file
+    """
+    if not os.path.exists(ccxml_path):
+        raise CCXMLError("Could not find ccxml: %s" % ccxml_path)
+
+    root = xmlhelper.get_xml_root(ccxml_path)
+
+    return root

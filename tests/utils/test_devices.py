@@ -18,13 +18,13 @@ class TestDevices():
 
         assert type(result) is list
 
-    def test_get_device_name(self, t_env):
+    def test_get_devicetype(self, t_env):
         expected = "CC1350F128"
         devicexml = os.path.normpath(t_env['CCS_PATH'] +
                                      "/ccs_base/common/targetdb/devices"
                                      "/cc1350f128.xml")
 
-        result = devices.get_device_name(devicexml)
+        result = devices.get_devicetype(devicexml)
 
         assert result == expected
 
@@ -66,8 +66,8 @@ class TestDevices():
         ("L410", "CC1352R1F3"),
         ("L420", "CC1352P1F3"),
     ])
-    def test_get_device_by_serno(self, t_env, serno, expected):
+    def test_get_device_from_serno(self, t_env, serno, expected):
 
-        result = devices.get_device_by_serno(serno, t_env['CCS_PATH'])
+        result = devices.get_device_from_serno(serno, t_env['CCS_PATH'])
 
         assert result == expected
