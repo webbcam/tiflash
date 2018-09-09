@@ -22,7 +22,7 @@ class TestCCXML():
             t_env['TARGET_CONFIG_PATH'] + '/%s.ccxml' % serno)
         expected = serno
 
-        result = ccxml.get_serno_from_ccxml(ccxml_path)
+        result = ccxml.get_serno(ccxml_path)
 
         assert result == expected
 
@@ -33,8 +33,7 @@ class TestCCXML():
         result = ccxml.add_serno(temp_ccxml, expected, t_env['CCS_PATH'])
         assert result is True
 
-        result = ccxml.get_serno_from_ccxml(
-            temp_ccxml)    # make this independent
+        result = ccxml.get_serno( temp_ccxml) # make this independent
         assert result == expected
 
     def test_get_connection_xml(self, t_env):

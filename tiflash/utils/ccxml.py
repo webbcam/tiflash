@@ -211,10 +211,14 @@ def get_connection_xml(ccxml_path, ccs_path):
     connection_name = get_connection(ccxml_path)
     connection_instance = root.find("configuration/instance[@id='%s']"
                                     % connection_name)
-    if connection_instance is None:
+    conn_element = root.find("configuration/connection")
+    p_conn_element = root.find("configuration/connection/..")
+
+    conn_instance = xmlhelper.get_sibling(conn_element, p_conn_element, -1)
+    if conn_instance is None:
         raise CCXMLError("Could not find connection xml from given ccxml file")
 
-    xmlname = connection_instance.attrib['xml']
+    xmlname = conn_instance.attrib['xml']
 
     xmlpath = get_connections_directory(ccs_path) + '/' + xmlname
     xmlpath = os.path.normpath(xmlpath)
