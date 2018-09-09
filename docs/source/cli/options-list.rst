@@ -1,10 +1,10 @@
-.. _options:
+.. _options-list:
 
-Options
-#######
+Options-List
+############
 
 .. argparse::
     :module: tiflash.core.__main__
     :func: generate_parser
     :prog: tiflash
-    :path: options
+    :path: options-list

@@ -32,9 +32,9 @@ def generate_parser():
     full_version = "tiflash: %s - python: %s" % (tiflash.__version__, python_version())
 
     main_parser = argparse.ArgumentParser(prog="tiflash", parents=[SessionParser],
-        usage="tiflash [Session Arguments] <Command> [Command Arguments]")
-    main_parser._positionals.title = "Commands"
-    main_parser._optionals.title = "Session Arguments"
+        usage="tiflash [session arguments] <command> [command arguments]")
+    main_parser._positionals.title = "commands"
+    main_parser._optionals.title = "session arguments"
     main_parser.add_argument('-v', '--version', action='version',
                         version=tiflash.__version__,
                         help='print tiflash version')
