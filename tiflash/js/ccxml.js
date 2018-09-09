@@ -19,22 +19,9 @@ function generate_ccxml(server, scriptEnv, options)
     //  Set Connection
     configGenerator.setConnection(options.connection.join(' '));
     //  Set Device
-    configGenerator.setDevice(options.devicetype);
+    configGenerator.setDevice(options.devicetype.join(' '));
     //  Create Configuration
-    configGenerator.createConfiguration(options.ccxml);
-
-    /*
-    try {
-    //  Set Connection
-        configGenerator.setConnection(options.connection.join(' '));
-    //  Set Device
-        configGenerator.setDevice(options.devicetype);
-    //  Create Configuration
-        configGenerator.createConfiguration(options.ccxml);
-    } catch (e) {
-        return false;
-    }
-    */
+    configGenerator.createConfiguration(options.ccxml.join(' '));
 
     return true;
 }

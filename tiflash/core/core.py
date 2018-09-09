@@ -202,9 +202,10 @@ class TIFlash(object):
         # Add genccxml args to self.args
         args.update({'genccxml': genccxml_args})
 
-        (code, _) = self.__run_cmd(args)
+        (code, msg) = self.__run_cmd(args)
         if not code or not os.path.exists(ccxml_path):
-            raise TIFlashError("Could not successfully generate ccxml file")
+            raise TIFlashError(msg)
+            #raise TIFlashError("Could not successfully generate ccxml file")
 
         # Add serial number to ccxml file
         if serno:

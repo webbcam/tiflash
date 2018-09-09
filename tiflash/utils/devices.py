@@ -46,7 +46,7 @@ def get_devices_directory(ccs_path):
     return devices_directory
 
 
-def get_device_xml(devicetype, ccs_path):
+def get_device_xml_from_devicetype(devicetype, ccs_path):
     """Returns full path to device xml given a devicetype if exists, else returns None.
 
     Args:
@@ -191,7 +191,6 @@ def get_device_xml_path(xml_name, ccs_path):
     if not xml_name.endswith('.xml'):
         xml_name += ".xml"
 
-    #   Set Connections directory
     device_xmls = get_device_xmls(ccs_path)
 
     if xml_name in device_xmls:

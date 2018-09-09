@@ -17,7 +17,7 @@ importPackage(Packages.java.lang)
 function start_session(server, scriptEnv, args)
 {
     //  TODO: add check for args.session.ccxml
-    server.setConfig(args.ccxml);
+    server.setConfig(args.ccxml.join(' '));
 
     //  TODO: add check for args.session.chip
     var debugSession = server.openSession(".*" + args.chip + ".*");
