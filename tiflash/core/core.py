@@ -202,9 +202,10 @@ class TIFlash(object):
         # Add genccxml args to self.args
         args.update({'genccxml': genccxml_args})
 
-        (code, _) = self.__run_cmd(args)
+        (code, msg) = self.__run_cmd(args)
         if not code or not os.path.exists(ccxml_path):
-            raise TIFlashError("Could not successfully generate ccxml file")
+            raise TIFlashError(msg)
+            #raise TIFlashError("Could not successfully generate ccxml file")
 
         # Add serial number to ccxml file
         if serno:
@@ -316,7 +317,7 @@ class TIFlash(object):
     def list_options(self, option_id=None):
         # Get devicetype for retrieving properties xml
         devicexml = ccxml.get_device_xml(self.ccxml, self.ccs_path)
-        devicetype = devices.get_device_name(devicexml)
+        devicetype = devices.get_devicetype(devicexml)
 
         dev_prop_xml = flash_properties.get_device_properties_xml(devicetype,
                                                        self.ccs_path)
@@ -740,7 +741,7 @@ class TIFlash(object):
             TIFlashError: raises if serno not set
             XDS110Error: raises if xds110_reset fails
         """
-        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+        serno = ccxml.get_serno(self.ccxml)
 
         if not serno:
             raise TIFlashError("Must provide 'serno' to call xds110_reset")
@@ -773,7 +774,7 @@ class TIFlash(object):
         Raises:
             XDS110Error: raises if xds110 firmware update fails
         """
-        serno = ccxml.get_serno_from_ccxml(self.ccxml)
+        serno = ccxml.get_serno(self.ccxml)
 
         if not serno:
             raise TIFlashError("Must provide 'serno' to call xds110_upgrade")

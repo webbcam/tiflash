@@ -11,7 +11,6 @@ Contact: webbjcam@gmail.com
 import os
 import re
 import json
-from xml.dom import minidom
 
 from tiflash.utils import xmlhelper
 
@@ -47,6 +46,160 @@ def get_devices_directory(ccs_path):
     return devices_directory
 
 
+def get_device_xml_from_devicetype(devicetype, ccs_path):
+    """Returns full path to device xml given a devicetype if exists, else returns None.
+
+    Args:
+        devicetype (str): devicetype to search xmls for
+        ccs_path (str): path to ccs installation to use for searching xmls
+
+    Returns:
+        str or None: full path to device xml if exists, otherwise returns None
+
+    Raises:
+        DeviceError: raises exception if devices directory can not
+            be found
+    """
+    device_xml = None
+
+    # Get devices xmls
+    device_xmls = get_device_xmls(ccs_path, full_path=True)
+
+    for dxml in device_xmls:
+        try:    # Some xmls are not valid device xml files
+            device = get_devicetype(dxml)
+        except Exception:
+            continue
+
+        if device == devicetype:
+            device_xml = os.path.normpath(dxml)
+            break
+
+    else:
+        raise DeviceError("Could not find device xml for %s. Please install "
+                            "drivers for %s.""" % (devicetype, devicetype))
+
+    return device_xml
+
+
+def get_devicetype(device_xml):
+    """Returns the devicetype from the device xml file
+
+    Args:
+        device_xml (str): full path to device xml file
+
+    Returns:
+        str: devicetype set in device xml file
+    """
+    devicetype = None
+    root = __get_device_root(device_xml)
+
+    if root.tag != "device":
+        raise DeviceError("Error parsing devicetype from device xml: %s" %
+                        device_xml)
+
+    devicetype = xmlhelper.get_attrib_value(root.attrib, ["desc", "partnum", "id"])
+
+    return devicetype
+
+
+def get_cpu(device_xml):
+    """Returns the cpu name from device xml file.
+
+    Args:
+        device_xml (str): full path to the device xml file to parse
+
+    Returns:
+        str: cpu name
+    """
+    cpu = None
+    root = __get_device_root(device_xml)
+
+    cpu_element = root.find(".//cpu")
+    if cpu_element is None:
+        raise DeviceError("Error parsing cpu from device xml: %s" % device_xml)
+
+    cpu = xmlhelper.get_attrib_value(cpu_element.attrib, ["desc", "id"])
+
+    return cpu
+
+
+def get_default_connection_xml(device_xml, ccs_path):
+    """Returns the default connection xml from the device xml file
+
+    Args:
+        device_xml (str): full path to device xml file
+
+    Returns:
+        str: default connection xml set in device xml file
+
+    Raises:
+        DeviceError: raised if device xml does not contain 'default connection'
+    """
+    connection_xml = None
+    root = __get_device_root(device_xml)
+
+    conn_element = root.find(".//property[@id='DefaultConnection']")
+
+    if conn_element is None:
+        raise DeviceError("Device XML: %s does not contain a Default "
+                            "Connection type." % device_xml)
+
+    xml_name = xmlhelper.get_attrib_value(conn_element.attrib, ["Value"])
+
+
+    connection_xml = get_connections_directory(ccs_path) + '/' + xml_name
+    connection_xml = os.path.normpath(connection_xml)
+
+    return connection_xml
+
+
+def get_device_xmls(ccs_path, full_path=False):
+    """Gets a list of the device xmls files
+
+    Args:
+        ccs_path (str): path to ccs installation
+        full_path (boolean, optional): returns full path of each device xml
+
+    Returns:
+        list: list of device xml files
+    """
+    device_dir = get_devices_directory(ccs_path)
+    devices = [f for f in os.listdir(device_dir) if f.endswith('.xml')]
+
+    if full_path:
+        devices = [ os.path.abspath(device_dir + '/' + c) for c in devices ]
+
+    return devices
+
+
+def get_device_xml_path(xml_name, ccs_path):
+    """Returns full path to device xml if exists, else returns None.
+
+    Args:
+        xml_name (str): name of device to search xmls for
+        ccs_path (str): path to ccs installation to use for searching xmls
+
+    Returns:
+        str or None: full path to device xml if exists otherwise returns None
+
+    Raises:
+        deviceError: raises exception if device directory can not be found
+    """
+    device_xml = None
+
+    if not xml_name.endswith('.xml'):
+        xml_name += ".xml"
+
+    device_xmls = get_device_xmls(ccs_path)
+
+    if xml_name in device_xmls:
+        device_xml = os.path.normpath(
+                            get_devices_directory(ccs_path) + "/" + xml_name)
+
+    return device_xml
+
+
 def get_cpu_xml(device_xml, ccs_path):
     """Returns the full path to cpu xml specified in given device xml
 
@@ -56,54 +209,26 @@ def get_cpu_xml(device_xml, ccs_path):
     Returns:
         str: full path to cpu xml
     """
-    if not os.path.exists(device_xml):
-        raise DeviceError("Cannot find '%s' "
-                          "Please install drivers for this device."
-                          % device_xml)
+    cpu_xml = None
+    root = __get_device_root(device_xml)
 
-    xmldoc = minidom.parse(device_xml)
+    cpu_element = root.find(".//cpu")
+    p_cpu_element = root.find(".//cpu/..")
 
-    try:
-        cpu = xmlhelper.get_unique_element_by(xmldoc, tag='instance',
-                                              xmlpath='cpus')
-        cpu_xml = xmlhelper.get_attribute_value(cpu, 'xml')
-        cpu_xml = os.path.normpath(
-            get_cpus_directory(ccs_path) + '/' + cpu_xml)
+    if cpu_element is None or p_cpu_element is None:
+        raise DeviceError("Error parsing cpu from device xml: %s" % device_xml)
 
-    except xmlhelper.XMLHelperError:
-        cpu_xml = None
+    instance_element = xmlhelper.get_sibling(cpu_element, p_cpu_element, -1)
+
+    if instance_element is None:
+        raise DeviceError("Error parsing instance-cpu from device xml: %s" % device_xml)
+
+    xml_name = xmlhelper.get_attrib_value(instance_element.attrib, ["xml"])
+
+    cpu_xml = get_cpus_directory(ccs_path) + '/' + xml_name
+    cpu_xml = os.path.normpath(cpu_xml)
 
     return cpu_xml
-
-
-def get_default_connection_xml(device_xml, ccs_path):
-    """Returns the full path to connection xml specified in given device xml
-    by 'DefaultConnection'
-
-    Args:
-        device_xml (str): full path to device xml to parse
-
-    Returns:
-        str: full path to connection xml
-    """
-    if not os.path.exists(device_xml):
-        raise DeviceError("Cannot find '%s' "
-                          "Please install drivers for this device."
-                          % device_xml)
-
-    xmldoc = minidom.parse(device_xml)
-
-    try:
-        connection = xmlhelper.get_unique_element_by(xmldoc, tag='property',
-                                                     id='DefaultConnection')
-        connection_xml = xmlhelper.get_attribute_value(connection, 'Value')
-        connection_xml = os.path.normpath(get_connections_directory(ccs_path) +
-                                          '/' + connection_xml)
-    except xmlhelper.XMLHelperError:
-        raise DeviceError("Could not retrieve default connection xml from: %s"
-                          % device_xml)
-
-    return connection_xml
 
 
 def get_devices(ccs_path):
@@ -127,88 +252,17 @@ def get_devices(ccs_path):
     devices_directory = get_devices_directory(ccs_path)
 
     #   Get devices xmls
-    device_xmls = list()
-    for x in os.listdir(devices_directory):
-        x_fullpath = devices_directory + "/" + x
-        if os.path.isfile(x_fullpath) and x_fullpath.endswith(".xml"):
-            device_xmls.append(x_fullpath)
+    device_xmls = get_device_xmls(ccs_path, full_path=True)
 
     device_list = list()
     for cxml in device_xmls:
         try:    # Some xmls are not valid device xml files
-            device = get_device_name(cxml)
+            device = get_devicetype(cxml)
         except Exception:
             continue
         device_list.append(device)
 
     return device_list
-
-
-def get_device_xml(device_name, ccs_path):
-    """Returns full path to device xml if exists, else returns None.
-
-    Args:
-        device_name (str): name of device to search xmls for
-        ccs_path (str): path to ccs installation to use for searching xmls
-
-    Returns:
-        str or None: full path to device xml if exists, otherwise returns None
-
-    Raises:
-        DeviceError: raises exception if devices directory can not
-            be found
-    """
-    device_xml = None
-
-    #   Set Devices directory
-    devices_directory = get_devices_directory(ccs_path)
-
-    # Get devices xmls
-    device_xmls = list()
-    for x in os.listdir(devices_directory):
-        x_fullpath = devices_directory + "/" + x
-        if os.path.isfile(x_fullpath) and x_fullpath.endswith(".xml"):
-            device_xmls.append(x_fullpath)
-
-    for dxml in device_xmls:
-        try:    # Some xmls are not valid device xml files
-            device = get_device_name(dxml)
-        except Exception:
-            continue
-
-        if device == device_name.upper():
-            device_xml = os.path.normpath(dxml)
-            break
-
-    else:
-        raise DeviceError("""Could not find device xml for %s. Please install
-            drivers for %s.""" % (device_name, device_name))
-
-    return device_xml
-
-
-def get_device_name(xmlfile):
-    """ Returns full device name (as specified in devicexml)
-
-    Opens device xml file and reads 'desc' of device tag.
-
-    Args:
-        xmlfile (str): full path to device xml file to parse
-
-    Returns:
-        str: device name
-
-    Raises:
-        DeviceError: raises exception xml is unable to be parsed
-
-    """
-    xmldoc = minidom.parse(xmlfile)
-    device_element = xmlhelper.get_unique_element_by(
-        xmldoc, 'partnum', tag='device')
-
-    device_name = xmlhelper.get_attribute_value(device_element, 'partnum')
-
-    return device_name
 
 
 def find_device(device_name, ccs_path):
@@ -240,7 +294,7 @@ def find_device(device_name, ccs_path):
     return match_list
 
 
-def get_device_xml_by_serno(serno, ccs_path):
+def get_device_xml_from_serno(serno, ccs_path):
     """ Returns full path to device xml determined by device serial no.
 
     Uses board_ids.json file to determine devicetype from serial no.
@@ -258,9 +312,7 @@ def get_device_xml_by_serno(serno, ccs_path):
             determined by given serial number
 
     """
-    devices_directory = ccs_path + DEVICES_DIR
-    if not os.path.isdir(devices_directory):
-        raise DeviceError("Could not find 'devices' directory.")
+    devices_directory = get_devices_directory(ccs_path)
 
     # Allow for using custom boards_id file by placing custom file in utils/
     custom_board_ids_path = os.path.normpath(os.path.dirname(__file__) + '/' +
@@ -287,14 +339,14 @@ def get_device_xml_by_serno(serno, ccs_path):
             raise DeviceError(
                 "Could not determine devicetype from %s." % serno)
 
-        dxml_fullpath = devices_directory + "/" + dxml
+        dxml_fullpath = os.path.abspath(devices_directory + "/" + dxml)
         if not os.path.isfile(dxml_fullpath):
             raise DeviceError("Could not find '%s' file." % dxml)
 
         return dxml_fullpath
 
 
-def get_device_by_serno(serno, ccs_path):
+def get_device_from_serno(serno, ccs_path):
     """ Returns full device name determined by device serial no.
 
     Uses board_ids.json file to determine devicetype from serial no.
@@ -312,6 +364,23 @@ def get_device_by_serno(serno, ccs_path):
             determined by given serial number
 
     """
-    dxml_fullpath = get_device_xml_by_serno(serno, ccs_path)
+    dxml_fullpath = get_device_xml_from_serno(serno, ccs_path)
 
-    return get_device_name(dxml_fullpath)
+    return get_devicetype(dxml_fullpath)
+
+
+def __get_device_root(device_path):
+    """Returns the root Element of the device file
+
+    Args:
+        device_path (str): full path to device file to parse
+
+    Returns:
+        xml.Element: root element of device file
+    """
+    if not os.path.exists(device_path):
+        raise DeviceError("Could not find device: %s" % device_path)
+
+    root = xmlhelper.get_xml_root(device_path)
+
+    return root
