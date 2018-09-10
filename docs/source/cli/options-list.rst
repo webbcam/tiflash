@@ -1,6 +1,6 @@
 .. _options-list:
 
-Options-List
+Options-list
 ############
 
 .. argparse::

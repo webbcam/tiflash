@@ -5,20 +5,16 @@ Commands
 
 .. toctree::
     :hidden:
-    :maxdepth: 1
+    :maxdepth: 3
 
     reset
     flash
     erase
     verify
-    memory-read
-    memory-write
+    memory
     evaluate
-    xds110-reset
-    xds110-upgrade
-    xds110-list
-    options-get
-    options-list
+    xds110
+    options
     attach
     list
 
@@ -53,15 +49,9 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
-    :ref:`Memory-Read <memory-read>`
+    :ref:`Memory <memory>`
 
-*read from memory location in device's flash*
-
-.. container::
-
-    :ref:`Memory-Write <memory-write>`
-
-*write to memory location in device's flash*
+*read/write to memory location in device's flash*
 
 .. container::
 
@@ -71,39 +61,21 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
-    :ref:`XDS110-Reset <xds110-reset>`
+    :ref:`XDS110 <xds110>`
 
-*run xds110-reset command*
-
-.. container::
-
-    :ref:`XDS110-Upgrade <xds110-upgrade>`
-
-*run xds110-upgrade command*
+*run an xds110 command*
 
 .. container::
 
-    :ref:`XDS110-List <xds110-list>`
+    :ref:`Options <options>`
 
-*run xds110-list command*
+*get/set/list device specific options*
 
 .. container::
 
     :ref:`List <list>`
 
 *list environment/device information*
-
-.. container::
-
-    :ref:`Options-Get <options-get>`
-
-*get an option on a device*
-
-.. container::
-
-    :ref:`Options-List <options-list>`
-
-*list options for a device*
 
 .. container::
 

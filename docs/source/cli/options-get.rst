@@ -1,6 +1,6 @@
 .. _options-get:
 
-Options-Get
+Options-get
 ###########
 
 .. argparse::

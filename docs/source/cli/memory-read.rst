@@ -1,7 +1,7 @@
 .. _memory-read:
 
-Memory-Read
-###########
+Memory-read
+########
 
 .. argparse::
     :module: tiflash.core.__main__

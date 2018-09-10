@@ -1,7 +1,7 @@
 .. _memory-write:
 
-Memory-Write
-############
+Mem-write
+#########
 
 .. argparse::
     :module: tiflash.core.__main__
