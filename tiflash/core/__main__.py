@@ -78,11 +78,11 @@ def generate_parser():
         description="Flash a device with an image(s).")
 
     # Memory
-    sub_parsers.add_parser('mem-read', parents=[MemoryReadParser],
-        usage="tiflash [Session Arguments] mem-read <address> [optionals]",
+    sub_parsers.add_parser('memory-read', parents=[MemoryReadParser],
+        usage="tiflash [Session Arguments] memory-read <address> [optionals]",
         description="Read from memory location on a device.")
-    sub_parsers.add_parser('mem-write', parents=[MemoryWriteParser],
-        usage="tiflash [Session Arguments] mem-write <address> [optionals]",
+    sub_parsers.add_parser('memory-write', parents=[MemoryWriteParser],
+        usage="tiflash [Session Arguments] memory-write <address> [optionals]",
         description="Write to memory location on a device.")
 
     # Evaluate
@@ -297,7 +297,7 @@ def handle_memory(args):
     """Helper function for handling 'memory' command"""
     session_args = get_session_args(args)
 
-    if args.cmd == 'mem-read':
+    if args.cmd == 'memory-read':
         try:
             result = tiflash.memory_read(args.address, args.num_bytes, args.page,
                 **session_args)
@@ -306,7 +306,7 @@ def handle_memory(args):
             print(result)
         except Exception as e:
             print(e)
-    elif args.cmd == 'mem-write':
+    elif args.cmd == 'memory-write':
         try:
             result = tiflash.memory_write(args.address, args.data, args.page,
                 **session_args)
@@ -403,8 +403,8 @@ def main(args=None):
         handle_flash(args)
 
     # Memory
-    elif args.cmd == 'mem-read' \
-        or args.cmd == 'mem-write':
+    elif args.cmd == 'memory-read' \
+        or args.cmd == 'memory-write':
         handle_memory(args)
 
     # Expression
