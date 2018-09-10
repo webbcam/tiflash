@@ -1,7 +1,8 @@
 import os
+import xml.etree.ElementTree as ET
 
 TARGETDB_DIR = "/ccs_base/common/targetdb"
-PROPERTYDB_DIR = "/ccs_basse/DebugServer/propertyDB"
+PROPERTYDB_DIR = "/ccs_base/DebugServer/propertyDB"
 CONNECTIONS = "/connections"
 CPUS = "/cpus"
 DEVICES = "/devices"
@@ -10,6 +11,123 @@ DEVICES = "/devices"
 class XMLHelperError(Exception):
     """Generic XML Helper Error"""
     pass
+
+
+def get_attrib_value(attribs, options, clean=True):
+    """Helper for getting value from attributes.
+
+    Pass this function the attrib dict of an element and a list of orded
+    attributes to try to get the value for. If the first attrib in the list
+    exists, the value of that attrib will be returned. Otherwise the next
+    attrib in the list will be searched for and so on. If none of the attribs
+    in the list are found, an Exception will be raised.
+
+    Args:
+        attribs (dict): dictionary of an element's attributes
+        options (list): ordered list of attributes to look for
+        clean (boolean): automatically clean attrib value before returning
+                        (default=True)
+
+    Returns:
+        str: value of the found attribute
+
+    Raises:
+        XMLHelperError: raised if none of the attributes in the options list
+                        are found
+    """
+    keys = attribs.keys()
+    value = None
+
+    for opt in options:
+        if opt in keys:
+            value = attribs[opt]
+            break
+    else:
+        raise XMLHelperError("Could not find any of the provided attribute "
+                            "options in the attributes dict.")
+
+    if clean:
+        value = clean_attrib(value)
+
+    return value
+
+
+def clean_attrib(value):
+    """Cleans up value string.
+
+    Removes any trailing '_0' that randomly show up
+
+    Args:
+        value (str): attrib value to clean
+
+    Returns:
+        str: cleaned attribute value
+    """
+    clean_value = value
+    if value.endswith("_0"):
+        clean_value = clean_value.strip('_0')
+
+    return clean_value
+
+
+def get_xml_tree(xml_path):
+    """Parses xml file and returns am xml tree.
+
+    Args:
+        xml_path (str): full path to xml file to parse
+
+    Returns:
+        ElementTree.Tree: ElementTree representing xml file
+    """
+    if not os.path.exists(xml_path):
+        raise XMLHelperError("Could not find xml file: %s" % xml_path)
+
+    tree = ET.parse(xml_path)
+
+    return tree
+
+
+def get_xml_root(xml_path):
+    """Gets the root element of the xml file.
+
+    Args:
+        xml_path (str): full path to xml file to parse
+
+    Returns:
+        ElementTree.Element: root element of xml doc
+    """
+    if not os.path.exists(xml_path):
+        raise XMLHelperError("Could not find xml file: %s" % xml_path)
+
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+
+    return root
+
+def get_sibling(target_node, parent_node, index):
+    """Returns the sibling node at the index relative to the target_node.
+
+    As an example:
+        target-node index = 0
+        previous-sibling index = -1
+        next-sibling index = 1
+
+
+    Args:
+        target_node (Element): reference node to get sibling node from
+        parent_node (Element): parent node to target and sibling nodes
+        index (int): index relative to target node (target node index = 0)
+
+    Returns:
+        Element: sibling node that
+                no previous sibling node exists
+
+    """
+    children = parent_node.getchildren()
+    abs_index = children.index(target_node) + index
+
+    return children[abs_index]
+
 
 
 def extract_ccs_path(file_path):

@@ -2,6 +2,7 @@ import os
 
 from tiflash.core.core import TIFlash, TIFlashError
 from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
+                                get_devicetype, get_connection, get_serno,
                                  get_connection_xml, get_ccxml_path)
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, FindCCSError
 from tiflash.utils import cpus
@@ -15,38 +16,6 @@ class TIFlashAPIError(TIFlashError):
     pass
 
 
-def __get_connection_from_ccxml(ccxml_path, ccs_path):
-    """Returns the connection name determined from the ccxml file
-
-    Args:
-        ccxml_path (str): full path to ccxml file
-        ccs_path (str): full path to ccs directory
-
-    Returns:
-        str: returns devicetype name
-    """
-    conn_xml = get_connection_xml(ccxml_path, ccs_path)
-    connection = connections.get_connection_name(conn_xml)
-
-    return connection
-
-
-def __get_devicetype_from_ccxml(ccxml_path, ccs_path):
-    """Returns the devicetype determined from the ccxml file
-
-    Args:
-        ccxml_path (str): full path to ccxml file
-        ccs_path (str): full path to ccs directory
-
-    Returns:
-        str: returns devicetype name
-    """
-    device_xml = get_device_xml(ccxml_path, ccs_path)
-    devicetype = devices.get_device_name(device_xml)
-
-    return devicetype
-
-
 def __get_cpu_from_ccxml(ccxml_path, ccs_path):
     """Returns the cpu name determined from the ccxml file
 
@@ -58,8 +27,7 @@ def __get_cpu_from_ccxml(ccxml_path, ccs_path):
         str: returns cpu name
     """
     device_xml = get_device_xml(ccxml_path, ccs_path)
-    cpu_xml = devices.get_cpu_xml(device_xml, ccs_path)
-    cpu = cpus.get_cpu_name(cpu_xml)
+    cpu = devices.get_cpu(device_xml)
 
     return cpu
 
@@ -91,18 +59,56 @@ def __handle_ccs(ccs):
 
     return ccs_path
 
+def __generate_ccxml(ccs_path, serno=None,
+                   devicetype=None, connection=None):
+    """Helper function for generating ccxml files using the provided
+    information.
 
-# TODO: This function is shit; need to refactor and clean it up
+    Args:
+        ccs_path (str): path to ccs installation
+        connection type (str, optional): connection type to use when
+            generating new ccxml file
+        devicetype (str, optional): devicetype to use when generating new
+            ccxml file
+        serno (str, optional): serial number to use when creating new
+            ccxml file
+    """
+    devicexml = None
+    flash = TIFlash(ccs_path)
+
+    if devicetype:
+        devicexml = devices.get_device_xml_from_devicetype(devicetype, ccs_path)
+    elif serno:
+        devicexml = devices.get_device_xml_from_serno(serno, ccs_path)
+    else:
+        raise TIFlashError("Could not determine devicetype to use.")
+
+    if not devicetype:
+        devicetype = devices.get_devicetype(devicexml)
+
+    if not connection:
+        try:
+            connection_xml = devices.get_default_connection_xml(devicexml, ccs_path)
+            connection = connections.get_connection_name(connection_xml)
+        except Exception:
+            raise TIFlashError("Could not determine connection type to use.")
+
+
+    ccxml_path = flash.generate_ccxml(connection, devicetype, serno)
+    return ccxml_path
+
+
 def __handle_ccxml(ccs_path, ccxml=None, serno=None,
                    devicetype=None, connection=None, fresh=False):
     """Takes ccxml args and returns a corresponding ccxml file.
 
     CCXML args can be an existing ccxml file path itself or the necessary
-    components to create a ccxml file. If a serial number is provided, a check
-    will be done to see if the ccxml file already exists. If a serno is
-    provided but not the devicetype and/or connection, AND the ccxml needs
-    to be generated, then an attempt will be made to get the devicetype
-    and/or connection to use based off of the serial number.
+    components to create a ccxml file. If a serial number or devicetype
+    is provided, a check will be done to see if the ccxml file already
+    exists. If a serno is provided but not the devicetype and/or
+    connection, AND the ccxml needs to be generated, then an attempt
+    will be made to get the devicetype and/or connection to use based
+    off of the serial number.
 
     Args:
         ccs_path (str): path to ccs installation
@@ -118,72 +124,47 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
 
     """
     ccxml_path = None
-    flash = TIFlash(ccs_path)
+    default_devicetype = None
+    default_connection = None
+    default_serno = None
 
-    # if ccxml provided check it exists
-    if ccxml is not None:
+    if ccxml:
         if not os.path.exists(ccxml):
-            raise CCXMLError("Provided ccxml file does not exist: %s" % ccxml)
-
+            raise TIFlashError("Could not find ccxml: %s" % ccxml)
         ccxml_path = ccxml
 
-    # if serno check if ccxml exists already
-    elif serno is not None:
-        ccxml_path = get_ccxml_path(serno)
+    elif serno:
+        serno_ccxml = get_ccxml_path(serno)
+        if serno_ccxml is not None and os.path.exists(serno_ccxml):
+            ccxml_path = serno_ccxml
 
-    # Get devicetype/connection from ccxml
-    if ccxml_path is not None:
-        current_devicetype = __get_devicetype_from_ccxml(ccxml_path, ccs_path)
-        current_connection = __get_connection_from_ccxml(ccxml_path, ccs_path)
+    elif devicetype:
+        devicetype_ccxml = get_ccxml_path(devicetype)
+        if devicetype_ccxml is not None and os.path.exists(devicetype_ccxml):
+            ccxml_path = devicetype_ccxml
 
-        if devicetype is None or devicetype == current_devicetype:
-            devicetype = current_devicetype
-        else:
+    if ccxml_path:
+        default_devicetype = get_devicetype(ccxml_path)
+        default_connection = get_connection(ccxml_path)
+        try:
+            default_serno = get_serno(ccxml_path)
+        except Exception:
+            pass    # Device may not use serial numbers
+
+        if devicetype is not None and devicetype != default_devicetype:
             fresh = True
 
-        if connection is None or connection == current_connection:
-            connection = current_connection
-        else:
+        if connection is not None and connection != default_connection:
             fresh = True
 
-    # Get devicetype/connection from serno (defaults)
-    else:
-        # Generate new ccxml
-        fresh = True
+        if serno is not None and serno != default_serno:
+            fresh = True
 
-        # Get default devicetype if none provided
-        if devicetype is None:
-            try:
-                device_xml = devices.get_device_xml_by_serno(serno, ccs_path)
-                devicetype = devices.get_device_name(device_xml)
-            except Exception:
-                pass
-
-        # Get default connection if none provided
-        if connection is None:
-            try:
-                if devicetype is not None:
-                    device_xml = devices.get_device_xml(devicetype, ccs_path)
-                else:
-                    device_xml = devices.get_device_xml_by_serno(
-                        serno, ccs_path)
-                conn_xml = devices.get_default_connection_xml(
-                    device_xml, ccs_path)
-                connection = connections.get_connection_name(conn_xml)
-            except Exception:
-                pass
-
-    # Generate ccxml
-    if fresh is True:
-        if not devicetype:
-            raise connections.ConnectionsError("Could not determine "
-                "device type. Please provide device type to use.")
-
-        if not connection:
-            raise connections.ConnectionsError("Could not determine "
-                "connection type. Please provide connection type to use.")
-
-        ccxml_path = flash.generate_ccxml(connection, devicetype, serno)
+    if fresh or ccxml_path is None:
+        # Generate ccxml
+        ccxml_path = __generate_ccxml(ccs_path, serno=serno,
+                                     devicetype=devicetype,
+                                     connection=connection)
 
     return ccxml_path
 
