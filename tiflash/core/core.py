@@ -535,7 +535,7 @@ class TIFlash(object):
 
         Args:
             image (str): path to image to use for verifying
-            bin (bool): verifies image as binary if True
+            binary (bool): verifies image as binary if True
             address(int): offset address to verify image
             options (dict): dictionary of options in the format
                 {option_id: option_val}; These options are set first before
@@ -582,7 +582,7 @@ class TIFlash(object):
 
         Args:
             image (str): path to image to use for flashing
-            bin (bool): flashes image as binary if True
+            binary (bool): flashes image as binary if True
             address(int): offset address to flash image
             options (dict): dictionary of options in the format
                 {option_id: option_val}; These options are set first before
