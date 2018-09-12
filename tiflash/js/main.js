@@ -73,9 +73,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
     //  Print options
@@ -87,9 +84,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
 
@@ -104,8 +98,6 @@ function main()
             retcode = -1;
         }
 
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
 
@@ -157,9 +149,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
 
@@ -173,9 +162,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
     //  Standalone Erase function
@@ -187,8 +173,6 @@ function main()
             result = e;
             retcode = -1;
         }
-        //send_result(scriptEnv, port, result);
-        //quit(retcode);
     }
 
     //  Standalone Verify function
@@ -200,9 +184,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
     //  Board Reset function
@@ -214,9 +195,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
     //  Memory operations
@@ -239,9 +217,6 @@ function main()
                 retcode = -1;
             }
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
     }
 
     //  Evaluate Function
@@ -253,10 +228,6 @@ function main()
             result = e;
             retcode = -1;
         }
-
-        send_result(scriptEnv, port, result);
-        quit(retcode);
-
     }
 
 
