@@ -5,16 +5,20 @@ from pprint import pprint
 import tiflash
 from tiflash.core.args import (
     SessionParser,
-    OptionsParser,
+    OptionsGetParser,
+    OptionsListParser,
     ListParser,
     ResetParser,
     EraseParser,
     VerifyParser,
     FlashParser,
-    MemoryParser,
+    MemoryReadParser,
+    MemoryWriteParser,
     ExpressionParser,
     AttachParser,
-    XDS110Parser,
+    XDS110ResetParser,
+    XDS110UpgradeParser,
+    XDS110ListParser,
 
     get_session_args
 )
@@ -25,40 +29,82 @@ def generate_parser():
     Returns:
         argparse.ArgumentParser
     """
-    version = "tiflash: %s - python: %s" % (tiflash.__version__, python_version())
+    full_version = "tiflash: %s - python: %s" % (tiflash.__version__, python_version())
 
-    main_parser = argparse.ArgumentParser(prog="TIFlash",
-                                          parents=[SessionParser])
+    main_parser = argparse.ArgumentParser(prog="tiflash", parents=[SessionParser],
+        usage="tiflash [session arguments] <command> [command arguments]")
+    main_parser._positionals.title = "commands"
+    main_parser._optionals.title = "session arguments"
     main_parser.add_argument('-v', '--version', action='version',
                         version=tiflash.__version__,
                         help='print tiflash version')
     main_parser.add_argument('-V', '--VERSION', action='version',
-                        version=version,
+                        version=full_version,
                         help='print tiflash & python version')
 
     sub_parsers = main_parser.add_subparsers(dest='cmd')
-    sub_parsers.add_parser('options', parents=[OptionsParser],
-        description="Get or set a device option.")
+
+    # Options
+    sub_parsers.add_parser('options-get', parents=[OptionsGetParser],
+        usage="tiflash [Session Arguments] options-get <optionID> [optionals]",
+        description="Get value of a device option.")
+    sub_parsers.add_parser('options-list', parents=[OptionsListParser],
+        usage="tiflash [Session Arguments] options-list [optionID]",
+        description="List device options.")
+
+    # List
     sub_parsers.add_parser('list', parents=[ListParser],
+        usage="tiflash [Session Arguments] list [optionals]",
         description="List device/environment information.")
+
+    # Reset
     sub_parsers.add_parser('reset', parents=[ResetParser],
+        usage="tiflash [Session Arguments] reset [optionals]",
         description="Reset a device. (Board Reset)")
+
+    # Erase
     sub_parsers.add_parser('erase', parents=[EraseParser],
+        usage="tiflash [Session Arguments] erase [optionals]",
         description="Erase a device's flash.")
+
+    # Verify
     sub_parsers.add_parser('verify', parents=[VerifyParser],
+        usage="tiflash [Session Arguments] verify [optionals]",
         description="Verify an image on a device's flash.")
+
+    # Flash
     sub_parsers.add_parser('flash', parents=[FlashParser],
+        usage="tiflash [Session Arguments] flash [optionals]",
         description="Flash a device with an image(s).")
-    sub_parsers.add_parser('memory', parents=[MemoryParser],
-        description="Read/Write memory location on a device.")
+
+    # Memory
+    sub_parsers.add_parser('memory-read', parents=[MemoryReadParser],
+        usage="tiflash [Session Arguments] memory-read <address> [optionals]",
+        description="Read from memory location on a device.")
+    sub_parsers.add_parser('memory-write', parents=[MemoryWriteParser],
+        usage="tiflash [Session Arguments] memory-write <address> [optionals]",
+        description="Write to memory location on a device.")
+
+    # Evaluate
     sub_parsers.add_parser('evaluate', parents=[ExpressionParser],
+        usage="tiflash [Session Arguments] evaluate <expression> [optionals]",
         description="Evaluate a C/GEL expression on a device.")
-    sub_parsers.add_parser('attach', parents=[ExpressionParser],
-        description="Evaluate a C/GEL expression on a device.")
+
+    # Attach
     sub_parsers.add_parser('attach', parents=[AttachParser],
+        usage="tiflash [Session Arguments] attach",
         description="Open up CCS session & attach to device")
-    sub_parsers.add_parser('xds110', parents=[XDS110Parser],
-        description="Perform an xds110 command on a device")
+
+    # XDS110 Parsers
+    sub_parsers.add_parser('xds110-reset', parents=[XDS110ResetParser],
+        usage="tiflash [Session Arguments] xds110-reset",
+        description="Calls xds110reset on specified device")
+    sub_parsers.add_parser('xds110-upgrade', parents=[XDS110UpgradeParser],
+        usage="tiflash [Session Arguments] xds110-upgrade",
+        description="Upgrades XDS110 firmware on device")
+    sub_parsers.add_parser('xds110-list', parents=[XDS110ListParser],
+        usage="tiflash [Session Arguments] xds110-list",
+        description="Lists sernos of connected XDS110 devices")
 
 
     return main_parser
@@ -84,7 +130,7 @@ def handle_options(args):
     """Helper function for handling 'option' command"""
     session_args = get_session_args(args)
     # Get Option
-    if args.get:
+    if args.cmd == 'opitions-get':
         try:
             value = tiflash.get_option(args.get, pre_operation=args.operation,
                                    **session_args)
@@ -93,12 +139,12 @@ def handle_options(args):
             print(e)
 
     # Set Option
-    elif args.set:
+    elif args.cmd == 'options-set':
         print("Setting Option is unsupported at this time")
         pass
 
     # Display Option Information
-    else:
+    elif args.cmd == 'options-list':
         options = tiflash.list_options(option_id=args.optionID, **session_args)
         header = "Options (%s):" % args.optionID if args.optionID else "Options:"
         print(header)
@@ -139,7 +185,7 @@ def handle_list(args):
     results = []
     session_args = get_session_args(args)
     if args.devices:
-        results = tiflash.get_devices(args.ccs, search=args.search)
+        results = tiflash.get_devicetypes(args.ccs, search=args.search)
     elif args.connections:
         results = tiflash.get_connections(args.ccs, search=args.search)
     elif args.cpus:
@@ -251,7 +297,7 @@ def handle_memory(args):
     """Helper function for handling 'memory' command"""
     session_args = get_session_args(args)
 
-    if args.read:
+    if args.cmd == 'memory-read':
         try:
             result = tiflash.memory_read(args.address, args.num_bytes, args.page,
                 **session_args)
@@ -260,7 +306,7 @@ def handle_memory(args):
             print(result)
         except Exception as e:
             print(e)
-    elif args.write:
+    elif args.cmd == 'memory-write':
         try:
             result = tiflash.memory_write(args.address, args.data, args.page,
                 **session_args)
@@ -295,14 +341,14 @@ def handle_xds110(args):
     """Helper function for handling 'xds110' command"""
     session_args = get_session_args(args)
 
-    if args.reset:
+    if args.cmd == 'xds110-reset':
         try:
             result = tiflash.xds110_reset(**session_args)
             print(result)
         except Exception as e:
             print(e)
 
-    elif args.list:
+    elif args.cmd == 'xds110-list':
         try:
             result = tiflash.xds110_list(**session_args)
             header = "XDS110 Devices:"
@@ -312,7 +358,7 @@ def handle_xds110(args):
                 print(serno)
         except Exception as e:
             print(e)
-    elif args.upgrade:
+    elif args.cmd == 'xds110-upgrade':
         try:
             result = tiflash.xds110_upgrade(**session_args)
             print(result)
@@ -332,7 +378,8 @@ def main(args=None):
         args = parse_args()
 
     # Options
-    if args.cmd == 'options':
+    if args.cmd == 'options-get' \
+        or args.cmd == 'options-list':
         handle_options(args)
 
     # Lists
@@ -356,7 +403,8 @@ def main(args=None):
         handle_flash(args)
 
     # Memory
-    elif args.cmd == 'memory':
+    elif args.cmd == 'memory-read' \
+        or args.cmd == 'memory-write':
         handle_memory(args)
 
     # Expression
@@ -368,7 +416,9 @@ def main(args=None):
         handle_attach(args)
 
     # XDS110
-    elif args.cmd == 'xds110':
+    elif args.cmd == 'xds110-reset' \
+        or args.cmd == 'xds110-upgrade' \
+        or args.cmd == 'xds110-list':
         handle_xds110(args)
 
 

@@ -10,7 +10,7 @@ device.
 :ref:`Session Arguments <session>`
     Arguments for specifying how to connect to a device
 
-:ref:`Commands <commands>`.
+:ref:`Commands <commands>`
     Arguments for specifying actions to perform on a device
 
 ----
@@ -23,23 +23,23 @@ device.
 ::
 
     # The typical format of a tiflash command is of the following:
-    tiflash [SESSION ARGS] <CMD> [CMD ARGS]
+    tiflash [session arguments] <command> [command arguments]
 
 
 :tiflash: Command for invoking the command-line tool.
 
-:SESSION ARGS: These are the arguments provided to specify which device to connect to and
+:session arguments: These are the arguments provided to specify which device to connect to and
                 how to connect to it. *At the very least you'll need to provide the
                 device's serial number.*
 
                 *See* :ref:`Session Arguments <session>` *for a complete list of session
                 arguments.*
 
-:CMD:   This is the command or action to perform on the device.
+:command:   This is the command or action to perform on the device.
 
         *See* :ref:`Commands <commands>` *for a complete list of commands.*
 
-:CMD ARGS:  These arguments are specific to each command. To see all possible options
+:command arguments:  These arguments are specific to each command. To see all possible options
             you can run the command with the -h help option.
 
             *You can view each command's specific arguments here* :ref:`Commands

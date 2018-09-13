@@ -20,7 +20,7 @@ A (unofficial) python module for flashing TI devices.
 
 """
 from tiflash.core import    (   get_connections,
-                                get_devices,
+                                get_devicetypes,
                                 get_cpus,
                                 list_options,
                                 get_option,

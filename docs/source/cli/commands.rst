@@ -5,7 +5,7 @@ Commands
 
 .. toctree::
     :hidden:
-    :maxdepth: 1
+    :maxdepth: 3
 
     reset
     flash
@@ -14,9 +14,9 @@ Commands
     memory
     evaluate
     xds110
-    list
     options
     attach
+    list
 
 Below is a list of commands you can call with TIFlash.
 
@@ -67,15 +67,15 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
-    :ref:`List <list>`
+    :ref:`Options <options>`
 
-*list environment/device information*
+*get/set/list device specific options*
 
 .. container::
 
-    :ref:`Options <options>`
+    :ref:`List <list>`
 
-*get/set an option on a device*
+*list environment/device information*
 
 .. container::
 

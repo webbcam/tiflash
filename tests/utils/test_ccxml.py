@@ -14,7 +14,7 @@ class TestCCXML():
 
     def test_get_serno_from_ccxml(self, t_env):
         # Assuming there already exists a ccxml for first device
-        device_key = t_env['DEVICES'].keys()[0]
+        device_key = list(t_env['DEVICES'].keys())[0]
         device = t_env['DEVICES'][device_key]
         serno = device['serno']
 

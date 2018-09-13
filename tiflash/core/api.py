@@ -253,8 +253,8 @@ def get_connections(ccs=None, search=None):
     return connection_list
 
 
-def get_devices(ccs=None, search=None):
-    """Gets list of all devices installed on machine (ccs installation)
+def get_devicetypes(ccs=None, search=None):
+    """Gets list of all devicetypes installed on machine (ccs installation)
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
@@ -271,7 +271,7 @@ def get_devices(ccs=None, search=None):
 
     flash = TIFlash(ccs_path)
 
-    device_list = flash.get_devices()
+    device_list = flash.get_devicetypes()
 
     if search:
         device_list = [ dev for dev in device_list if search in dev ]

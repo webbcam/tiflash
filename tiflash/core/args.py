@@ -36,9 +36,13 @@ def get_session_args(args):
 
     return session_args
 
+def set_subparser_arg_titles(parser, positionals=None, optionals=None):
+    parser._positionals.title = positionals or "Command Arguments"
+    parser._optionals.title = optionals or "Command Arguments"
+
 
 # Session Parser - standard args for creating DSS Session
-SessionParser = argparse.ArgumentParser(prog="TIFlash", add_help=False)
+SessionParser = argparse.ArgumentParser(prog="tiflash", add_help=False)
 SessionParser.add_argument('-s', '--serno', help='Serial number of device')
 SessionParser.add_argument('-d', '--devicetype', help='Devicetype of device')
 SessionParser.add_argument('--ccs', type=int, default=None,
@@ -58,18 +62,16 @@ SessionParser.add_argument('-A', '--attach', action='store_true',
 
 
 # Option Parser - used for getting/setting options
-OptionsParser = argparse.ArgumentParser(add_help=False)
-OptionsParser.add_argument('--get', metavar='optionID',
-                           help='Gets value of given option id')
-OptionsParser.add_argument('--set', nargs=2, metavar='optionID optionValue',
-                           help='Sets optionID to optionValue')
-OptionsParser.add_argument('-op', '--operation', metavar='preOperation',
+OptionsGetParser = argparse.ArgumentParser(add_help=False)
+OptionsGetParser.add_argument('optionID', metavar='optionID',
+                           help="Option ID to get value of.")
+OptionsGetParser.add_argument('-op', '--operation', metavar='preOperation',
                            help='''Specify an operation to perform prior to
                             getting/setting option''')
-OptionsParser.add_argument('-l', '--list', metavar='optionID', dest='optionID',
-                           default=None, nargs='?',
-                           help='''List information on all or one
-                            particular option''')
+
+OptionsListParser = argparse.ArgumentParser(add_help=False)
+OptionsListParser.add_argument('optionID', metavar='optionID', nargs='?',
+                           help="Option ID to get info on.")
 
 # List Parser
 ListParser = argparse.ArgumentParser(add_help=False)
@@ -83,8 +85,8 @@ ListParser.add_argument('-cfg', '--cfgs', action='store_true',
                         help='Prints list of installed target cfgs')
 ListParser.add_argument('-o', '--options', action='store_true',
                         help='Prints list of target options')
-ListParser.add_argument('-f', '--filter', dest='search', type=str,
-                        help='String to filter results by')
+ListParser.add_argument('-f', '--filter', metavar='filter', dest='search',
+                        type=str, help='String to filter results by')
 
 
 # Reset Parser
@@ -113,12 +115,6 @@ VerifyParser.add_argument('-o', '--option', nargs=2, action='append',
 # Flash Parser
 FlashParser = argparse.ArgumentParser(add_help=False)
 FlashParser.add_argument('images', metavar='image', nargs=1, help='''Image to flash.''')
-#FlashParser.add_argument('images', metavar='image1 [image2, ...]', nargs='+',
-#                         help='''Image(s) to flash. any images specified by '-i'
-#                        option are appended to the image list provided here''')
-#FlashParser.add_argument('-i', '--image', dest='images',
-#                         required=False, action='append', metavar='image',
-#                         help='Image to flash can repeat -i/--image command')
 FlashParser.add_argument('-b', '--bin', action='store_true',
                          help='Specify if image(s) are binary images')
 FlashParser.add_argument('-a', '--address', metavar='address',
@@ -127,23 +123,24 @@ FlashParser.add_argument('-o', '--option', nargs=2, action='append',
                          dest='options', metavar=('optionID', 'optionValue'),
                          help='sets an option before running flash cmd')
 
-# Memory Parser
-MemoryParser = argparse.ArgumentParser(add_help=False)
-MemoryParser.add_argument('-r', '--read', action='store_true',
-                            help="Read bytes from device memory")
-MemoryParser.add_argument('-w', '--write', action='store_true',
-                            help="Write bytes to device memory")
-MemoryParser.add_argument('-a', '--address', required=True,
-                            help="Address in memory to read/write from/to")
-MemoryParser.add_argument('-d', '--data', nargs='+',
-                            help="Space separated list of bytes (in hex) to \
-                            write (WRITE ONLY)")
-MemoryParser.add_argument('-n', '--num', dest='num_bytes', default=1,
-                            help="Number of bytes to read (READ ONLY)")
-MemoryParser.add_argument('-p', '--page', default=0,
+# Memory Read Parser
+MemoryReadParser = argparse.ArgumentParser(add_help=False)
+MemoryReadParser.add_argument('address', help="Address in memory to read from")
+MemoryReadParser.add_argument('-p', '--page', default=0,
                             help="Page number in memory to access address")
-MemoryParser.add_argument('-H', '--hex', action='store_true',
-                            help="Displays output in hex (READ ONLY)")
+MemoryReadParser.add_argument('-n', '--num', dest='num_bytes', default=1,
+                            help="Number of bytes to read")
+MemoryReadParser.add_argument('--hex', action='store_true',
+                            help="Displays output in hex")
+
+# Memory Write Parser
+MemoryWriteParser = argparse.ArgumentParser(add_help=False)
+MemoryWriteParser.add_argument('address', help="Address in memory to write to")
+MemoryWriteParser.add_argument('-p', '--page', default=0,
+                            help="Page number in memory to access address")
+MemoryWriteParser.add_argument('-d', '--data', nargs='+', required=True,
+                            help="""Bytes (hex) to write to memory.
+                            Each byte separated by a space""")
 
 # Expression Parser
 ExpressionParser = argparse.ArgumentParser(add_help=False)
@@ -155,11 +152,11 @@ ExpressionParser.add_argument('--symbols', required=False, default=None,
 # Attach Parser
 AttachParser = argparse.ArgumentParser(add_help=False)
 
-# XDS110 Parser
-XDS110Parser = argparse.ArgumentParser(add_help=False)
-XDS110Parser.add_argument('-r', '--reset', action='store_true',
-                        help="Calls xds110reset on specified device")
-XDS110Parser.add_argument('-l', '--list', action='store_true',
-                        help="Lists sernos of connected XDS110 devices")
-XDS110Parser.add_argument('-u', '--upgrade', action='store_true',
-                        help="Upgrades XDS110 firmware on device")
+# XDS110Reset Parser
+XDS110ResetParser = argparse.ArgumentParser(add_help=False)
+
+# XDS110Upgrade Parser
+XDS110UpgradeParser = argparse.ArgumentParser(add_help=False)
+
+# XDS110List Parser
+XDS110ListParser = argparse.ArgumentParser(add_help=False)
