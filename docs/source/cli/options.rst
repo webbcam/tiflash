@@ -14,13 +14,13 @@ Get/Set/List device specific options
 
 .. container::
 
-    :ref:`Options-get <options-get>`
+    :ref:`options-get <options-get>`
 
 *get an option on a device*
 
 .. container::
 
-    :ref:`Options-list <options-list>`
+    :ref:`options-list <options-list>`
 
 *list options for a device*
 

@@ -33,7 +33,7 @@ Obtaining a device's IEEE Address.
 
 ::
 
-    $ tiflash -s L4000CE option --get DeviceIeeePrimary --operation "ReadPriIeee"
+    $ tiflash -s L4000CE options-get DeviceIeeePrimary --operation "ReadPriIeee"
 
     00:12:4B:00:11:22:33:44
 
@@ -57,7 +57,7 @@ Obtaining a device's BLE Address.
 
 ::
 
-    $ tiflash -s L4000CE option --get DeviceBlePrimary --operation "ReadPriBle"
+    $ tiflash -s L4000CE options-get DeviceBlePrimary --operation "ReadPriBle"
 
     00:81:F9:11:22:33
 
@@ -187,7 +187,7 @@ Get device's Revision Number.
 
 ::
 
-    $ tiflash -s L4000CE option --get DeviceInfoRevision
+    $ tiflash -s L4000CE options-get DeviceInfoRevision
 
     2.1
 
@@ -211,7 +211,7 @@ Get RAM size on device.
 
 ::
 
-    $ tiflash -s L4000CE option --get DeviceInfoRAMSize
+    $ tiflash -s L4000CE options-get DeviceInfoRAMSize
 
     80 KB
 
@@ -235,6 +235,6 @@ Get Flash size on device.
 
 ::
 
-    $ tiflash -s L4000CE option --get DeviceInfoFlashSize
+    $ tiflash -s L4000CE options-get DeviceInfoFlashSize
 
     352 KB
