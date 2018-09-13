@@ -13,8 +13,8 @@ class TestDevices():
 
         assert result == expected
 
-    def test_get_devices(self, t_env):
-        result = devices.get_devices(t_env['CCS_PATH'])
+    def test_get_devicetypes(self, t_env):
+        result = devices.get_devicetypes(t_env['CCS_PATH'])
 
         assert type(result) is list
 

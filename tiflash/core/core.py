@@ -230,20 +230,20 @@ class TIFlash(object):
 
         return result
 
-    def get_devices(self):
-        """Returns a list of possible devices.
+    def get_devicetypes(self):
+        """Returns a list of possible devicetypes.
 
-        Devices are based off of the device drivers installed in CCS
+        Devicetypes are based off of the device drivers installed in CCS
 
         Returns:
-            (list): A list of possible devices based off of the device
+            (list): A list of possible devicetypes based off of the device
             drivers installed in CCS
         """
-        # DSS method of getting devices
+        # DSS method of getting devicetypes
         # result =  self.get_list("devices")
 
         # XML Parsing method of getting connections
-        result = devices.get_devices(self.ccs_path)
+        result = devices.get_devicetypes(self.ccs_path)
 
         return result
 
@@ -256,7 +256,7 @@ class TIFlash(object):
             (list): A list of possible cpus based off of the device
             drivers installed in CCS
         """
-        # DSS method of getting devices
+        # DSS method of getting cpus
         # result =  self.get_list("cpus")
 
         # XML Parsing method of getting connections

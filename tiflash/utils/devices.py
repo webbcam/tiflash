@@ -231,7 +231,7 @@ def get_cpu_xml(device_xml, ccs_path):
     return cpu_xml
 
 
-def get_devices(ccs_path):
+def get_devicetypes(ccs_path):
     """ Returns list of installed device names.
 
     Searches "<ccs_path>/ccs_base/common/targetdb/devices" directory for
@@ -283,7 +283,7 @@ def find_device(device_name, ccs_path):
         DeviceError: raises exception if CCS installation can not be found
 
     """
-    devices = get_devices(ccs_path)
+    devices = get_devicetypes(ccs_path)
     match_list = list()
     device_re = re.compile(device_name.lower())
 
