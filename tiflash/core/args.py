@@ -160,3 +160,6 @@ XDS110UpgradeParser = argparse.ArgumentParser(add_help=False)
 
 # XDS110List Parser
 XDS110ListParser = argparse.ArgumentParser(add_help=False)
+
+# Detect Parser
+DetectParser = argparse.ArgumentParser(add_help=False)

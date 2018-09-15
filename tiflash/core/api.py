@@ -9,6 +9,7 @@ from tiflash.utils import cpus
 from tiflash.utils import connections
 from tiflash.utils import devices
 from tiflash.utils import dss
+from tiflash.utils import detect
 
 
 class TIFlashAPIError(TIFlashError):
@@ -703,3 +704,37 @@ def xds110_upgrade(ccs=None, **session_args):
     flash = __handle_session(ccs_path, **session_args)
 
     return flash.xds110_upgrade()
+
+def detect_devices(ccs=None, **session_args):
+    """Detect devices connected to machine.
+
+    Returns:
+        list: list of dictionaries describing connected devices
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    device_list = list()
+    detected_devices = detect.detect_devices()
+
+    for vid, pid, serno in detected_devices:
+        try:
+            connection_xml = connections.get_connection_xml_from_vidpid(
+                vid, pid, ccs_path)
+            connection = connections.get_connection_name(connection_xml)
+        except connections.ConnectionsError:
+            continue # only include TI Devices
+
+        try:
+            devicetype_xml = devices.get_device_xml_from_serno(
+                                                    serno, ccs_path)
+            devicetype = devices.get_devicetype(devicetype_xml)
+        except devices.DeviceError:
+            devicetype = None
+
+        dev = { 'connection': connection,
+                'devicetype': devicetype,
+                'serno':serno }
+
+        device_list.append(dev)
+
+    return device_list

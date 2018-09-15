@@ -19,6 +19,7 @@ from tiflash.core.args import (
     XDS110ResetParser,
     XDS110UpgradeParser,
     XDS110ListParser,
+    DetectParser,
 
     get_session_args
 )
@@ -105,6 +106,11 @@ def generate_parser():
     sub_parsers.add_parser('xds110-list', parents=[XDS110ListParser],
         usage="tiflash [Session Arguments] xds110-list",
         description="Lists sernos of connected XDS110 devices")
+
+    # Detect
+    sub_parsers.add_parser('detect', parents=[DetectParser],
+        usage="tiflash [Session Arguments] detect",
+        description="Detect devices connected to machine")
 
 
     return main_parser
@@ -332,7 +338,6 @@ def handle_attach(args):
 
     try:
         result = tiflash.attach(**session_args)
-        #print(result)
     except Exception as e:
         print(e)
 
@@ -365,6 +370,21 @@ def handle_xds110(args):
         except Exception as e:
             print(e)
 
+
+def handle_detect(args):
+    """Helper function for handling 'detect' command"""
+    session_args = get_session_args(args)
+
+    try:
+        result = tiflash.detect_devices(**session_args)
+        header = "Detected Devices:"
+        print(header)
+        print('-' * len(header))
+        for dev in result:
+            print("{} - {} - [{}]".format(dev['connection'], dev['devicetype'],
+                dev['serno']))
+    except Exception as e:
+        print(e)
 
 
 def main(args=None):
@@ -420,6 +440,10 @@ def main(args=None):
         or args.cmd == 'xds110-upgrade' \
         or args.cmd == 'xds110-list':
         handle_xds110(args)
+
+    # Detect
+    elif args.cmd == 'detect':
+        handle_detect(args)
 
 
 if __name__ == "__main__":

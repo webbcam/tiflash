@@ -7,6 +7,7 @@ from tiflash.utils import devices
 from tiflash.utils import cpus
 from tiflash.utils import flash_properties
 from tiflash.utils import xds110
+from tiflash.utils import detect
 
 CMD_DEFAULT_TIMEOUT = 60
 

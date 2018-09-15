@@ -10,11 +10,15 @@ Contact: webbjcam@gmail.com
 
 import os
 import re
+import json
 
 from tiflash.utils import xmlhelper
 
 CONNECTIONS_DIR = "/ccs_base/common/targetdb/connections"
+DEBUG_PROBES_PATH = "/ccs_base/cloudagent/src/targetDetection/debug_probes.json"
 
+# Place this file in utils/ folder to use a custom debug_probes file
+CUSTOM_DEBUG_PROBES_FILE = "debug_probes.json"
 
 class ConnectionsError(Exception):
     """Generic Connection Error"""
@@ -173,6 +177,53 @@ def find_connection(connection_name, ccs_path):
             match_list.append(c)
 
     return match_list
+
+def get_connection_xml_from_vidpid(vid, pid, ccs_path):
+    """Get full connection name of device given vid and pid
+
+    Args:
+        vid (int): vid number of connection
+        pid (int): pid number of connection
+        ccs_path (str): full path to ccs installation to use
+
+    Returns:
+        str: full connection name
+    """
+    connection = None
+    probe_list = None
+
+    # Allow for using custom debug probes file by placing custom file in utils/
+    custom_debug_probes_path = os.path.normpath(os.path.dirname(__file__) +
+                                            '/' + CUSTOM_DEBUG_PROBES_FILE)
+
+    if os.path.isfile(custom_debug_probes_path):
+        debug_probes_file = custom_debug_probes_path
+    else:
+        debug_probes_file = os.path.normpath(ccs_path + "/" + DEBUG_PROBES_PATH)
+
+    if not os.path.isfile(debug_probes_file):
+        raise DeviceError("Could not find 'debug_probes.json' file: %s"
+                          % debug_probes_file)
+
+    with open(debug_probes_file) as f:
+        probe_list = json.load(f)
+
+    for probe in probe_list:
+        if int(probe['vid'], 16) == vid and int(probe['pid'], 16) == pid:
+            if "connectionXml" in probe.keys():
+                connection = probe['connectionXml']
+                break
+            elif "probeDetection" in probe.keys():
+                connection = probe['probeDetection']['algorithm']
+                break
+    else:
+        raise ConnectionsError(
+            "Was not able to find a connection with given vid (%s) and pid (%s)"
+             % (vid, pid))
+
+    connection_path = get_connection_xml_path(connection, ccs_path)
+    return connection_path
+
 
 def __get_connection_root(connection_path):
     """Returns the root Element of the connection file

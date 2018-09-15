@@ -35,6 +35,7 @@ from tiflash.core import    (   get_connections,
                                 xds110_reset,
                                 xds110_list,
                                 xds110_upgrade,
+                                detect_devices,
 
                                 TIFlashError
                             )
