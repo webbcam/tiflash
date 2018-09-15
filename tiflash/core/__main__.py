@@ -380,9 +380,10 @@ def handle_detect(args):
         header = "Detected Devices:"
         print(header)
         print('-' * len(header))
-        for dev in result:
-            print("{} - {} - [{}]".format(dev['connection'], dev['devicetype'],
-                dev['serno']))
+        for i, dev in enumerate(result):
+            print("Connection:\t%s" % dev['connection'])
+            print("Devicetype:\t%s" % (dev['devicetype'] or "N/A"))
+            print("Serno:\t\t%s\n" % (dev['serno'] or "N/A"))
     except Exception as e:
         print(e)
 
