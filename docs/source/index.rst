@@ -3,8 +3,12 @@
 TI-Flash Documentation
 ======================
 
+.. image:: https://readthedocs.org/projects/tiflash/badge/?version=latest
+
 An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
+
+----
 
 Overview
 --------
