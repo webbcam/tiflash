@@ -1,6 +1,6 @@
 .. _xds110-list:
 
-XDS110-list
+xds110-list
 ###########
 
 .. argparse::

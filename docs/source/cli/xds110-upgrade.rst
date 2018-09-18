@@ -1,6 +1,6 @@
 .. _xds110-upgrade:
 
-XDS110-upgrade
+xds110-upgrade
 ##############
 
 .. argparse::

@@ -1,6 +1,6 @@
 .. _xds110-reset:
 
-XDS110-reset
+xds110-reset
 ############
 
 .. argparse::
