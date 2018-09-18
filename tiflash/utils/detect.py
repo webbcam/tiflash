@@ -39,20 +39,6 @@ def detect_devices():
     return devices
 
 
-def detect_connections():
-    connections = list()
-    devices = detect_devices()
-
-    for dev in devices:
-        try:
-            conn = get_connection_from_vidpid(dev[0], dev[1])
-            connections.append(conn)
-        except Exception:
-            pass
-
-    return connections
-
-
 def detect_sernos():
     """Get list of connected device sernos
 

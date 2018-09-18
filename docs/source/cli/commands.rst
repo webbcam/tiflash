@@ -14,6 +14,7 @@ Commands
     memory
     evaluate
     xds110
+    detect
     options
     attach
     list
@@ -64,6 +65,18 @@ Below is a list of commands you can call with TIFlash.
     :ref:`XDS110 <xds110>`
 
 *run an xds110 command*
+
+.. container::
+
+    :ref:`Detect <detect>`
+
+*run an detect command*
+
+.. container::
+
+    :ref:`Options <options>`
+
+*get/set/list device specific options*
 
 .. container::
 
