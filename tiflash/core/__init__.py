@@ -18,6 +18,7 @@ from tiflash.core.api import(   get_connections,
                                 xds110_reset,
                                 xds110_list,
                                 xds110_upgrade,
+                                detect_devices,
                             )
 # Remove anything that shouldn't be included at api level
 del core
