@@ -102,7 +102,7 @@ def _win_detect_devices():
         dev_data = winreg.EnumValue(usbccgp_key, i)
         match = ti_vidpid_re.search(str(dev_data[1]))
         if match:
-            dev = (int(match.group(1)), int(match.group(2)), match.group(3))
+            dev = (int(match.group(1), 16), int(match.group(2), 16), match.group(3))
             device_list.append(dev)
 
     return device_list
