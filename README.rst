@@ -1,7 +1,7 @@
-TI-Flash
-========
+TI-Flash |Status| |Version|
+===========================
 
-.. image:: https://readthedocs.org/projects/tiflash/badge/?version=latest
+| |PyVersions| |CCSVersions| |License|
 
 An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
@@ -125,4 +125,31 @@ Acknowledgments
 
 -  `Debug Server
    Scripting <http://software-dl.ti.com/ccs/esd/documents/users_guide/sdto_dss_handbook.html>`__
+
+
+.. Badges:
+
+.. |Version| image::    https://img.shields.io/pypi/v/tiflash.svg?label=latest
+    :target:            https://pypi.org/project/tiflash/#history
+    :alt:               Version
+
+.. |Status| image::     https://img.shields.io/pypi/status/tiflash.svg
+    :target:            https://pypi.org/project/tiflash/
+    :alt:               Status
+
+.. |PyVersions| image:: https://img.shields.io/pypi/pyversions/tiflash.svg?colorB=3399ff
+    :target:            https://pypi.org/project/tiflash/#files
+    :alt:               Python Versions
+
+.. |CCSVersions| image:: https://img.shields.io/badge/CCStudio-7.3%20|%207.4%20|%208.0%20|%208.1%20|%208.2-orange.svg?style=flat&colorB=3399ff
+    :target:            http://processors.wiki.ti.com/index.php/Download_CCS
+    :alt:               CCS Versions
+
+.. |Docs| image::       https://readthedocs.org/projects/tiflash/badge/?version=latest
+    :target:            https://tiflash.readthedocs.io
+    :alt:               Documentation
+
+.. |License| image::    https://img.shields.io/pypi/l/tiflash.svg?style=flat
+    :target:            https://github.com/webbcam/tiflash/blob/master/LICENSE
+    :alt:               License: MIT
 
