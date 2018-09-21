@@ -136,7 +136,7 @@ def handle_options(args):
     """Helper function for handling 'option' command"""
     session_args = get_session_args(args)
     # Get Option
-    if args.cmd == 'opitions-get':
+    if args.cmd == 'options-get':
         try:
             value = tiflash.get_option(args.get, pre_operation=args.operation,
                                    **session_args)
