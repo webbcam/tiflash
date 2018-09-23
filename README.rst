@@ -73,7 +73,7 @@ From a command prompt:
     tiflash -h      # display help menu
     tiflash -s L4000CE flash /path/to/image.hex -o ResetOnRestart True
 
-For more commandline examples see the `EXAMPLES.rst <EXAMPLES.rst>`__ file
+For more commandline examples see the `cli.rst <docs/source/cli.rst>`__ file
 
 Python
 ^^^^^^
@@ -85,7 +85,7 @@ TIFlash can also be used directly in your Python scripts.
     import tiflash
     tiflash.flash(serno='L4000CE', image='/path/to/image.hex', options={'ResetOnRestart':True})
 
-For more python examples see the `EXAMPLES.rst <EXAMPLES.rst>`__ file
+For more python examples see the `api.rst <docs/source/api.rst>`__ file
 
 Contributing
 ------------
@@ -137,11 +137,11 @@ Acknowledgments
     :target:            https://pypi.org/project/tiflash/
     :alt:               Status
 
-.. |PyVersions| image:: https://img.shields.io/pypi/pyversions/tiflash.svg?colorB=3399ff
+.. |PyVersions| image:: https://img.shields.io/pypi/pyversions/tiflash.svg?
     :target:            https://pypi.org/project/tiflash/#files
     :alt:               Python Versions
 
-.. |CCSVersions| image:: https://img.shields.io/badge/CCStudio-7.3%20|%207.4%20|%208.0%20|%208.1%20|%208.2-orange.svg?style=flat&colorB=3399ff
+.. |CCSVersions| image:: https://img.shields.io/badge/CCStudio-7.3%20|%207.4%20|%208.0%20|%208.1%20|%208.2-blue.svg?style=flat
     :target:            http://processors.wiki.ti.com/index.php/Download_CCS
     :alt:               CCS Versions
 
