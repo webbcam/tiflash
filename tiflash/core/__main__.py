@@ -138,7 +138,7 @@ def handle_options(args):
     # Get Option
     if args.cmd == 'options-get':
         try:
-            value = tiflash.get_option(args.get, pre_operation=args.operation,
+            value = tiflash.get_option(args.optionID, pre_operation=args.operation,
                                    **session_args)
             print(value)
         except Exception as e:

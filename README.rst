@@ -73,7 +73,7 @@ From a command prompt:
     tiflash -h      # display help menu
     tiflash -s L4000CE flash /path/to/image.hex -o ResetOnRestart True
 
-For more commandline examples see the `cli.rst <docs/source/cli.rst>`__ file
+For more commandline examples see the `CLI docs <https://tiflash.readthedocs.io/en/latest/cli.html>`__
 
 Python
 ^^^^^^
@@ -85,7 +85,7 @@ TIFlash can also be used directly in your Python scripts.
     import tiflash
     tiflash.flash(serno='L4000CE', image='/path/to/image.hex', options={'ResetOnRestart':True})
 
-For more python examples see the `api.rst <docs/source/api.rst>`__ file
+For more python examples see the `API docs <https://tiflash.readthedocs.io/en/latest/api.html>`__
 
 Contributing
 ------------
