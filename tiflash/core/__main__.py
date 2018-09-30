@@ -359,8 +359,8 @@ def handle_xds110(args):
             header = "XDS110 Devices:"
             print(header)
             print('-' * len(header))
-            for serno in result:
-                print(serno)
+            for dev in result:
+                print("%s (%s)" % (dev[0], dev[1]))
         except Exception as e:
             print(e)
     elif args.cmd == 'xds110-upgrade':
