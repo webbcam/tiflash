@@ -160,7 +160,7 @@ def xds110_upgrade(ccs_path, serno=None):
         raise XDS110Error("Could not find firmware.bin file (%s)" %
             firmware_path)
 
-    serno_list = xds110_list(ccs_path)
+    serno_list = [ s for (s,v) in xds110_list(ccs_path) ]
     xds_dfu_cmd = [ xdsdfu_path]
     xds_flash_cmd = [ xdsdfu_path]
 
