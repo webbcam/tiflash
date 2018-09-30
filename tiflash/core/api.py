@@ -746,7 +746,7 @@ def xds110_reset(ccs=None, **session_args):
 
 
 def xds110_list(ccs=None, **session_args):
-    """Returns list of sernos of connected XDS110 devices.
+    """Returns list of sernos and xds110 version numbers of connected XDS110 devices.
 
     Args:
         ccs (int or str): Version Number of CCS to use or path to
@@ -755,7 +755,7 @@ def xds110_list(ccs=None, **session_args):
             the device connection
 
     Returns:
-        list: list of sernos of connected XDS110 devices
+        list: list of tuples (serno, version) of connected XDS110 devices
 
     Raises:
         XDS110Error: raises if xdsdfu does not exist or fails

@@ -66,7 +66,7 @@ class TestXDS110():
         assert len(result) == len(serno_list)
 
         for serno in serno_list:
-            assert serno in result
+            assert serno in [ s for (s,_) in result ]
 
     def test_xds110_upgrade(self, t_env):
         """Calls xds110_upgrade with serno"""

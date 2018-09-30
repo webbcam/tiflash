@@ -104,13 +104,15 @@ def xds110_list(ccs_path):
         ccs_path (str): full path to ccs installation directory
 
     Returns:
-        list: list of sernos of the XDS110 devices connected
+        list: list of tuples (sernos, version) of the XDS110 devices connected
 
     Raises:
         XDS110Error: raises if xdsdfu.exe does not exist or fails
     """
     serno_pattern = "Serial Num\:\s+([A-Z0-9]{8})"
-    regex = re.compile(serno_pattern)
+    version_pattern = "Version\:\s+([0-9\.]+)"
+    serno_regex = re.compile(serno_pattern)
+    version_regex = re.compile(version_pattern)
 
     xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
     xds_exe = [ xdsdfu_path]
@@ -124,7 +126,11 @@ def xds110_list(ccs_path):
     if ret != 0:
         raise XDS110Error(out)
 
-    matches = re.findall(regex, str(out))
+    serno_matches = re.findall(serno_regex, str(out))
+    version_matches = re.findall(version_regex, str(out))
+
+    matches = [ (serno_matches[i], version_matches[i])
+                    for i in range(len(serno_matches)) ]
 
     return matches
 
