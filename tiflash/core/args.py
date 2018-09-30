@@ -81,8 +81,8 @@ ListParser.add_argument('--connections', action='store_true',
                         help='Prints list of installed connections')
 ListParser.add_argument('--cpus', action='store_true',
                         help='Prints list of installed cpus')
-ListParser.add_argument('--cfgs', action='store_true',
-                        help='Prints list of installed target cfgs')
+#ListParser.add_argument('--cfgs', action='store_true',
+#                        help='Prints list of installed target cfgs')
 ListParser.add_argument('--options', action='store_true',
                         help='Prints list of target options')
 ListParser.add_argument('-f', '--filter', metavar='filter', dest='search',

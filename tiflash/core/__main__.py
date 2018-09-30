@@ -190,7 +190,7 @@ def handle_list(args):
     """Helper function for handling 'list' command"""
     results = []
     session_args = get_session_args(args)
-    if args.devices:
+    if args.devicetypes:
         results = tiflash.get_devicetypes(args.ccs, search=args.search)
     elif args.connections:
         results = tiflash.get_connections(args.ccs, search=args.search)
