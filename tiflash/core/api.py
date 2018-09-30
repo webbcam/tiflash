@@ -63,7 +63,7 @@ def __handle_ccs(ccs):
     return ccs_path
 
 def __generate_ccxml(ccs_path, serno=None,
-                   devicetype=None, connection=None):
+                   devicetype=None, connection=None, debug=False):
     """Helper function for generating ccxml files using the provided
     information.
 
@@ -75,26 +75,17 @@ def __generate_ccxml(ccs_path, serno=None,
             ccxml file
         serno (str, optional): serial number to use when creating new
             ccxml file
+        debug (bool): option to display all output when running
     """
     devicexml = None
     flash = TIFlash(ccs_path)
+    flash.set_debug(on=debug)
 
-    if devicetype:
-        devicexml = devices.get_device_xml_from_devicetype(devicetype, ccs_path)
-    elif serno:
-        devicexml = devices.get_device_xml_from_serno(serno, ccs_path)
-    else:
+    if devicetype is None:
         raise TIFlashError("Could not determine devicetype to use.")
 
-    if not devicetype:
-        devicetype = devices.get_devicetype(devicexml)
-
-    if not connection:
-        try:
-            connection_xml = devices.get_default_connection_xml(devicexml, ccs_path)
-            connection = connections.get_connection_name(connection_xml)
-        except Exception:
-            raise TIFlashError("Could not determine connection type to use.")
+    if connection is None:
+        raise TIFlashError("Could not determine connection type to use.")
 
 
     ccxml_path = flash.generate_ccxml(connection, devicetype, serno)
@@ -156,21 +147,30 @@ def __handle_ccxml_args(ccs_path, ccxml=None, serno=None,
     # GET DEVICETYPE
     if devicetype:
         ccxml_args['devicetype'] = devicetype
-    elif ccxml_args['devicetype'] is not None:
-        ccxml_args['devicetype']  = get_devicetype(ccxml_path)
+    elif ccxml_args['ccxml_path'] is not None:
+        ccxml_args['devicetype']  = get_devicetype(ccxml_args['ccxml_path'])
+    elif serno:
+        ccxml_args['devicetype'] = devices.get_device_from_serno(serno, ccs_path)
 
     # GET CONNECTION
     if connection:
         ccxml_args['connection'] = connection
-    elif ccxml_args['connection'] is not None:
-        ccxml_args['connection']  = get_connection(ccxml_path)
+    elif ccxml_args['ccxml_path'] is not None:
+        ccxml_args['connection']  = get_connection(ccxml_args['ccxml_path'])
+    elif ccxml_args['devicetype'] is not None:
+        try:
+            device_xml = devices.get_device_xml_from_devicetype(ccxml_args['devicetype'], ccs_path)
+            connection_xml = devices.get_default_connection_xml(device_xml, ccs_path)
+            ccxml_args['connection'] = connections.get_connection_name(connection_xml)
+        except Exception:
+            pass    # Not all device xml will have default connection
 
     return ccxml_args
 
 
 
-def __handle_ccxml(ccs_path, ccxml=None, serno=None,
-                   devicetype=None, connection=None, fresh=False):
+def __handle_ccxml(ccs_path, ccxml=None, serno=None, devicetype=None,
+                    connection=None, fresh=False, debug=False):
     """Takes ccxml args and returns a corresponding ccxml file.
 
     CCXML args can be an existing ccxml file path itself or the necessary
@@ -192,6 +192,7 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
         serno (str, optional): serial number to use when creating new
             ccxml file
         fresh (bool): option to force a new (fresh) ccxml file to be generated
+        debug (bool): option to display all output when running
 
     Returns:
         str: full path to ccxml file
@@ -208,27 +209,28 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
         raise TIFlashError("Could not find ccxml: %s" % ccxml)
 
     if ccxml_args['ccxml_path'] is not None:
-        default_devicetype = get_devicetype(ccxml_path)
-        default_connection = get_connection(ccxml_path)
+        default_devicetype = get_devicetype(ccxml_args['ccxml_path'])
+        default_connection = get_connection(ccxml_args['ccxml_path'])
         try:
-            default_serno = get_serno(ccxml_path)
+            default_serno = get_serno(ccxml_args['ccxml_path'])
         except Exception:
             pass    # Device may not use serial numbers
 
-        if devicetype is not None and devicetype != default_devicetype:
+        if devicetype is not None and ccxml_args['devicetype'] != default_devicetype:
             fresh = True
 
-        if connection is not None and connection != default_connection:
+        if connection is not None and ccxml_args['connection'] != default_connection:
             fresh = True
 
-        if serno is not None and serno != default_serno:
+        if serno is not None and ccxml_args['serno'] != default_serno:
             fresh = True
 
     if fresh or ccxml_path is None:
         # Generate ccxml
-        ccxml_path = __generate_ccxml(ccs_path, serno=serno,
-                                     devicetype=devicetype,
-                                     connection=connection)
+        ccxml_path = __generate_ccxml(ccs_path, serno=ccxml_args['serno'],
+                                     devicetype=ccxml_args['devicetype'],
+                                     connection=ccxml_args['connection'],
+                                     debug=debug)
 
     return ccxml_path
 
@@ -268,7 +270,8 @@ def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
         CCXMLError: raises Exception if provided parameters are invalid
     """
     ccxml_path = __handle_ccxml(ccs_path, ccxml=ccxml, devicetype=devicetype,
-                            connection=connection, serno=serno, fresh=fresh)
+                            connection=connection, serno=serno, fresh=fresh,
+                            debug=debug)
 
     chip = chip or __get_cpu_from_ccxml(ccxml_path, ccs_path)
 
