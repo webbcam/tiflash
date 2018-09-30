@@ -2,12 +2,6 @@ import os
 
 from tiflash.utils import dss
 from tiflash.utils import ccxml
-from tiflash.utils import connections
-from tiflash.utils import devices
-from tiflash.utils import cpus
-from tiflash.utils import flash_properties
-from tiflash.utils import xds110
-from tiflash.utils import detect
 
 CMD_DEFAULT_TIMEOUT = 60
 
@@ -224,10 +218,7 @@ class TIFlash(object):
             drivers installed in CCS
         """
         # DSS method of getting connections
-        # result = self.get_list("connections")
-
-        # XML Parsing method of getting connections
-        result = connections.get_connections(self.ccs_path)
+        result = self.get_list("connections")
 
         return result
 
@@ -241,10 +232,7 @@ class TIFlash(object):
             drivers installed in CCS
         """
         # DSS method of getting devicetypes
-        # result =  self.get_list("devices")
-
-        # XML Parsing method of getting connections
-        result = devices.get_devicetypes(self.ccs_path)
+        result =  self.get_list("devices")
 
         return result
 
@@ -258,10 +246,7 @@ class TIFlash(object):
             drivers installed in CCS
         """
         # DSS method of getting cpus
-        # result =  self.get_list("cpus")
-
-        # XML Parsing method of getting connections
-        result = cpus.get_cpus(self.ccs_path)
+        result =  self.get_list("cpus")
 
         return result
 
@@ -315,33 +300,6 @@ class TIFlash(object):
             # return parsed_vals
             return True
 
-    def list_options(self, option_id=None):
-        # Get devicetype for retrieving properties xml
-        devicexml = ccxml.get_device_xml(self.ccxml, self.ccs_path)
-        devicetype = devices.get_devicetype(devicexml)
-
-        dev_prop_xml = flash_properties.get_device_properties_xml(devicetype,
-                                                       self.ccs_path)
-        gen_prop_xml = flash_properties.get_generic_properties_xml(self.ccs_path)
-
-        property_elements = flash_properties.get_property_elements(dev_prop_xml)
-        property_elements.extend(flash_properties.get_property_elements(gen_prop_xml, target="generic"))
-
-        # Convert elements to dictionaries
-        options = dict()
-        for opt in property_elements:
-            opt_dict = flash_properties.parse_property_element(opt)
-            options.update(opt_dict)
-
-        # Filter options to only option_id if provided
-        if option_id:
-            option_keys = list(options.keys())
-            for oid in option_keys:
-                if option_id not in oid:
-                    options.pop(oid)
-
-        return options
-
     def print_options(self, option_id=None):
         # Make a copy of self.args so we are not modifying directly
         args = self.args.copy()
@@ -355,8 +313,6 @@ class TIFlash(object):
         if not code:
             raise TIFlashError("Could not print options")
         else:
-            # parsed_vals = dss.parse_response_list(vals)
-            # return parsed_vals
             return True
 
     def get_option(self, option_id, pre_operation=None):
@@ -731,53 +687,3 @@ class TIFlash(object):
 
         # No return on a no-op
         #return result
-
-    def xds110_reset(self):
-        """Calls xds110_reset command on specified serno.
-
-        Returns:
-            bool: True if xds110_reset was successful
-
-        Raises:
-            TIFlashError: raises if serno not set
-            XDS110Error: raises if xds110_reset fails
-        """
-        serno = ccxml.get_serno(self.ccxml)
-
-        if not serno:
-            raise TIFlashError("Must provide 'serno' to call xds110_reset")
-
-        return xds110.xds110_reset(self.ccs_path, serno=serno)
-
-
-    def xds110_list(self):
-        """Returns a list of sernos of currently connected XDS110 devices
-
-        Returns:
-            list: list of sernos of connected XDS110 devices
-
-        Raises:
-            XDS110Error: raises if xdsdfu does not exist or fails
-        """
-        return xds110.xds110_list(self.ccs_path)
-
-
-    def xds110_upgrade(self):
-        """Upgrades/Flashes XDS110 firmware on board.
-
-        Firmware flashed is found in xds110 directory (firmware.bin). This function
-        uses the 'xdsdfu' executable to put device in DFU mode. Then performs the
-        flash + reset functions of xdsdfu to flash the firmware.bin image
-
-        Returns:
-            bool: True if successful/False if unsuccessful
-
-        Raises:
-            XDS110Error: raises if xds110 firmware update fails
-        """
-        serno = ccxml.get_serno(self.ccxml)
-
-        if not serno:
-            raise TIFlashError("Must provide 'serno' to call xds110_upgrade")
-
-        return xds110.xds110_upgrade(self.ccs_path, serno=serno)

@@ -5,10 +5,12 @@ from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
                                 get_devicetype, get_connection, get_serno,
                                  get_connection_xml, get_ccxml_path)
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, FindCCSError
+from tiflash.utils import flash_properties
 from tiflash.utils import cpus
 from tiflash.utils import connections
 from tiflash.utils import devices
 from tiflash.utils import dss
+from tiflash.utils import xds110
 from tiflash.utils import detect
 
 
@@ -98,6 +100,74 @@ def __generate_ccxml(ccs_path, serno=None,
     ccxml_path = flash.generate_ccxml(connection, devicetype, serno)
     return ccxml_path
 
+def __handle_ccxml_args(ccs_path, ccxml=None, serno=None,
+                   devicetype=None, connection=None, **ignored):
+    """Takes ccxml arguments and returns a dictionary containing serno,
+    devicetype, connection, and ccxml_path.
+
+    Args:
+        ccs_path (str): path to ccs installation
+        ccxml (str, optional): name (full path) to ccxml file to use
+            (only arg needed if ccxml already exists).
+        connection type (str, optional): connection type to use when
+            generating new ccxml file
+        devicetype (str, optional): devicetype to use when generating new
+            ccxml file
+        serno (str, optional): serial number to use when creating new
+            ccxml file
+        ignored (dict): any further args are ignored (this allows to just pass
+                        **session_args directly to this function)
+    Returns:
+        dict: dictionary containing serno, devicetype, connection and
+        ccxml_path (or None for any key that cannot be determined).
+    """
+    ccxml_args = {
+        'serno': None,
+        'devicetype': None,
+        'connection': None,
+        'ccxml_path' : None,
+    }
+
+
+    # GET CCXML
+    if ccxml:
+        if os.path.exists(ccxml):
+            ccxml_args['ccxml_path'] = ccxml
+
+    elif serno:
+        serno_ccxml = get_ccxml_path(serno)
+        if serno_ccxml is not None and os.path.exists(serno_ccxml):
+            ccxml_args['ccxml_path'] = serno_ccxml
+
+    elif devicetype:
+        devicetype_ccxml = get_ccxml_path(devicetype)
+        if devicetype_ccxml is not None and os.path.exists(devicetype_ccxml):
+            ccxml_args['ccxml_path'] = devicetype_ccxml
+
+    # GET SERNO
+    if serno:
+        ccxml_args['serno'] = serno
+    elif ccxml_args['ccxml_path'] is not None:
+        try:
+            ccxml_args['serno'] = get_serno(ccxml_path)
+        except Exception:
+            pass    # Device may not use serial numbers
+
+    # GET DEVICETYPE
+    if devicetype:
+        ccxml_args['devicetype'] = devicetype
+    elif ccxml_args['devicetype'] is not None:
+        ccxml_args['devicetype']  = get_devicetype(ccxml_path)
+
+    # GET CONNECTION
+    if connection:
+        ccxml_args['connection'] = connection
+    elif ccxml_args['connection'] is not None:
+        ccxml_args['connection']  = get_connection(ccxml_path)
+
+    return ccxml_args
+
+
 
 def __handle_ccxml(ccs_path, ccxml=None, serno=None,
                    devicetype=None, connection=None, fresh=False):
@@ -123,28 +193,21 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None,
             ccxml file
         fresh (bool): option to force a new (fresh) ccxml file to be generated
 
+    Returns:
+        str: full path to ccxml file
     """
     ccxml_path = None
     default_devicetype = None
     default_connection = None
     default_serno = None
 
-    if ccxml:
-        if not os.path.exists(ccxml):
-            raise TIFlashError("Could not find ccxml: %s" % ccxml)
-        ccxml_path = ccxml
+    ccxml_args = __handle_ccxml_args(ccs_path, ccxml=ccxml, serno=serno,
+                            devicetype=devicetype, connection=connection)
 
-    elif serno:
-        serno_ccxml = get_ccxml_path(serno)
-        if serno_ccxml is not None and os.path.exists(serno_ccxml):
-            ccxml_path = serno_ccxml
+    if ccxml and ccxml_args['ccxml_path'] is None:
+        raise TIFlashError("Could not find ccxml: %s" % ccxml)
 
-    elif devicetype:
-        devicetype_ccxml = get_ccxml_path(devicetype)
-        if devicetype_ccxml is not None and os.path.exists(devicetype_ccxml):
-            ccxml_path = devicetype_ccxml
-
-    if ccxml_path:
+    if ccxml_args['ccxml_path'] is not None:
         default_devicetype = get_devicetype(ccxml_path)
         default_connection = get_connection(ccxml_path)
         try:
@@ -243,9 +306,7 @@ def get_connections(ccs=None, search=None):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = TIFlash(ccs_path)
-
-    connection_list = flash.get_connections()
+    connection_list = connections.get_connections(ccs_path)
 
     if search:
         connection_list = [ connection for connection in connection_list \
@@ -270,9 +331,7 @@ def get_devicetypes(ccs=None, search=None):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = TIFlash(ccs_path)
-
-    device_list = flash.get_devicetypes()
+    device_list = devices.get_devicetypes(ccs_path)
 
     if search:
         device_list = [ dev for dev in device_list if search in dev ]
@@ -296,9 +355,7 @@ def get_cpus(ccs=None, search=None):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = TIFlash(ccs_path)
-
-    cpu_list = flash.get_cpus()
+    cpu_list = cpus.get_cpus(ccs_path)
 
     if search:
         cpu_list = [ cpu for cpu in cpu_list if search in cpu ]
@@ -317,9 +374,35 @@ def list_options(option_id=None, ccs=None, **session_args):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
 
-    return flash.list_options(option_id=option_id)
+    # Check we received a valid devicetype
+    if ccxml_args['devicetype'] is None:
+        raise TIFlashError("Could not determine devicetype.")
+
+    # Get devicetype for retrieving properties xml
+    devicetype = ccxml_args['devicetype']
+
+    dev_prop_xml = flash_properties.get_device_properties_xml(devicetype, ccs_path)
+    gen_prop_xml = flash_properties.get_generic_properties_xml(ccs_path)
+
+    property_elements = flash_properties.get_property_elements(dev_prop_xml)
+    property_elements.extend(flash_properties.get_property_elements(gen_prop_xml, target="generic"))
+
+    # Convert elements to dictionaries
+    options = dict()
+    for opt in property_elements:
+        opt_dict = flash_properties.parse_property_element(opt)
+        options.update(opt_dict)
+
+    # Filter options to only option_id if provided
+    if option_id:
+        option_keys = list(options.keys())
+        for oid in option_keys:
+            if option_id not in oid:
+                options.pop(oid)
+
+    return options
 
 
 def print_options(option_id=None, ccs=None, **session_args):
@@ -653,9 +736,14 @@ def xds110_reset(ccs=None, **session_args):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
 
-    return flash.xds110_reset()
+    if ccxml_args['serno'] is None :
+        raise TIFlashError("Must provide 'serno' to call xds110_reset")
+
+    return xds110.xds110_reset(ccs_path, serno=ccxml_args['serno'])
+
+
 
 def xds110_list(ccs=None, **session_args):
     """Returns list of sernos of connected XDS110 devices.
@@ -674,9 +762,7 @@ def xds110_list(ccs=None, **session_args):
     """
     ccs_path = __handle_ccs(ccs)
 
-    flash = TIFlash(ccs_path)
-
-    return flash.xds110_list()
+    return xds110.xds110_list(ccs_path)
 
 
 def xds110_upgrade(ccs=None, **session_args):
@@ -701,9 +787,12 @@ def xds110_upgrade(ccs=None, **session_args):
 
     ccs_path = __handle_ccs(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
 
-    return flash.xds110_upgrade()
+    if ccxml_args['serno'] is None :
+        raise TIFlashError("Must provide 'serno' to call xds110_upgrade")
+
+    return xds110.xds110_upgrade(ccs_path, serno=ccxml_args['serno'])
 
 def detect_devices(ccs=None, **session_args):
     """Detect devices connected to machine.
