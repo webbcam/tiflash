@@ -75,15 +75,15 @@ OptionsListParser.add_argument('optionID', metavar='optionID', nargs='?',
 
 # List Parser
 ListParser = argparse.ArgumentParser(add_help=False)
-ListParser.add_argument('-d', '--devices', action='store_true',
-                        help='Prints list of installed devices')
-ListParser.add_argument('-c', '--connections', action='store_true',
+ListParser.add_argument('--devicetypes', action='store_true',
+                        help='Prints list of installed devicetypes')
+ListParser.add_argument('--connections', action='store_true',
                         help='Prints list of installed connections')
-ListParser.add_argument('-u', '--cpus', action='store_true',
+ListParser.add_argument('--cpus', action='store_true',
                         help='Prints list of installed cpus')
-ListParser.add_argument('-cfg', '--cfgs', action='store_true',
+ListParser.add_argument('--cfgs', action='store_true',
                         help='Prints list of installed target cfgs')
-ListParser.add_argument('-o', '--options', action='store_true',
+ListParser.add_argument('--options', action='store_true',
                         help='Prints list of target options')
 ListParser.add_argument('-f', '--filter', metavar='filter', dest='search',
                         type=str, help='String to filter results by')
