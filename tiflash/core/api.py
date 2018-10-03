@@ -655,6 +655,50 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     flash.memory_write(address, data, page=0)
 
 
+def register_read(regname, ccs=None, **session_args):
+    """Reads specified register of device
+
+    Args:
+        regname (str): register name to read from
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        int: value of register
+
+    Raises:
+        TIFlashError: raised if regname is invalid
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.register_read(regname)
+
+
+def register_write(regname, value, ccs=None, **session_args):
+    """Writes a value to specified register of device
+
+    Args:
+        regname (str): register name to read from
+        value (int): value to write to register
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raised if regname is invalid
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    return flash.register_write(regname, value)
+
+
 def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     """Evaluates the given C/GEL expression
 

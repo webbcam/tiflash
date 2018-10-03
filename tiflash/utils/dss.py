@@ -167,6 +167,24 @@ def parse_response_float(response):
     return parsed_response
 
 
+def parse_response_number(response):
+    """Handles the parsing of a string response representing a number (no
+    decimal)
+
+    All responses are sent as strings. In order to convert these strings to
+    their python equivalent value, you must call a parse_response_* function.
+
+    Args:
+        response (str): response string to parse and convert to proper value
+
+    Returns:
+        (int): returns reponse string converted to int or long
+    """
+    parsed_response = int(response)
+
+    return parsed_response
+
+
 def parse_response_list(response):
     """Handles the parsing of a string response representing a list
 
