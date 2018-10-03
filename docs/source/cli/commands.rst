@@ -12,6 +12,7 @@ Commands
     erase
     verify
     memory
+    register
     evaluate
     xds110
     detect
@@ -53,6 +54,12 @@ Below is a list of commands you can call with TIFlash.
     :ref:`Memory <memory>`
 
 *read/write to memory location in device's flash*
+
+.. container::
+
+    :ref:`Register <register>`
+
+*read/write to register of device*
 
 .. container::
 
