@@ -142,9 +142,22 @@ MemoryWriteParser.add_argument('-d', '--data', nargs='+', required=True,
                             help="""Bytes (hex) to write to memory.
                             Each byte separated by a space""")
 
+# Register Read Parser
+RegisterReadParser = argparse.ArgumentParser(add_help=False)
+RegisterReadParser.add_argument('regname', help="Name of register to read.")
+RegisterReadParser.add_argument('--hex', action='store_true',
+                            help="Displays output in hex")
+
+# Register Write Parser
+RegisterWriteParser = argparse.ArgumentParser(add_help=False)
+RegisterWriteParser.add_argument('regname', help="Name of register to read.")
+RegisterWriteParser.add_argument('value',
+                            help="Value (32bit hex) to write to register.")
+
 # Expression Parser
 ExpressionParser = argparse.ArgumentParser(add_help=False)
-ExpressionParser.add_argument('expression', help="C or GEL expression to execute")
+ExpressionParser.add_argument('expression',
+                            help="C or GEL expression to execute")
 ExpressionParser.add_argument('--symbols', required=False, default=None,
                             help=""".out or GEL symbol file to load before
                             evaluating expression.""")

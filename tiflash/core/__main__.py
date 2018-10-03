@@ -14,6 +14,8 @@ from tiflash.core.args import (
     FlashParser,
     MemoryReadParser,
     MemoryWriteParser,
+    RegisterReadParser,
+    RegisterWriteParser,
     ExpressionParser,
     AttachParser,
     XDS110ResetParser,
@@ -85,6 +87,14 @@ def generate_parser():
     sub_parsers.add_parser('memory-write', parents=[MemoryWriteParser],
         usage="tiflash [Session Arguments] memory-write <address> [optionals]",
         description="Write to memory location on a device.")
+
+    # Register
+    sub_parsers.add_parser('register-read', parents=[RegisterReadParser],
+        usage="tiflash [Session Arguments] register-read <regname> [optionals]",
+        description="Read from register on a device.")
+    sub_parsers.add_parser('register-write', parents=[RegisterWriteParser],
+        usage="tiflash [Session Arguments] register-write <reganame> <value>",
+        description="Write value to register on a device.")
 
     # Evaluate
     sub_parsers.add_parser('evaluate', parents=[ExpressionParser],
@@ -320,6 +330,26 @@ def handle_memory(args):
             print(e)
 
 
+def handle_register(args):
+    """Helper function for handling 'register' command"""
+    session_args = get_session_args(args)
+
+    if args.cmd == 'register-read':
+        try:
+            result = tiflash.register_read(args.regname, **session_args)
+            if args.hex:
+                result = hex(result)
+            print(result)
+        except Exception as e:
+            print(e)
+    elif args.cmd == 'register-write':
+        try:
+            result = tiflash.register_write(args.regname, args.value,
+                **session_args)
+        except Exception as e:
+            print(e)
+
+
 def handle_expression(args):
     """Helper function for handling 'expression' command"""
     session_args = get_session_args(args)
@@ -427,6 +457,11 @@ def main(args=None):
     elif args.cmd == 'memory-read' \
         or args.cmd == 'memory-write':
         handle_memory(args)
+
+    # Register
+    elif args.cmd == 'register-read' \
+        or args.cmd == 'register-write':
+        handle_register(args)
 
     # Expression
     elif args.cmd == 'evaluate':

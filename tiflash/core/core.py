@@ -639,6 +639,61 @@ class TIFlash(object):
         if not code:
             raise TIFlashError(result)
 
+
+    def register_read(self, regname):
+        """Reads specified register of device
+
+        Args:
+            regname (str): register name to read from
+
+        Returns:
+            int: returns register value
+
+        Raises:
+            TIFlashError: raised if regname is invalid
+        """
+        register_args = {'read': True}
+        register_args['regname'] = str(regname)
+
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+        args['register'] = register_args
+
+        # call register_read
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+        else:
+            parsed_result = dss.parse_response_number(result)
+            return parsed_result
+
+
+    def register_write(self, regname, value):
+        """Writes a value to specified register of device
+
+        Args:
+            regname (str): register name to read from
+            value (int): value to write to register
+
+        Raises:
+            TIFlashError: raised if regname is invalid
+        """
+        register_args = {'write': True}
+        register_args['regname'] = str(regname)
+        register_args['value'] = str(value)
+
+        # Make a copy of self.args so we are not modifying directly
+        args = self.args.copy()
+        args['register'] = register_args
+
+        # call register_read
+        (code, result) = self.__run_cmd(args)
+
+        if not code:
+            raise TIFlashError(result)
+
+
     def evaluate(self, expr, symbol_file=None):
         """Evaluates the given C/GEL expression
 

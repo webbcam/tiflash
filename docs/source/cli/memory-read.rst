@@ -1,6 +1,6 @@
 .. _memory-read:
 
-Memory-read
+memory-read
 ###########
 
 .. argparse::

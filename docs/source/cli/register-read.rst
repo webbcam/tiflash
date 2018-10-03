@@ -1,10 +1,10 @@
-.. _memory-write:
+.. _register-read:
 
-memory-write
-############
+register-read
+#############
 
 .. argparse::
     :module: tiflash.core.__main__
     :func: generate_parser
     :prog: tiflash
-    :path: memory-write
+    :path: register-read

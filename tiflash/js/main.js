@@ -9,8 +9,6 @@
 
 path = this.arguments[0];
 port = parseInt(this.arguments[1]);
-//print("PATH: " + this.arguments[0])
-//print("PORT: " + this.arguments[1])
 scriptEnv = null;
 debugServer = null;
 debugSession = null;
@@ -212,6 +210,28 @@ function main()
             try {
                 result = write_memory(debugSession, scriptEnv,
                     args.memory.page, args.memory.address, args.memory.data)
+            } catch (e) {
+                result = e;
+                retcode = -1;
+            }
+        }
+    }
+
+    //  Register operations
+    if (args.register) {
+        load(scriptEnv.toAbsolutePath("register.js"));
+        if (args.register.read) {
+            try {
+                result = read_register(debugSession, scriptEnv,
+                    args.register.regname)
+            } catch (e) {
+                result = e;
+                retcode = -1;
+            }
+        } else if (args.register.write) {
+            try {
+                result = write_register(debugSession, scriptEnv,
+                    args.register.regname, args.register.value)
             } catch (e) {
                 result = e;
                 retcode = -1;
