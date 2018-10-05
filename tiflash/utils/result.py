@@ -15,7 +15,7 @@ from sys import version_info as pyversion
 
 HOST = "localhost"
 PORT = 19876    # Port to open socket on
-MAX_PORTS = 3   # Determines number of tiflash processes can run simultaneously
+MAX_PORTS = 4   # Determines number of tiflash processes can run simultaneously
 MAX_CLIENTS = 1
 if pyversion[0] == 2:
     SOCK_TIMEOUT = None   # timeouts don't seem to work for py2
