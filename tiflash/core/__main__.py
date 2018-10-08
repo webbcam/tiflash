@@ -26,6 +26,15 @@ from tiflash.core.args import (
     get_session_args
 )
 
+def __exit_with_error(e):
+    """Helper function for printing Exception message and exiting with non-zero
+    exit number
+
+    Args:
+        e (Exception): Exception raised
+    """
+    raise SystemExit(e)
+
 def generate_parser():
     """Generates an argument parser
 
@@ -152,7 +161,7 @@ def handle_options(args):
                                    **session_args)
             print(value)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
 
     # Set Option
     elif args.cmd == 'options-set':
@@ -233,7 +242,7 @@ def handle_reset(args):
         result = tiflash.reset(options=options, **session_args)
         print(result)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_erase(args):
@@ -255,7 +264,7 @@ def handle_erase(args):
         result = tiflash.erase(options=options, **session_args)
         print(result)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_verify(args):
@@ -278,7 +287,7 @@ def handle_verify(args):
         result = tiflash.verify(args.image[0], options=options, **session_args)
         print(result)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_flash(args):
@@ -306,7 +315,7 @@ def handle_flash(args):
                            address=args.address, **session_args)
         print(result)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_memory(args):
@@ -321,13 +330,13 @@ def handle_memory(args):
                 result = [ hex(h) for h in result ]
             print(result)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
     elif args.cmd == 'memory-write':
         try:
             result = tiflash.memory_write(args.address, args.data, args.page,
                 **session_args)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
 
 
 def handle_register(args):
@@ -341,13 +350,13 @@ def handle_register(args):
                 result = hex(result)
             print(result)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
     elif args.cmd == 'register-write':
         try:
             result = tiflash.register_write(args.regname, args.value,
                 **session_args)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
 
 
 def handle_expression(args):
@@ -359,7 +368,7 @@ def handle_expression(args):
                                 **session_args)
         print(result)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_attach(args):
@@ -369,7 +378,7 @@ def handle_attach(args):
     try:
         result = tiflash.attach(**session_args)
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def handle_xds110(args):
@@ -381,7 +390,7 @@ def handle_xds110(args):
             result = tiflash.xds110_reset(**session_args)
             print(result)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
 
     elif args.cmd == 'xds110-list':
         try:
@@ -392,13 +401,13 @@ def handle_xds110(args):
             for dev in result:
                 print("%s (%s)" % (dev[0], dev[1]))
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
     elif args.cmd == 'xds110-upgrade':
         try:
             result = tiflash.xds110_upgrade(**session_args)
             print(result)
         except Exception as e:
-            print(e)
+            __exit_with_error(e)
 
 
 def handle_detect(args):
@@ -415,7 +424,7 @@ def handle_detect(args):
             print("Devicetype:\t%s" % (dev['devicetype'] or "N/A"))
             print("Serno:\t\t%s\n" % (dev['serno'] or "N/A"))
     except Exception as e:
-        print(e)
+        __exit_with_error(e)
 
 
 def main(args=None):
