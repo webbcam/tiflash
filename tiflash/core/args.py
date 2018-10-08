@@ -105,8 +105,11 @@ EraseParser.add_argument('-o', '--option', nargs=2, action='append',
 
 # Verify Parser
 VerifyParser = argparse.ArgumentParser(add_help=False)
-VerifyParser.add_argument('-i', '--image', action='append', metavar='image',
-                          help='Image to verify can repeat -i/--image command')
+VerifyParser.add_argument('image', metavar='image', nargs=1, help='''Image to verify.''')
+VerifyParser.add_argument('-b', '--bin', action='store_true',
+                         help='Specify if image is a binary image')
+#VerifyParser.add_argument('-i', '--image', action='append', metavar='image',
+#                          help='Image to verify can repeat -i/--image command')
 VerifyParser.add_argument('-o', '--option', nargs=2, action='append',
                           dest='options', metavar='optionID optionValue',
                           help='Sets an option before running verify cmd')

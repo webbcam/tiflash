@@ -165,8 +165,7 @@ def handle_options(args):
 
     # Set Option
     elif args.cmd == 'options-set':
-        print("Setting Option is unsupported at this time")
-        pass
+        __exit_with_error("Setting Option is unsupported at this time")
 
     # Display Option Information
     elif args.cmd == 'options-list':
@@ -284,7 +283,7 @@ def handle_verify(args):
 
     # TODO: Add multi image verifying
     try:
-        result = tiflash.verify(args.image[0], options=options, **session_args)
+        result = tiflash.verify(args.image[0], options=options, binary=args.bin, **session_args)
         print(result)
     except Exception as e:
         __exit_with_error(e)
