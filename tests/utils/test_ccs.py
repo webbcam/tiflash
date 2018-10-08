@@ -1,3 +1,4 @@
+import os
 import pytest
 from tiflash.utils.ccs import FindCCSError, find_ccs, get_workspace_dir
 
@@ -52,3 +53,7 @@ class TestCCS():
 
         assert get_workspace_dir() == answer
 
+    def test_ccsfind_nonexistant_custom_install(self, t_env):
+        os.environ['CCS_PREFIX'] = "/nonexistant/path/to/ccs"
+        with pytest.raises(FindCCSError):
+            ccs_path = find_ccs()
