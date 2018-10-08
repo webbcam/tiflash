@@ -20,6 +20,40 @@ class FindCCSError(Exception):
     """Generic FindCCS Error"""
     pass
 
+def __get_ccs_prefix():
+    """Returns full path to directory containing ccs installations.
+
+    This can be the default directory or a custom one (set by CCS_PREFIX
+    environment variable)
+
+    Returns:
+        str: full path to directory containing ccs installations
+    """
+    try:    # Custom CCS Installation path
+        ccs_prefix = os.environ['CCS_PREFIX']
+
+    except KeyError:    # Default CCS Installation paths
+        system = platform.system()
+        if system == "Windows":
+            WINDOWS_CCS_PATH = os.environ['HOMEDRIVE']
+            ccs_prefix = WINDOWS_CCS_PATH
+        elif system == "Linux":
+            LINUX_CCS_PATH = os.environ['HOME']
+            ccs_prefix = LINUX_CCS_PATH
+        elif system == "Darwin":
+            MAC_CCS_PATH = "/Applications"
+            ccs_prefix = MAC_CCS_PATH
+        else:
+            raise FindCCSError("Unsupported Operating System: %s" % system)
+
+        ccs_prefix = os.path.normpath(ccs_prefix + '/' + TI_DIRECTORY)
+
+    # Ensure ccs_directory exists
+    if not path.exists(ccs_prefix):
+        raise FindCCSError("Could not a find CCS Installation directory")
+
+    return ccs_prefix
+
 
 def get_workspace_dir():
     """Returns the workspace directory to use for tiflash.
@@ -49,30 +83,12 @@ def find_ccs(version=None):
         FindCCSError: raises exception if CCS installation can not be found
 
     """
-    ccs_directory = ""
-    system = platform.system()
-    if system == "Windows":
-        WINDOWS_CCS_PATH = os.environ['HOMEDRIVE']
-        ccs_directory = WINDOWS_CCS_PATH
-    elif system == "Linux":
-        LINUX_CCS_PATH = os.environ['HOME']
-        ccs_directory = LINUX_CCS_PATH
-    elif system == "Darwin":
-        MAC_CCS_PATH = "/Applications"
-        ccs_directory = MAC_CCS_PATH
-    else:
-        raise FindCCSError("Unsupported Operating System: %s" % system)
-
-    ccs_directory = os.path.normpath(ccs_directory + '/' + TI_DIRECTORY)
-
-    # Ensure ccs_directory exists
-    if not path.exists(ccs_directory):
-        raise FindCCSError("%s does not exist" % ccs_directory)
+    ccs_directory = __get_ccs_prefix()
 
     # Find latest or specific CCS version
     directories = [d for d in os.listdir(ccs_directory)
                    if path.isdir(ccs_directory + "/" + d)]
-    ccs_pattern = "ccsv(\d+)"
+    ccs_pattern = "ccsv([0-9]+)"
     ccs_re = re.compile(ccs_pattern)
     ccs_installations = [ccs for ccs in directories
                          if ccs_re.match(ccs) is not None]
