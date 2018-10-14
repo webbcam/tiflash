@@ -5,11 +5,11 @@
 CC3220/S/SF
 ===========
 
+Below are common example commands specific for Texas Instruments' CC3220/S/SF devices
+
 .. contents::
     :local:
 
-
-Below are common example commands specific for Texas Instruments' CC3220/S/SF devices
 
 Reset After Flash
 -----------------

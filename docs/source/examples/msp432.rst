@@ -5,11 +5,11 @@
 MSP432
 ======
 
+Below are common example commands specific for Texas Instruments' MSP432 device
+
 .. contents::
     :local:
 
-
-Below are common example commands specific for Texas Instruments' MSP432 device
 
 Reset After Flash
 -----------------

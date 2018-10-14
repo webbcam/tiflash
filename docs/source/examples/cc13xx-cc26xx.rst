@@ -5,12 +5,12 @@
 CC13XX + CC26XX
 ===============
 
+Below are common example commands specific for Texas Instruments' CC13XX and
+CC26XX devices.
+
 .. contents::
     :local:
 
-
-Below are common example commands specific for Texas Instruments' CC13XX and
-CC26XX devices.
 
 IEEE Address
 ------------
