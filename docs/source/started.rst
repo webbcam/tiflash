@@ -3,6 +3,10 @@
 Getting Started
 ===============
 
+.. contents::
+    :local:
+    :depth: 1
+
 Prerequisites
 -------------
 

@@ -2,8 +2,8 @@
 
 .. highlight:: python
 
-MSP432-P401R
-===========
+MSP432
+======
 
 .. contents::
     :local:
@@ -11,9 +11,34 @@ MSP432-P401R
 
 Below are common example commands specific for Texas Instruments' MSP432 device
 
+Reset After Flash
+-----------------
+*Reset the device after flashing*
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"ResetOnRestart" : True}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "ResetOnRestart" "True"
+
+    True
+
 Flash Reset Type - Soft Reset
 -----------------------------
-Set Flash Reset Type to Soft Reset when flashing device.
+*Set Flash Reset Type to Soft Reset when flashing device*
 
 
 **Python**
@@ -39,7 +64,7 @@ Set Flash Reset Type to Soft Reset when flashing device.
 
 Flash Reset Type - Hard Reset
 -----------------------------
-Set Flash Reset Type to Hard Reset when flashing device.
+*Set Flash Reset Type to Hard Reset when flashing device (default option)*
 
 
 **Python**
@@ -65,11 +90,8 @@ Set Flash Reset Type to Hard Reset when flashing device.
 
 Flash Erase - Main Memory Only
 -------------------------------------
-Erase main memory only
+*Erase main memory only (default option)*
 
-.. note::
-
-    This is the default flash option and therefore you do *not* need to actually specify this.
 
 **Python**
 
@@ -94,11 +116,7 @@ Erase main memory only
 
 Flash Erase - Main and Information Memory
 -----------------------------------------
-Erase main and information memory.
-
-.. note::
-
-    This is the default flash option and therefore you do *not* need to actually specify this.
+*Erase main and information memory*
 
 **Python**
 
@@ -123,7 +141,7 @@ Erase main and information memory.
 
 Flash Erase - Factory Reset
 ---------------------------
-Reset device to Factory default.
+*Reset device to Factory default*
 
 **Python**
 
@@ -148,7 +166,7 @@ Reset device to Factory default.
 
 Flash Erase - Necessary Segments Only
 -------------------------------------
-Erase and download necessary segments only
+*Erase and download necessary segments only*
 
 **Python**
 
@@ -173,7 +191,7 @@ Erase and download necessary segments only
 
 Flash Erase - Do Not Erase Flash Memory
 ---------------------------------------
-Do not erase Flash memory.
+*Do not erase Flash memory*
 
 **Python**
 
@@ -193,31 +211,5 @@ Do not erase Flash memory.
 ::
 
     $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Do not erase Flash memory"
-
-    True
-
-
-Reset After Flash
------------------
-Reset the device after flashing.
-
-**Python**
-
-.. highlight:: python
-
-::
-
-    >>> opts = {"ResetOnRestart" : True}
-    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
-
-    True
-
-**CLI**
-
-.. highlight:: console
-
-::
-
-    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "ResetOnRestart" "True"
 
     True

@@ -18,5 +18,6 @@ You can view a device's platform specific options by running:
     :caption: Device Families
     :maxdepth: 1
 
-    examples/cc13xx-cc26xx
     examples/msp432
+    examples/cc32xx
+    examples/cc13xx-cc26xx
