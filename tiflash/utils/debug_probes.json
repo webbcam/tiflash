@@ -1,0 +1,87 @@
+[
+	{
+		"vid": "2047",
+		"pid": "0010",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "2047",
+		"pid": "0013",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "2047",
+		"pid": "0014",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "2047",
+		"pid": "0203",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "2047",
+		"pid": "0204",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "0451",
+		"pid": "f432",
+		"connectionXml": "TIMSP430-USB"
+	},
+	{
+		"vid": "0403",
+		"pid": "6010",
+		"connectionXml": "TIXDS100v2_Connection"
+	},
+	{
+		"vid": "0403",
+		"pid": "a6d0",
+		"connectionXml": "TIXDS100v2_Connection"
+	},
+	{
+		"vid": "0403",
+		"pid": "a6d1",
+		"connectionXml": "TIXDS100v3_Dot7_Connection"
+	},
+	{
+		"vid": "0451",
+		"pid": "bef3",
+		"connectionXml": "TIXDS110_Connection"
+	},
+	{
+		"vid": "0451",
+		"pid": "bef0",
+		"connectionXml": "TIXDS2XXUSB_Connection"
+	},
+	{
+		"vid": "0c55",
+		"pid": "0220",
+		"connectionXml": "TIXDS2XXUSB_Connection"
+	},
+	{
+		"vid": "0451",
+		"pid": "c32a",
+		"connectionXml": "Stellaris_ICDI_Connection"
+	},
+	{
+		"vid": "0403",
+		"pid": "bcd8",
+		"connectionXml": "Stellaris_ICDI_Connection"
+	},
+	{
+		"vid": "0403",
+		"pid": "bcd9",
+		"connectionXml": "Stellaris_ICDI_Connection"
+	},
+	{
+		"vid": "0403",
+		"pid": "bcda",
+		"connectionXml": "Stellaris_ICDI_Connection"
+	},
+	{
+		"vid": "1cbe",
+		"pid": "00fd",
+		"connectionXml": "Stellaris_ICDI_Connection"
+	}
+]
