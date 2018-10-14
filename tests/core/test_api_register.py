@@ -43,7 +43,7 @@ class TestRegisterApi():
     def test_invalid_register_write(self, device):
         """Tests an Error is raised when trying to access invalid register for
         register write"""
-        INVALID_REGNAME = "PC"
+        INVALID_REGNAME = "INVALIDPC"
         VALUE = 1
 
         with pytest.raises(tiflash.TIFlashError):

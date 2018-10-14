@@ -26,11 +26,12 @@ class TestXDS110Api():
         serno_list = [ t_env['DEVICES'][d]['serno'] for d in devices ]
 
         result = tiflash.xds110_list()
+        result_sernos = [ s for (s,v) in result ]
 
-        assert len(result) == len(serno_list)
+        assert len(result_sernos) == len(serno_list)
 
         for serno in serno_list:
-            assert serno in result
+            assert serno in result_sernos
 
     def test_basic_xds110_upgrade(self, device):
         """Tests simple xds110_upgrade on each device in devices.cfg"""

@@ -26,6 +26,7 @@ class TestVerifyApi():
         assert result is True
 
 
+    @pytest.mark.xfail
     def test_binary_verify(self, device):
         """Creates a binary image from the hex image and tries to flash the
         device.
