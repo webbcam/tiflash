@@ -130,11 +130,11 @@ def add_serno(ccxml_path, serno, ccs_path):
     root = tree.getroot()
 
     connection_element = root.find("configuration/connection")
-    last_property_element = connection_element.find("property[last()]")
+    platform_element = connection_element.find("platform[last()]")
 
     # Get index of where to insert serno property
-    children = connection_element.getchildren()
-    serno_index = children.index(last_property_element) + 1
+    children = list(connection_element)     # Get list of children
+    serno_index = children.index(platform_element)
 
     # Insert serno property
     connection_element.insert(serno_index, serno_property)
@@ -187,7 +187,7 @@ def _create_serno_property(serno, conn_xml):
     serno_choice = debugprobe_property.find(
                         "choice[@Name='Select by serial number']")
 
-    choices = debugprobe_property.getchildren()
+    choices = list(debugprobe_property)     # Get list of children
     for choice in choices:
         if choice != serno_choice:
             debugprobe_property.remove(choice)

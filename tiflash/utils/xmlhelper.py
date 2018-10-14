@@ -123,7 +123,8 @@ def get_sibling(target_node, parent_node, index):
                 no previous sibling node exists
 
     """
-    children = parent_node.getchildren()
+    # Get list of children
+    children = list(parent_node)
     abs_index = children.index(target_node) + index
 
     return children[abs_index]
