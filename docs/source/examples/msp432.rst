@@ -5,7 +5,7 @@
 MSP432
 ======
 
-Below are common example commands specific for Texas Instruments' MSP432 device
+Below are common example commands specific for Texas Instruments' MSP432 devices
 
 .. contents::
     :local:
@@ -36,32 +36,6 @@ Reset After Flash
 
     True
 
-Flash Reset Type - Soft Reset
------------------------------
-*Set Flash Reset Type to Soft Reset when flashing device*
-
-
-**Python**
-
-.. highlight:: python
-
-::
-
-    >>> opts = {"FlashResetType" : "Soft reset"}
-    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
-
-    True
-
-**CLI**
-
-.. highlight:: console
-
-::
-
-    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashResetType" "Soft reset"
-
-    True
-
 Flash Reset Type - Hard Reset
 -----------------------------
 *Set Flash Reset Type to Hard Reset when flashing device (default option)*
@@ -85,6 +59,32 @@ Flash Reset Type - Hard Reset
 ::
 
     $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashResetType" "Hard reset"
+
+    True
+
+Flash Reset Type - Soft Reset
+-----------------------------
+*Set Flash Reset Type to Soft Reset when flashing device*
+
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashResetType" : "Soft reset"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashResetType" "Soft reset"
 
     True
 
