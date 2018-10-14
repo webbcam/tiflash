@@ -19,3 +19,4 @@ You can view a device's platform specific options by running:
     :maxdepth: 1
 
     examples/cc13xx-cc26xx
+    examples/msp432

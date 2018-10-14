@@ -1,0 +1,223 @@
+.. _msp432:
+
+.. highlight:: python
+
+MSP432-P401R
+===========
+
+.. contents::
+    :local:
+
+
+Below are common example commands specific for Texas Instruments' MSP432 device
+
+Flash Reset Type - Soft Reset
+-----------------------------
+Set Flash Reset Type to Soft Reset when flashing device.
+
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashResetType" : "Soft reset"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashResetType" "Soft reset"
+
+    True
+
+Flash Reset Type - Hard Reset
+-----------------------------
+Set Flash Reset Type to Hard Reset when flashing device.
+
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashResetType" : "Hard reset"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashResetType" "Hard reset"
+
+    True
+
+Flash Erase - Main Memory Only
+-------------------------------------
+Erase main memory only
+
+.. note::
+
+    This is the default flash option and therefore you do *not* need to actually specify this.
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashEraseSelection" : "Erase main memory only"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Erase main memory only"
+
+    True
+
+Flash Erase - Main and Information Memory
+-----------------------------------------
+Erase main and information memory.
+
+.. note::
+
+    This is the default flash option and therefore you do *not* need to actually specify this.
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashEraseSelection" : "Erase main and information memory"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Erase main and information memory"
+
+    True
+
+Flash Erase - Factory Reset
+---------------------------
+Reset device to Factory default.
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashEraseSelection" : "Factory Reset"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Factory Reset"
+
+    True
+
+Flash Erase - Necessary Segments Only
+-------------------------------------
+Erase and download necessary segments only
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashEraseSelection" : "Erase and download necessary segments only"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Erase and download necessary segments only"
+
+    True
+
+Flash Erase - Do Not Erase Flash Memory
+---------------------------------------
+Do not erase Flash memory.
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"FlashEraseSelection" : "Do not erase Flash memory"}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "FlashEraseSelection" "Do not erase Flash memory"
+
+    True
+
+
+Reset After Flash
+-----------------
+Reset the device after flashing.
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"ResetOnRestart" : True}
+    >>> tiflash.flash("/path/to/image.hex", options=opts, serno="M4321005")
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s M4321005 flash "/path/to/image.hex" -o "ResetOnRestart" "True"
+
+    True
