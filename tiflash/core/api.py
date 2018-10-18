@@ -204,15 +204,16 @@ def __handle_ccxml(ccs_path, ccxml=None, serno=None, devicetype=None,
 
     ccxml_args = __handle_ccxml_args(ccs_path, ccxml=ccxml, serno=serno,
                             devicetype=devicetype, connection=connection)
+    ccxml_path = ccxml_args['ccxml_path']
 
-    if ccxml and ccxml_args['ccxml_path'] is None:
+    if ccxml and ccxml_path is None:
         raise TIFlashError("Could not find ccxml: %s" % ccxml)
 
-    if ccxml_args['ccxml_path'] is not None:
-        default_devicetype = get_devicetype(ccxml_args['ccxml_path'])
-        default_connection = get_connection(ccxml_args['ccxml_path'])
+    if ccxml_path is not None:
+        default_devicetype = get_devicetype(ccxml_path)
+        default_connection = get_connection(ccxml_path)
         try:
-            default_serno = get_serno(ccxml_args['ccxml_path'])
+            default_serno = get_serno(ccxml_path)
         except Exception:
             pass    # Device may not use serial numbers
 
