@@ -12,7 +12,7 @@ You can view a device's platform specific options by running:
 
 ::
 
-    tiflash -d DEVICETYPE option --list
+    tiflash -d DEVICETYPE options-list
 
 .. toctree::
     :caption: Device Families
