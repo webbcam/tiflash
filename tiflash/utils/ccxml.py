@@ -38,7 +38,7 @@ def get_ccxml_directory():
 
     ccxml_dir =  os.path.normpath(ccxml_directory)
     if not os.path.isdir(ccxml_dir):
-        os.mkdir(ccxml_dir)
+        os.makedirs(ccxml_dir)
 
     return ccxml_dir
 
