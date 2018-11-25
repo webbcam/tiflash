@@ -33,6 +33,7 @@ class TestXDS110Api():
         for serno in serno_list:
             assert serno in result_sernos
 
+    @pytest.mark.skip(reason="Issue with board connections after xds110 upgrade in testing")
     def test_basic_xds110_upgrade(self, device):
         """Tests simple xds110_upgrade on each device in devices.cfg"""
         result = tiflash.xds110_upgrade(serno=device['serno'],

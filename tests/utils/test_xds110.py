@@ -68,6 +68,7 @@ class TestXDS110():
         for serno in serno_list:
             assert serno in [ s for (s,_) in result ]
 
+    @pytest.mark.skip(reason="Issue with board connections after xds110 upgrade in testing")
     def test_xds110_upgrade(self, t_env):
         """Calls xds110_upgrade with serno"""
         ccs_path = t_env['CCS_INSTALLS'][0]
@@ -81,6 +82,7 @@ class TestXDS110():
 
         assert result == True
 
+    @pytest.mark.skip(reason="Issue with board connections after xds110 upgrade in testing")
     def test_xds110_upgrade_no_serno(self, t_env):
         """Calls xds110_upgrade with no serno"""
         ccs_path = t_env['CCS_INSTALLS'][0]
