@@ -37,6 +37,7 @@ class TestXDS110Cli():
 
         subprocess.check_call(cmd_str, shell=True)
 
+    @pytest.mark.skip(reason="Issue with board connections after xds110 upgrade in testing; Please run manually")
     def test_basic_xds110_upgrade(self, device):
         """Tests simple xds110_upgrade on each device in devices.cfg"""
         cmd = get_cmd_with_device_params(device)
