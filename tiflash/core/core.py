@@ -505,7 +505,7 @@ class TIFlash(object):
             TIFlashError: raises error if option invalid
         """
 
-        verify_args = {'image': image}
+        verify_args = {'image': os.path.abspath(image)}
         if binary:
             verify_args['bin'] = True
         if address:
@@ -551,7 +551,7 @@ class TIFlash(object):
         Raises:
             TIFlashError: raises error if option invalid
         """
-        flash_args = {'image': image}
+        flash_args = {'image': os.path.abspath(image)}
         if binary:
             flash_args['binary'] = True
         if address:
