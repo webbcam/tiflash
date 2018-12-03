@@ -27,7 +27,7 @@ class TestSetup(object):
             tuple: a tuple of ints representing CCS versions installed in test
               setup
         """
-        versions_str = self.cfg.get('ccs', 'versions').split(',')
+        versions_str = self.cfg.get('environment', 'ccs_versions').split(',')
         versions = map(int, versions_str)
 
         return tuple(versions)
@@ -42,23 +42,13 @@ class TestSetup(object):
         system = platform.system()
         versions = self.get_ccs_versions()
 
-        if self.cfg.has_option('ccs', 'custom_install'):
-            ccs_directory = self.cfg.get('ccs', 'custom_install')
-        else:   # Determine ccs path by platform (os)
-            if system == 'Windows':
-                ccs_directory = "C:/ti"
-            elif system == 'Linux':
-                ccs_directory = os.environ['HOME'] + "/ti"
-            elif system == 'Darwin':
-                ccs_directory = "/Applications/ti"
-            else:
-                raise Exception("Unsupported platform: %s" % system)
+        ccs_prefix = self.cfg.get('environment', 'ccs_prefix')
 
-        ccs_paths = tuple(ccs_directory + "/ccsv%d" %v for v in versions)
+        ccs_paths = tuple(ccs_prefix + "/ccsv%d" %v for v in versions)
 
         for path in ccs_paths:
             if not os.path.exists(path):
-              raise TestSetupError("CCS Install: %s could not be found. "
+                raise TestSetupError("CCS Install: %s could not be found. "
                                     "Remove this ccs version from setup.cfg"
                                     % path)
         return ccs_paths
@@ -69,24 +59,13 @@ class TestSetup(object):
         Returns:
             str: Path to target configuration directory
         """
-        system = platform.system()
 
-        if self.cfg.has_option('ccs', 'target_configs'):
-            config_directory = self.cfg.get('ccs', 'target_configs')
-        else:   # Determine ccs path by platform (os)
-            if system == 'Windows':
-                config_directory = os.environ['USERPROFILE']
-            elif system == 'Linux' or system == 'Darwin':
-                config_directory = os.environ['HOME']
-            else:
-                raise Exception("Unsupported platform: %s" % system)
+        ccxml_dir = self.cfg.get("environment", "ccxml_dir")
 
-            config_directory += "/ti/CCSTargetConfigurations"
-
-        if not os.path.exists(config_directory):
+        if not os.path.exists(ccxml_dir):
               raise TestSetupError("Target Config Directory: %s could not"
-                                    " be found." % config_directory)
-        return config_directory
+                                    " be found." % ccxml_dir)
+        return ccxml_dir
 
 
     def get_devices(self):
