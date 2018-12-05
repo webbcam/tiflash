@@ -12,8 +12,8 @@ CC26XX devices.
     :local:
 
 
-IEEE Address
-------------
+IEEE Address (Read)
+-------------------
 *Obtaining a device's IEEE Address*
 
 
@@ -37,8 +37,36 @@ IEEE Address
 
     00:12:4B:00:11:22:33:44
 
-BLE Address
-------------
+IEEE Address (Write)
+--------------------
+
+*Writing a device's Secondary IEEE Address (only when flashing)*
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"DeviceIeeeSecondary": "12:34:56:78:9A:BC:DE:F0", "OverrideIeeeSecondaryAddr": True}
+    >>> tiflash.flash("/path/to/image.hex", serno="L4000CE", options=opts)
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s L4000CE flash "/path/to/image.hex" -o DeviceIeeeSecondary "12:34:56:78:9A:BC:DE:F0" -o OverrideIeeeSecondaryAddr True
+
+    True
+
+
+
+BLE Address (Read)
+------------------
 *Obtaining a device's BLE Address*
 
 **Python**
@@ -60,6 +88,33 @@ BLE Address
     $ tiflash -s L4000CE options-get DeviceBlePrimary --operation "ReadPriBle"
 
     00:81:F9:11:22:33
+
+BLE Address (Write)
+-------------------
+
+*Writing a device's Secondary BLE Address (only when flashing)*
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> opts = {"DeviceBleSecondary": "12:34:56:78:9A:BC", "OverrideBleSecondaryAddr": True}
+    >>> tiflash.flash("/path/to/image.hex", serno="L4000CE", options=opts)
+
+    True
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s L4000CE flash "/path/to/image.hex" -o DeviceBleSecondary "12:34:56:78:9A:BC" -o OverrideBleSecondaryAddr True
+
+    True
+
 
 Flash Erase - All Unprotected Sectors
 -------------------------------------

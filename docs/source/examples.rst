@@ -4,7 +4,7 @@ Device Examples
 ===============
 
 Each device type will have specific options you can specify when performing an
-action in tiflash. These options are the same options available in the CCS
+action in tiflash. These options are the same options available through the CCS
 GUI.
 
 This page attempts to cover some of the more common options used for a few of these device types.
