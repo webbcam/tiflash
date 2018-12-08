@@ -67,7 +67,16 @@ OptionsGetParser.add_argument('optionID', metavar='optionID',
                            help="Option ID to get value of.")
 OptionsGetParser.add_argument('-op', '--operation', metavar='preOperation',
                            help='''Specify an operation to perform prior to
-                            getting/setting option''')
+                            getting option''')
+
+OptionsSetParser = argparse.ArgumentParser(add_help=False)
+OptionsSetParser.add_argument('optionID', metavar='optionID',
+                           help="Option ID to set value of.")
+OptionsSetParser.add_argument('optionVal', metavar='optionVal',
+                           help="Value to set option to.")
+OptionsSetParser.add_argument('-op', '--operation', metavar='postOperation',
+                           help='''Specify an operation to perform after
+                            setting option''')
 
 OptionsListParser = argparse.ArgumentParser(add_help=False)
 OptionsListParser.add_argument('optionID', metavar='optionID', nargs='?',

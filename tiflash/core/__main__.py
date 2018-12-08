@@ -6,6 +6,7 @@ import tiflash
 from tiflash.core.args import (
     SessionParser,
     OptionsGetParser,
+    OptionsSetParser,
     OptionsListParser,
     ListParser,
     ResetParser,
@@ -60,6 +61,9 @@ def generate_parser():
     sub_parsers.add_parser('options-get', parents=[OptionsGetParser],
         usage="tiflash [Session Arguments] options-get <optionID> [optionals]",
         description="Get value of a device option.")
+    sub_parsers.add_parser('options-set', parents=[OptionsSetParser],
+        usage="tiflash [Session Arguments] options-set <optionID> <optionVal> [optionals]",
+        description="Set value of a device option.")
     sub_parsers.add_parser('options-list', parents=[OptionsListParser],
         usage="tiflash [Session Arguments] options-list [optionID]",
         description="List device options.")
@@ -165,7 +169,11 @@ def handle_options(args):
 
     # Set Option
     elif args.cmd == 'options-set':
-        __exit_with_error("Setting Option is unsupported at this time")
+        try:
+            tiflash.set_option(args.optionID, args.optionVal,
+                                post_operation=args.operation, **session_args)
+        except Exception as e:
+            __exit_with_error(e)
 
     # Display Option Information
     elif args.cmd == 'options-list':
@@ -438,6 +446,7 @@ def main(args=None):
 
     # Options
     if args.cmd == 'options-get' \
+        or args.cmd == 'options-set' \
         or args.cmd == 'options-list':
         handle_options(args)
 

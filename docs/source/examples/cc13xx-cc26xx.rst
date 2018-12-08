@@ -40,7 +40,26 @@ IEEE Address (Read)
 IEEE Address (Write)
 --------------------
 
-*Writing a device's Secondary IEEE Address (only when flashing)*
+*Writing a device's Secondary IEEE Address*
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> tiflash.set_option("DeviceIeeeSecondary", "12:34:56:78:9A:BC:DE:F0", serno="L4000CE", post_operation="WriteSecIeee")
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s L4000CE options-set "DeviceIeeeSecondary" "12:34:56:78:9A:BC:DE:F0" -op "WriteSecIeee"
+
+
+*Writing a device's Secondary IEEE Address (when flashing)*
 
 **Python**
 
@@ -92,7 +111,26 @@ BLE Address (Read)
 BLE Address (Write)
 -------------------
 
-*Writing a device's Secondary BLE Address (only when flashing)*
+*Writing a device's Secondary BLE Address*
+
+**Python**
+
+.. highlight:: python
+
+::
+
+    >>> tiflash.set_option("DeviceBleSecondary", "12:34:56:78:9A:BC:DE:F0", serno="L4000CE", post_operation="WriteSecBle")
+
+**CLI**
+
+.. highlight:: console
+
+::
+
+    $ tiflash -s L4000CE options-set "DeviceBleSecondary" "12:34:56:78:9A:BC:DE:F0" -op "WriteSecBle"
+
+
+*Writing a device's Secondary BLE Address (when flashing)*
 
 **Python**
 

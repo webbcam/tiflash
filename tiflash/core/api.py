@@ -507,6 +507,36 @@ def get_option(option_id, pre_operation=None, ccs=None,
     return option_val
 
 
+def set_option(option_id, option_val, post_operation=None, ccs=None,
+               **session_args):
+    """Sets the value of the option_id.
+
+    Args:
+        option_id (str): Option ID to set value of. These ids are
+            device specific and can viewed using TIFlash.print_options().
+        option_val (str or int): Value to set option to.
+        post_operation (str): Operation to run after to setting option_id.
+        ccs (int or str): Version Number of CCS to use or path to
+            custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Raises:
+        TIFlashError: raises error if option does not exist
+    """
+    ccs_path = __handle_ccs(ccs)
+
+    flash = __handle_session(ccs_path, **session_args)
+
+    if post_operation is not None:
+        flash.set_operation(post_operation)
+
+    flash.set_option(option_id, option_val)
+
+    flash.nop() # Just set option and operation and run
+
+
+
 def reset(options=None, ccs=None, **session_args):
     """Performs a Board Reset on device
 

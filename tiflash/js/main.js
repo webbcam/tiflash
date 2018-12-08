@@ -99,22 +99,6 @@ function main()
     }
 
 
-    //  Perform Operation
-    if (args.operation) {
-        load(scriptEnv.toAbsolutePath("operation.js"));
-
-        try {
-            handle_operation_cmds(debugSession, scriptEnv, args.operation);
-        } catch (e) {
-            result = e;
-            retcode = -1;
-
-            send_result(scriptEnv, port, result);
-            quit(retcode);
-        }
-    }
-
-
     //  Set Option
     if (args.setoption) {
         load(scriptEnv.toAbsolutePath("options.js"));
@@ -131,6 +115,22 @@ function main()
                 send_result(scriptEnv, port, result);
                 quit(retcode);
             }
+        }
+    }
+
+
+    //  Perform Operation
+    if (args.operation) {
+        load(scriptEnv.toAbsolutePath("operation.js"));
+
+        try {
+            handle_operation_cmds(debugSession, scriptEnv, args.operation);
+        } catch (e) {
+            result = e;
+            retcode = -1;
+
+            send_result(scriptEnv, port, result);
+            quit(retcode);
         }
     }
 
