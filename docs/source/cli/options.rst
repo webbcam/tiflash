@@ -10,6 +10,7 @@ Get/Set/List device specific options
     :maxdepth: 3
 
     options-get
+    options-set
     options-list
 
 .. container::
@@ -17,6 +18,12 @@ Get/Set/List device specific options
     :ref:`options-get <options-get>`
 
 *get an option on a device*
+
+.. container::
+
+    :ref:`options-set <options-set>`
+
+*set an option on a device*
 
 .. container::
 

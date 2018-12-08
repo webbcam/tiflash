@@ -279,8 +279,10 @@ class TIFlash(object):
             parsed_vals = dss.parse_response_list(vals)
             return parsed_vals
 
-    def perform_operation(self, operation):
-        """Peforms device specifc operation
+    def set_operation(self, operation):
+        """Sets device specifc operation to perform
+
+        Only one operation can be performed.
 
         Args:
             operation (str): operation to perform (must be supported by device)
@@ -288,17 +290,7 @@ class TIFlash(object):
         op_args = {'opcode': operation}
 
         # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args.update({'operation': op_args})
-
-        (code, vals) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError("Could not perform operation %s" % operation)
-        else:
-            # parsed_vals = dss.parse_response_list(vals)
-            # return parsed_vals
-            return True
+        self.args['operation'] = op_args
 
     def print_options(self, option_id=None):
         # Make a copy of self.args so we are not modifying directly

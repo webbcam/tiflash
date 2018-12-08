@@ -87,12 +87,6 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
-    :ref:`Options <options>`
-
-*get/set/list device specific options*
-
-.. container::
-
     :ref:`List <list>`
 
 *list environment/device information*
