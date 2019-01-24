@@ -36,7 +36,7 @@ setup(  name='tiflash',
         ],
         packages=find_packages(),
         cmdclass = { 'install' : CustomInstallCommand },
-        python_requires=">=2.7.13, <=3.7",
+        python_requires=">=2.7.13, <4",
         entry_points = {
             'console_scripts':[
                 'tiflash=tiflash.core.__main__:main',
