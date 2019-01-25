@@ -28,38 +28,42 @@ Session Args
             argument.
 
 
-        :Required:  - **serno** *(str)* - serial number of device
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | Name             | Type       | Description                                    | Default                             |
+        +==================+============+================================================+=====================================+
+        | **serno**        | str        | serial number of device                        |                                     |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **devicetype**   | str        | full devicetype name                           |                                     |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **ccs**          | str or int | full path to ccs installation or version num   | latest                              |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **chip**         | str        | cpu/chip of device to connect to               | first chip found for device         |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **connection**   | str        | full name of connection to use                 | default connection for device       |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **ccxml**        | str        | full path to ccxml file to use                 |                                     |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **fresh**        | boolean    | force a new ccxml file to be created and used  | False                               |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **debug**        | boolean    | output debug information when running          | False                               |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
+        | **timeout**      | int        | amount of time (seconds) for tiflash to execute| 60                                  |
+        +------------------+------------+------------------------------------------------+-------------------------------------+
 
-        :Optional:  - **devicetype** *(str)* - full devicetype name
+        .. note::
 
-                        * *HINT*: you can see a list of devicetypes with the `get_devices() <core.html#tiflash.core.api.get_devices>`_ function
-
-                    - **ccs** *(int)* - version of ccs to use
-
-                        * *DEFAULT*: latest version of ccs installed
-
-                    - **chip** *(str)* - cpu/chip of device to connect to
-
-                        * *HINT*: you can see a list of chips with the `get_cpus() <core.html#tiflash.core.api.get_cpus>`_ function
-
-                    - **connection** *(str)* - full name of connection to use
-
-                        * *HINT*: you can see a list of connections with the `get_connections() <core.html#tiflash.core.api.get_connections>`_ function
-
-                    - **ccxml** *(str)* - path to a specific ccxml file to use
-
-                        * *HINT*: providing an existing ccxml file removes the need to provide the device's serno
-
-                    - **fresh** *(boolean)* - specify to create a new ccxml file (instead of using an existing one)
-
-                        * *DEFAULT*: False
-
-                    - **debug** *(boolean)* - specify to output info when running command
-
-                        * *DEFAULT*: False
-
-                    - **timeout** *(int)* - specify amount of time (seconds) for tiflash to execute a command
-
-                        * *DEFAULT*: 60
-
-
+            +------------------+---------------------------------------------------------------------------------------------------+
+            | Name             | Tips                                                                                              |
+            +==================+===================================================================================================+
+            | **devicetype**   | you can see a list of devicetypes with the `get_devicetypes()                                     |
+            |                  | <core.html#tiflash.core.api.get_devicetypes>`_ function                                           |
+            +------------------+---------------------------------------------------------------------------------------------------+
+            | **chip**         | you can see a list of chips/cpus with the `get_cpus()                                             |
+            |                  | <core.html#tiflash.core.api.get_cpus>`_ function                                                  |
+            +------------------+---------------------------------------------------------------------------------------------------+
+            | **connection**   | you can see a list of connections with the `get_connections()                                     |
+            |                  | <core.html#tiflash.core.api.get_connections>`_ function                                           |
+            +------------------+---------------------------------------------------------------------------------------------------+
+            | **ccxml**        | providing an existing ccxml file to use will eliminate any requirement of providing               |
+            |                  | a serno, devicetype, and/or connection type                                                       |
+            +------------------+---------------------------------------------------------------------------------------------------+
