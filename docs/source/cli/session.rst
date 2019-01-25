@@ -1,7 +1,7 @@
 .. _session:
 
-Session
-=======
+Session Arguments
+=================
 
 There are a variety of ways for specifying a device to connect to.
 Below are a list of arguments you can provide for specifying how to connect to

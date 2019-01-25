@@ -1,7 +1,7 @@
 .. _session_api:
 
-Session Args
-============
+Session Arguments
+=================
 
 .. data:: **session_args
 
@@ -16,16 +16,6 @@ Session Args
 
             # Example of providing session args: 'serno' and 'ccs'
             function_name(serno="LXXXXXX", ccs=7)
-
-        .. warning::
-
-            *At the very minimum you'll need to provide the device's serial number
-            (serno) or devicetype.*
-
-            TIFlash will try to determine the rest of the information from
-            there. If a piece of information cannot be determined, an error will be
-            raised and you'll need to provide this information as a session
-            argument.
 
 
         +------------------+------------+------------------------------------------------+-------------------------------------+
@@ -50,6 +40,8 @@ Session Args
         | **timeout**      | int        | amount of time (seconds) for tiflash to execute| 60                                  |
         +------------------+------------+------------------------------------------------+-------------------------------------+
 
+----
+
         .. note::
 
             +------------------+---------------------------------------------------------------------------------------------------+
@@ -67,3 +59,13 @@ Session Args
             | **ccxml**        | providing an existing ccxml file to use will eliminate any requirement of providing               |
             |                  | a serno, devicetype, and/or connection type                                                       |
             +------------------+---------------------------------------------------------------------------------------------------+
+
+        .. warning::
+
+            *At the very minimum you'll need to provide the device's serial number
+            (serno) or devicetype.*
+
+            TIFlash will try to determine the rest of the information from
+            there. If a piece of information cannot be determined, an error will be
+            raised and you'll need to provide this information as a session
+            argument.
