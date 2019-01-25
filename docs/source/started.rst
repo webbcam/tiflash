@@ -22,6 +22,12 @@ Installing
 
 Install TIFlash with ``pip install tiflash``.
 
+You can then do a quick test of your installation on the command line:
+
+.. image:: images/started.png
+
+
+
 .. External Links
 .. _Debug Server Scripting: http://software-dl.ti.com/ccs/esd/documents/users_guide/sdto_dss_handbook.html
 .. _Code Composer Studio: http://www.ti.com/tool/CCSTUDIO
@@ -33,13 +39,29 @@ Configuration
 Custom CCS Install Path
 .......................
 
-*If you have CCS installed in the default directory, TIFlash should work out of
-box with no additional configurations.*
+.. note::
+    If you have CCS installed in the default directory, TIFlash should work out of
+    box with no additional configurations.
 
 If you installed CCS in a custom location, you'll need to specify
-the parent directory in the environment variable ``CCS_PREFIX``.
+the path of the CCS installation to TIFlash. You can do this either of two ways:
 
-Example:
-    If you have CCSv8 installed at the path: ``/opt/ti/ccsv8`` you would need to set ``CCS_PREFIX=/opt/ti``
+Option #1
+    Set the environment variable ``CCS_PREFIX`` to the parent directory of your installation:
 
-This allows TIFlash to find any CCS installations located in that directory
+    Example:
+
+      If you have CCSv8 installed at the path: ``/opt/ti/ccsv8`` you would need to set ``CCS_PREFIX=/opt/ti``
+
+    *This option is nice when you have multiple CCS installations in the same
+    directory since TIFlash will look for any folders named 'ccsv[?]'*
+
+Option #2
+    Pass the full path to the ccsv folder as the ``ccs`` argument for every
+    TIFlash command called.
+
+    Example:
+
+        ::
+
+            tiflash.detect_devices(ccs="/opt/ti/ccsv8")
