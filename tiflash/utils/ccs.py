@@ -8,7 +8,6 @@ Contact: webbjcam@gmail.com
 
 """
 import platform
-import os.path as path
 import os
 import re
 
@@ -49,10 +48,148 @@ def __get_ccs_prefix():
         ccs_prefix = os.path.normpath(ccs_prefix + '/' + TI_DIRECTORY)
 
     # Ensure ccs_directory exists
-    if not path.exists(ccs_prefix):
+    if not os.path.exists(ccs_prefix):
         raise FindCCSError("Could not a find CCS Installation directory")
 
     return ccs_prefix
+
+def __get_ccs_exe_name():
+    """Returns the name of the ccstudio executable according to OS.
+
+    Returns:
+        str: name of ccstudio executable for current OS
+    Raises:
+        Exception: raised if OS not supported
+    """
+    system = platform.system()
+    ccs_exe = None
+
+    if system == "Windows":
+        ccs_exe = "eclipsec.exe"
+    elif system == "Linux":
+        ccs_exe = "ccstudio"
+    elif system == "Darwin":
+        ccs_exe = "ccstudio"
+    else:
+        raise Exception("Unsupported Operating System: %s" % system)
+
+    return ccs_exe
+
+def __get_ccs_exe_path():
+    """Returns the path of ccstudio executable relative to the ccs-root directory
+
+    Returns:
+        str: path to ccstudio executable for current OS
+    Raises:
+        Exception: raised if OS not supported
+    """
+    ccs_exe = __get_ccs_exe_name()
+    system = platform.system()
+    ccs_exe_path = None
+
+    if system == "Windows":
+        ccs_exe_path = "eclipse/%s" % ccs_exe
+    elif system == "Linux":
+        ccs_exe_path = "eclipse/%s" % ccs_exe
+    elif system == "Darwin":
+        ccs_exe_path = "eclipse/Ccstudio.app/Contents/MacOS/%s" % ccs_exe
+    else:
+        raise Exception("Unsupported Operating System: %s" % system)
+
+    return ccs_exe_path
+
+
+def __is_ccs_root(path):
+    """Returns True or False depending if path is a valid "ccs-root" folder.
+
+    A valid "ccs-root" folder contains the following:
+        1. eclipse/[ccstudio or eclipsec.exe]
+        2. eclipse/ccs.properties
+        3. ccs_base/
+
+    Args:
+        path (str): full path to check
+    Returns:
+        boolean: True if valid; False if invalid
+    Raises:
+        OSError: raised if path does not exist
+    """
+    ccs_exe = __get_ccs_exe_path()
+    directories = [ directory for directory in os.listdir(path)
+                    if os.path.isdir(path + '/' + directory) ]
+
+    # 0. Check for eclipse folder
+    if "eclipse" not in directories:
+        return False
+
+    # 1. Check for ccs.properties file
+    if not os.path.exists(path + "/eclipse/ccs.properties"):
+        return False
+
+    # 2. Check for ccs executable
+    if not os.path.exists(path + '/' + ccs_exe):
+        return False
+
+    # 3. Check for ccs_base directory
+    if "ccs_base" not in directories:
+        return False
+
+    return True
+
+def get_ccs_version(ccs_root):
+    """Returns the version number of the ccs installation
+
+    Version number is as found in ccs.properties file
+
+    Args:
+        ccs_root (str): full path to root of ccs installation
+    Returns:
+        str: full version/build id as found in ccs.properties file
+    Raises:
+        OSError: raised if ccs.properties file cannot be found
+    """
+    version = None
+    with open(ccs_root + '/eclipse/ccs.properties') as f:
+        lines = f.readlines()
+        for line in lines:
+            match = re.match("^ccs_buildid=([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", line, flags=re.IGNORECASE)
+            if match:
+                version = match.group(1)
+                break
+    return version
+
+def get_ccs_installations(ccs_prefix):
+    """Returns a list of paths to all found ccs-root locations.
+
+    Uses ccs_prefix to begin search.
+
+    Args:
+        ccs_prefix (str): path to top level directory containing ccs
+            installations
+    Returns:
+        list: list of paths to ccs installations found in search
+    Raises:
+        OSError: raised if ccs_prefix does not exist
+    """
+    ccs_installations = []
+
+    def dfw_search(path):
+        paths = []
+        if __is_ccs_root(path):
+            paths.append(path)
+        else:
+            directories = [ directory for directory in os.listdir(path)
+                            if os.path.isdir(path + '/' + directory) ]
+
+            ccs_directories = [ ccs_directory for ccs_directory in directories
+                                if re.search("^ccs", ccs_directory, flags=re.IGNORECASE) ]
+
+            for ccs_dir in ccs_directories:
+                paths.extend(dfw_search(path + '/' + ccs_dir))
+
+        return paths
+
+    return dfw_search(ccs_prefix)
 
 
 def get_workspace_dir():
@@ -72,46 +209,47 @@ def find_ccs(version=None):
 
     Searches (OS specific) default installation paths for CCS. If no version
     is provided, will return the latest version installed.
+    Will return the latest version that matches the specified version number.
+    e.g. if version='8' and both 8.1 and 8.2 are installed, the path to 8.2
+    will be returned.
 
     Args:
-        version (int, optional): version number of CCS to look for
+        version (str, optional): version number of CCS to look for
 
     Returns:
-        str: path to CCS installation
+        str: path to CCS root installation
 
     Raises:
         FindCCSError: raises exception if CCS installation can not be found
 
     """
-    ccs_directory = __get_ccs_prefix()
+    ccs_prefix = __get_ccs_prefix()
+    ccs_installation_versions = dict()
+    version_list = list()
 
-    # Find latest or specific CCS version
-    directories = [d for d in os.listdir(ccs_directory)
-                   if path.isdir(ccs_directory + "/" + d)]
-    ccs_pattern = "ccsv([0-9]+)"
-    ccs_re = re.compile(ccs_pattern)
-    ccs_installations = [ccs for ccs in directories
-                         if ccs_re.match(ccs) is not None]
+    # Get all CCS installations
+    ccs_installations = get_ccs_installations(ccs_prefix)
 
     # Check if any CCS installations were found
     if len(ccs_installations) == 0:
         raise FindCCSError(
             "Could not find any installations of Code Composer Studio")
 
-    # Returns version number as an int for comparison
-    def get_version(ccs_name):
-        m = ccs_re.match(ccs_name)
-        return int(m.group(1)) if m is not None else None
+    # Get version numbers of installations
+    for installation in ccs_installations:
+        try:
+            v = get_ccs_version(installation)
+            ccs_installation_versions[v] = installation     # duplicate versions will be overwritten
+            version_list.append(v)
+        except:
+            continue
 
-    if version is not None:  # Get specific CCS Installation
-        for ccs_name in ccs_installations:
-            if get_version(ccs_name) == version:
-                ccs_install = ccs_name
-                break
-        else:
-            raise FindCCSError("Could not find installation for CCSv%d"
-                               % version)
-    else:   # Get Latest CCS Installation
-        ccs_install = max(ccs_installations, key=get_version)
+    # Filter to only matching version numbers
+    if version is not None:
+        version_list = [ v for v in version_list if re.search("^" + version, v) ]
 
-    return path.abspath(ccs_directory + "/" + ccs_install)
+        # Raise error if specific version could not be found
+        if len(version_list) == 0:
+            raise FindCCSError("Could not find installation for CCS version: %s" % version)
+
+    return ccs_installation_versions[max(version_list)]
