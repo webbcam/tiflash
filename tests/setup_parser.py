@@ -20,6 +20,14 @@ class TestSetup(object):
       self.cfg.read("./setup.cfg")
 
 
+    def get_ccs_prefix(self):
+        """Returns the set ccs_prefix
+
+        Returns:
+            str: ccs_prefix variable set in setup.cfg
+        """
+        return self.cfg.get('environment', 'ccs_prefix')
+
     def get_ccs_versions(self):
         """Returns a tuple of CCS versions installed
 
@@ -27,8 +35,7 @@ class TestSetup(object):
             tuple: a tuple of ints representing CCS versions installed in test
               setup
         """
-        versions_str = self.cfg.get('environment', 'ccs_versions').split(',')
-        versions = map(int, versions_str)
+        versions = map(str.strip, self.cfg.get('environment', 'ccs_versions').split(','))
 
         return tuple(versions)
 
@@ -42,16 +49,15 @@ class TestSetup(object):
         system = platform.system()
         versions = self.get_ccs_versions()
 
-        ccs_prefix = self.cfg.get('environment', 'ccs_prefix')
-
-        ccs_paths = tuple(ccs_prefix + "/ccsv%d" %v for v in versions)
+        ccs_paths = map(str.strip, self.cfg.get('environment', 'ccs_installs').split(','))
+        ccs_paths = tuple(ccs_paths)
 
         for path in ccs_paths:
             if not os.path.exists(path):
                 raise TestSetupError("CCS Install: %s could not be found. "
                                     "Remove this ccs version from setup.cfg"
                                     % path)
-        return ccs_paths
+        return tuple(ccs_paths)
 
     def get_target_config_directory(self):
         """Returns the target configuation directory

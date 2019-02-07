@@ -7,6 +7,7 @@ Date: March 2018
 Contact: webbjcam@gmail.com
 
 """
+
 import platform
 import os
 import re
@@ -152,7 +153,7 @@ def get_ccs_version(ccs_root):
     with open(ccs_root + '/eclipse/ccs.properties') as f:
         lines = f.readlines()
         for line in lines:
-            match = re.match("^ccs_buildid=([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)", line, flags=re.IGNORECASE)
+            match = re.match("^ccs_buildid=([0-9]+.[0-9]+.[0-9]+.[0-9]+)", line, flags=re.IGNORECASE)
             if match:
                 version = match.group(1)
                 break
@@ -204,7 +205,7 @@ def get_workspace_dir():
     return workspace
 
 
-def find_ccs(version=None):
+def find_ccs(version=None, ccs_prefix=None):
     """ Finds CCS installation path.
 
     Searches (OS specific) default installation paths for CCS. If no version
@@ -215,6 +216,7 @@ def find_ccs(version=None):
 
     Args:
         version (str, optional): version number of CCS to look for
+        ccs_prefix (str, optional): path to CCS_PREFIX (uses default/env variable if not provided)
 
     Returns:
         str: path to CCS root installation
@@ -223,9 +225,12 @@ def find_ccs(version=None):
         FindCCSError: raises exception if CCS installation can not be found
 
     """
-    ccs_prefix = __get_ccs_prefix()
     ccs_installation_versions = dict()
     version_list = list()
+
+    # Get default ccs_prefix if none provided
+    if ccs_prefix is None:
+        ccs_prefix = __get_ccs_prefix()
 
     # Get all CCS installations
     ccs_installations = get_ccs_installations(ccs_prefix)
@@ -252,4 +257,5 @@ def find_ccs(version=None):
         if len(version_list) == 0:
             raise FindCCSError("Could not find installation for CCS version: %s" % version)
 
-    return ccs_installation_versions[max(version_list)]
+    ccs_path = ccs_installation_versions[max(version_list)]
+    return os.path.normpath(ccs_path)

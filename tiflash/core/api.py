@@ -40,8 +40,7 @@ def __handle_ccs(ccs):
     verifies and returns the path to the ccs installation
 
     Args:
-        ccs (int or str): can be an int representing the ccs version number to
-        use or a str being the custom ccs installation path
+        ccs (str): version number of CCS to use or path to custom installation
 
     Returns:
         str: returns full path to ccs installation
@@ -50,15 +49,27 @@ def __handle_ccs(ccs):
         FindCCSError: raises error if cannot find ccs installation
     """
     ccs_path = None
-    if type(ccs) is str:
-        if not os.path.exists(ccs):
-            raise FindCCSError(
-                "Invalid path to ccs installation: %s" % ccs)
-        else:
-            ccs_path = ccs
+
+    if ccs is None: # Get latest ccs installation
+        ccs_path = find_ccs()
 
     else:
-        ccs_path = find_ccs(ccs)
+
+        # Convert any int to str to support backwards-compatibility
+        if type(ccs) is int:
+            ccs = str(ccs)
+
+        # check if string is version number or a file path
+        try:    #TODO: Hacky? Look into better solution
+            int(ccs.replace('.',''))    # Throws error if not a version number
+            ccs_path = find_ccs(version=ccs)
+
+        except ValueError:
+            if not os.path.exists(ccs):
+                raise FindCCSError(
+                    "Invalid path to ccs installation: %s" % ccs)
+            else:
+                ccs_path = ccs
 
     return ccs_path
 
@@ -298,9 +309,8 @@ def get_connections(ccs=None, search=None):
     """Gets list of all connections installed on machine (ccs installation)
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
         search (str): String to filter connections by
+        ccs (str): version number of CCS to use or path to custom installation
 
     Returns:
         list: list of connection types installed in ccs
@@ -323,9 +333,8 @@ def get_devicetypes(ccs=None, search=None):
     """Gets list of all devicetypes installed on machine (ccs installation)
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
         search (str): String to filter devices by
+        ccs (str): version number of CCS to use or path to custom installation
 
     Returns:
         list: list of device types installed in ccs
@@ -347,9 +356,8 @@ def get_cpus(ccs=None, search=None):
     """Gets list of all cpus installed on machine (ccs installation)
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
         search (str): String to filter cpus by
+        ccs (str): version number of CCS to use or path to custom installation
 
     Returns:
         list: list of cpus types installed in ccs
@@ -372,6 +380,7 @@ def list_options(option_id=None, ccs=None, **session_args):
 
     Args:
         option_id (str, optional): string used to filter options returned
+        ccs (str): version number of CCS to use or path to custom installation
 
     Returns:
         list(dict): list of option dictionaries
@@ -414,6 +423,7 @@ def print_options(option_id=None, ccs=None, **session_args):
 
     Args:
         option_id (str, optional): regex string used to filter options printed
+        ccs (str): version number of CCS to use or path to custom installation
 
     """
     ccs_path = __handle_ccs(ccs)

@@ -43,6 +43,8 @@ def t_env(request):
     """
     env = dict()
     system = platform.system()
+    env['CCS_PREFIX'] = test_setup.get_ccs_prefix()
+    os.environ['CCS_PREFIX'] = env['CCS_PREFIX']
 
     env['DEVICES'] = test_setup.get_devices()
 
