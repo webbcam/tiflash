@@ -45,8 +45,8 @@ def set_subparser_arg_titles(parser, positionals=None, optionals=None):
 SessionParser = argparse.ArgumentParser(prog="tiflash", add_help=False)
 SessionParser.add_argument('-s', '--serno', help='Serial number of device')
 SessionParser.add_argument('-d', '--devicetype', help='Devicetype of device')
-SessionParser.add_argument('--ccs', type=int, default=None,
-                           help='Version (int) of ccs to use (default=latest)')
+SessionParser.add_argument('--ccs', type=str, default=None,
+                           help='Version of ccs to use (default is the latest)')
 SessionParser.add_argument('--ccxml', help='CCXML (full path) file to use')
 SessionParser.add_argument('--connection', default=None,
                            help='Connection type to use for device')

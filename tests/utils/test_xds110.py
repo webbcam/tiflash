@@ -29,7 +29,7 @@ class TestXDS110():
     def test_xds110_reset_serno(self, t_env):
         """Calls xds110_reset with serno"""
         ccs_path = t_env['CCS_INSTALLS'][0]
-        devices = t_env['DEVICES'].keys()
+        devices = list(t_env['DEVICES'].keys())
         device = t_env['DEVICES'][devices[0]]
 
         if len(devices) == 0:
@@ -58,7 +58,7 @@ class TestXDS110():
     def test_xds110_list(self, t_env):
         """Calls xds110_list and checks connected all devices are returned"""
         ccs_path = t_env['CCS_INSTALLS'][0]
-        devices = t_env['DEVICES'].keys()
+        devices = list(t_env['DEVICES'].keys())
         serno_list = [ t_env['DEVICES'][d]['serno'] for d in devices ]
 
         result = xds110_list(ccs_path)
@@ -72,7 +72,7 @@ class TestXDS110():
     def test_xds110_upgrade(self, t_env):
         """Calls xds110_upgrade with serno"""
         ccs_path = t_env['CCS_INSTALLS'][0]
-        devices = t_env['DEVICES'].keys()
+        devices = list(t_env['DEVICES'].keys())
         device = t_env['DEVICES'][devices[0]]
 
         if len(devices) == 0:
