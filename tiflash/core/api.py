@@ -69,7 +69,7 @@ def __handle_ccs(ccs):
                 raise FindCCSError(
                     "Invalid path to ccs installation: %s" % ccs)
             else:
-                ccs_path = ccs
+                ccs_path = find_ccs(ccs_prefix=ccs)
 
     return ccs_path
 
@@ -441,8 +441,7 @@ def get_bool_option(option_id, pre_operation=None, ccs=None,
         option_id (str): Option ID to request the value of. These ids are
             device specific and can viewed using TIFlash.print_options().
         pre_operation (str): Operation to run prior to reading option_id.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -469,8 +468,7 @@ def get_float_option(option_id, pre_operation=None, ccs=None,
         option_id (str): Option ID to request the value of. These ids are
             device specific and can viewed using TIFlash.print_options().
         pre_operation (str): Operation to run prior to reading option_id.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -497,8 +495,7 @@ def get_option(option_id, pre_operation=None, ccs=None,
         option_id (str): Option ID to request the value of. These ids are
             device specific and can viewed using TIFlash.print_options().
         pre_operation (str): Operation to run prior to reading option_id.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -526,8 +523,7 @@ def set_option(option_id, option_val, post_operation=None, ccs=None,
             device specific and can viewed using TIFlash.print_options().
         option_val (str or int): Value to set option to.
         post_operation (str): Operation to run after to setting option_id.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -554,8 +550,7 @@ def reset(options=None, ccs=None, **session_args):
           options (dict): dictionary of options in the format
               {option_id: option_val}; These options are set first before
               calling reset function.
-          ccs (int or str): Version Number of CCS to use or path to
-              custom installation
+          ccs (str): version number of CCS to use or path to custom installation
           session_args (**dict): keyword arguments containing settings for
               the device connection
 
@@ -576,8 +571,7 @@ def erase(options=None, ccs=None, **session_args):
           options (dict): dictionary of options in the format
               {option_id: option_val}; These options are set first before
               calling erase function.
-          ccs (int or str): Version Number of CCS to use or path to
-              custom installation
+          ccs (str): version number of CCS to use or path to custom installation
           session_args (**dict): keyword arguments containing settings for
               the device connection
 
@@ -605,8 +599,7 @@ def verify(image, binary=False, address=None, options=None, ccs=None,
         options (dict): dictionary of options in the format
             {option_id: option_val}; These options are set first before
             calling verify function.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -634,8 +627,7 @@ def flash(image, binary=False, address=None, options=None, ccs=None,
         options (dict): dictionary of options in the format
             {option_id: option_val}; These options are set first before
             calling flash function.
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -659,8 +651,7 @@ def memory_read(address, num_bytes=1, page=0, ccs=None, **session_args):
         address (long): memory address to read from
         num_bytes (int): number of bytes to read
         page (int, optional): page number to read memory from
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -681,8 +672,7 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
         address (long): memory address to read from
         data (list): list of bytes to write to memory
         page (int, optional): page number to read memory from
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -701,8 +691,7 @@ def register_read(regname, ccs=None, **session_args):
 
     Args:
         regname (str): register name to read from
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -725,8 +714,7 @@ def register_write(regname, value, ccs=None, **session_args):
     Args:
         regname (str): register name to read from
         value (int): value to write to register
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -746,8 +734,7 @@ def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     Args:
         expr (str): C or GEL expression
         symbol_file (str): .out or GEL symbol file to load before evaluating
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -768,8 +755,7 @@ def attach(ccs=None, **session_args):
     """Attach command; opens a CCS session and attaches to device.
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -791,8 +777,7 @@ def nop(ccs=None, **session_args):
     session args.
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -810,8 +795,7 @@ def xds110_reset(ccs=None, **session_args):
     """Calls xds110reset command on specified serno.
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -837,8 +821,7 @@ def xds110_list(ccs=None, **session_args):
     """Returns list of sernos and xds110 version numbers of connected XDS110 devices.
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 
@@ -861,8 +844,7 @@ def xds110_upgrade(ccs=None, **session_args):
     flash + reset functions of xdsdfu to flash the firmware.bin image
 
     Args:
-        ccs (int or str): Version Number of CCS to use or path to
-            custom installation
+        ccs (str): version number of CCS to use or path to custom installation
         session_args (**dict): keyword arguments containing settings for
             the device connection
 

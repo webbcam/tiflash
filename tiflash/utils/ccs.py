@@ -12,9 +12,7 @@ import platform
 import os
 import re
 
-
 TI_DIRECTORY = "ti"
-
 
 class FindCCSError(Exception):
     """Generic FindCCS Error"""
