@@ -23,6 +23,7 @@ from tiflash.core.args import (
     XDS110UpgradeParser,
     XDS110ListParser,
     DetectParser,
+    InfoParser,
 
     get_session_args
 )
@@ -135,6 +136,10 @@ def generate_parser():
         usage="tiflash [Session Arguments] detect",
         description="Detect devices connected to machine")
 
+    # Info
+    sub_parsers.add_parser('info', parents=[InfoParser],
+        usage="tiflash [Session Arguments] info",
+        description="Prints out information of tiflash environment")
 
     return main_parser
 
@@ -433,6 +438,16 @@ def handle_detect(args):
     except Exception as e:
         __exit_with_error(e)
 
+def handle_info(args):
+    """Helper function for handling 'info' command"""
+    session_args = get_session_args(args)
+
+    info_dict = tiflash.get_info(**session_args)
+    ordered_keys = ['tiflash version', 'release date', 'python version',
+                    'ccs version', 'ccs prefix', 'ccs location', 'device drivers']
+    for k in ordered_keys:
+        print("{key:<20}{val}".format(key=(k+':'), val=info_dict[k]))
+
 
 def main(args=None):
     """Runs main TIFlash script
@@ -497,6 +512,10 @@ def main(args=None):
     # Detect
     elif args.cmd == 'detect':
         handle_detect(args)
+
+    # Info
+    elif args.cmd == 'info':
+        handle_info(args)
 
 
 if __name__ == "__main__":

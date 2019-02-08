@@ -1,10 +1,13 @@
 import os
+from platform import python_version
 
+from tiflash.version import version_string as __version__, release_date
 from tiflash.core.core import TIFlash, TIFlashError
 from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
                                 get_devicetype, get_connection, get_serno,
                                  get_connection_xml, get_ccxml_path)
-from tiflash.utils.ccs import find_ccs, get_workspace_dir, FindCCSError
+from tiflash.utils.ccs import (find_ccs, get_workspace_dir, FindCCSError,
+                                get_ccs_version, get_ccs_prefix, get_ccs_pf_filters)
 from tiflash.utils import flash_properties
 from tiflash.utils import cpus
 from tiflash.utils import connections
@@ -897,3 +900,29 @@ def detect_devices(ccs=None, **session_args):
         device_list.append(dev)
 
     return device_list
+
+def get_info(ccs=None, **session_args):
+    """Returns dict of information regarding tiflash environment
+
+    Args:
+        ccs (str): version number of CCS to use or path to custom installation
+
+    Returns:
+        dict: dictionary of information regarding tiflash environment
+    """
+    info_dict = dict()
+    try:
+        ccs_path = __handle_ccs(ccs)
+    except:
+        ccs_path = None
+
+    info_dict['tiflash version'] = __version__
+    info_dict['release date'] = release_date
+    info_dict['python version'] = python_version()
+    info_dict['ccs version'] = get_ccs_version(ccs_path) if ccs_path is not None else "N/A"
+    info_dict['ccs location'] = ccs_path if ccs_path is not None else "N/A"
+    info_dict['ccs prefix'] = get_ccs_prefix()
+    info_dict['device drivers'] = ','.join(get_ccs_pf_filters(ccs_path)) if ccs_path is not None else "N/A"
+
+    return info_dict
+
