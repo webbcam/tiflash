@@ -188,3 +188,6 @@ XDS110ListParser = argparse.ArgumentParser(add_help=False)
 
 # Detect Parser
 DetectParser = argparse.ArgumentParser(add_help=False)
+
+# Info Parser
+InfoParser = argparse.ArgumentParser(add_help=False)

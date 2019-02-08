@@ -18,7 +18,7 @@ class FindCCSError(Exception):
     """Generic FindCCS Error"""
     pass
 
-def __get_ccs_prefix():
+def get_ccs_prefix():
     """Returns full path to directory containing ccs installations.
 
     This can be the default directory or a custom one (set by CCS_PREFIX
@@ -135,6 +135,25 @@ def __is_ccs_root(path):
 
     return True
 
+def get_ccs_pf_filters(ccs_root):
+    """Returns list of PF Filters installed with passed ccs installation
+
+    Args:
+        ccs_root (str): full path to root of ccs installation
+
+    Returns:
+        list: list of PF Filters (strings) installed in ccs installation
+    """
+    pf_filters = list()
+    with open(ccs_root + '/eclipse/ccs.properties') as f:
+        lines = f.readlines()
+        for line in lines:
+            match = re.match("^PF_FILTERS=([a-zA-Z0-9\,]*)", line, flags=re.IGNORECASE)
+            if match:
+                pf_filters = match.group(1).split(',')
+                break
+    return pf_filters
+
 def get_ccs_version(ccs_root):
     """Returns the version number of the ccs installation
 
@@ -228,7 +247,7 @@ def find_ccs(version=None, ccs_prefix=None):
 
     # Get default ccs_prefix if none provided
     if ccs_prefix is None:
-        ccs_prefix = __get_ccs_prefix()
+        ccs_prefix = get_ccs_prefix()
 
     # Get all CCS installations
     ccs_installations = get_ccs_installations(ccs_prefix)

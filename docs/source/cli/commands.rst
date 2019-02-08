@@ -19,6 +19,7 @@ Commands
     options
     attach
     list
+    info
 
 Below is a list of commands you can call with TIFlash.
 
@@ -87,12 +88,18 @@ Below is a list of commands you can call with TIFlash.
 
 .. container::
 
+    :ref:`Attach <attach>`
+
+*attach a CCS session to device*
+
+.. container::
+
     :ref:`List <list>`
 
 *list environment/device information*
 
 .. container::
 
-    :ref:`Attach <attach>`
+    :ref:`Info <info>`
 
-*attach a CCS session to device*
+*list tiflash environment information*
