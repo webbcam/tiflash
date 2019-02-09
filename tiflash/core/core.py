@@ -2,6 +2,7 @@ import os
 
 from tiflash.utils import dss
 from tiflash.utils import ccxml
+from tiflash.utils import ccs
 
 CMD_DEFAULT_TIMEOUT = 60
 
@@ -23,7 +24,7 @@ class TIFlash(object):
         self.ccxml = None   # path to ccxml file
         self.chip = None    # chip name to use when starting a session
         self.attach = False
-        self.workspace = None
+        self.workspace = ccs.get_workspace_dir()
         self.timeout = CMD_DEFAULT_TIMEOUT
         self.args = dict()
 

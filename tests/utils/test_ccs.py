@@ -44,7 +44,7 @@ class TestCCS():
             find_ccs(version=version)
 
     def test_get_workspace_dir(self, t_env):
-        answer = "@user.home/workspace_tiflash"
+        answer = "@user.home/.tiflash/workspace"
 
         assert get_workspace_dir() == answer
 
