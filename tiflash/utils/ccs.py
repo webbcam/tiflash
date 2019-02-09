@@ -13,6 +13,7 @@ import os
 import re
 
 TI_DIRECTORY = "ti"
+DEFAULT_WORKSPACE = "@user.home/.tiflash/workspace"
 
 class FindCCSError(Exception):
     """Generic FindCCS Error"""
@@ -217,7 +218,7 @@ def get_workspace_dir():
         str: workspace to use for tiflash (fullpath)
     """
     # Uses user's home directory
-    workspace = "@user.home/workspace_tiflash"
+    workspace = DEFAULT_WORKSPACE
 
     return workspace
 
