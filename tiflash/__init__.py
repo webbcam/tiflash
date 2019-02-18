@@ -1,23 +1,8 @@
 """
-
-
- ________  ______  ________  __                      __
-/        |/      |/        |/  |                    /  |
-$$$$$$$$/ $$$$$$/ $$$$$$$$/ $$ |  ______    _______ $$ |____
-   $$ |     $$ |  $$ |__    $$ | /      \  /       |$$      \
-   $$ |     $$ |  $$    |   $$ | $$$$$$  |/$$$$$$$/ $$$$$$$  |
-   $$ |     $$ |  $$$$$/    $$ | /    $$ |$$      \ $$ |  $$ |
-   $$ |    _$$ |_ $$ |      $$ |/$$$$$$$ | $$$$$$  |$$ |  $$ |
-   $$ |   / $$   |$$ |      $$ |$$    $$ |/     $$/ $$ |  $$ |
-   $$/    $$$$$$/ $$/       $$/  $$$$$$$/ $$$$$$$/  $$/   $$/
-
-
-
 TIFlash
 Licensed under the MIT license (see `LICENSE` file)
 
 A (unofficial) python module for flashing TI devices.
-
 """
 from tiflash.core import    (   get_connections,
                                 get_devicetypes,
