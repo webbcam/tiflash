@@ -109,10 +109,10 @@ def xds110_list(ccs_path):
     Raises:
         XDS110Error: raises if xdsdfu.exe does not exist or fails
     """
-    serno_pattern = "Serial Num\:\s+([A-Z0-9]{8})"
-    version_pattern = "Version\:\s+([0-9\.]+)"
-    serno_regex = re.compile(serno_pattern)
-    version_regex = re.compile(version_pattern)
+    device_list = list()
+    device_pattern = "<<<< Device [0-9]+ >>>>"
+    serno_pattern = r"Serial Num\:\s+([A-Z0-9]{8})"
+    version_pattern = r"Version\:\s+([0-9\.]+)"
 
     xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
     xds_exe = [ xdsdfu_path]
@@ -126,13 +126,18 @@ def xds110_list(ccs_path):
     if ret != 0:
         raise XDS110Error(out)
 
-    serno_matches = re.findall(serno_regex, str(out))
-    version_matches = re.findall(version_regex, str(out))
+    device_matches = re.split(device_pattern, str(out))
 
-    matches = [ (serno_matches[i], version_matches[i])
-                    for i in range(len(serno_matches)) ]
+    for dm in device_matches:
+        match = re.search(serno_pattern, dm)
+        serno = match.group(1) if match is not None else None
+        match = re.search(version_pattern, dm)
+        version = match.group(1) if match is not None else None
 
-    return matches
+        if serno is not None:
+            device_list.append((serno, version))
+
+    return device_list
 
 
 def xds110_upgrade(ccs_path, serno=None):
