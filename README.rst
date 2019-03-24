@@ -1,7 +1,7 @@
 TI-Flash |Status| |Version|
 ===========================
 
-| |PyVersions| |CCSVersions| |License|
+| |PyVersions| |CCSVersions| |Downloads| |License|
 
 An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
@@ -148,6 +148,10 @@ Acknowledgments
 .. |Docs| image::       https://readthedocs.org/projects/tiflash/badge/?version=latest
     :target:            https://tiflash.readthedocs.io
     :alt:               Documentation
+    
+.. |Downloads| image::  https://pepy.tech/badge/tiflash
+    :target:            https://pepy.tech/project/tiflash
+    :alt:               Downloads
 
 .. |License| image::    https://img.shields.io/pypi/l/tiflash.svg?style=flat
     :target:            https://github.com/webbcam/tiflash/blob/master/LICENSE
