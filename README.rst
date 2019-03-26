@@ -1,7 +1,7 @@
 TI-Flash |Status| |Version|
 ===========================
 
-| |PyVersions| |CCSVersions| |Downloads| |License|
+| |PyVersions| |CCSVersions| |License| |Downloads|
 
 An *unofficial* Python flash programmer for `Texas Instruments
 Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
