@@ -103,7 +103,7 @@ def call_dss(dss_path, commands, workspace=None, timeout=CMD_DEFAULT_TIMEOUT):
         raise DSSError("Trouble finding main.js: %s" % main_js)
     main_js = "\"%s\"" % main_js
 
-    cwd = "\"%s\"" % os.path.abspath(os.path.dirname(__file__) + "/../")
+    cwd = "\"%s\"" % os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
 
     # Create list of args for calling dss exec
     cmd = [dss_path]

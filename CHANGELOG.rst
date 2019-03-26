@@ -1,3 +1,11 @@
+1.2.7
+-----
+Date: 03.25.2019
+
+- fix trailing path separator issue (`#72`_)
+
+.. _#72: https://github.com/webbcam/tiflash/issues/72
+
 1.2.6
 -----
 Date: 02.17.2019
