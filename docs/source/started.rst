@@ -22,13 +22,14 @@ Installing
 
 Install TIFlash with ``pip install tiflash``.
 
-You can then do a quick test of your installation on the command line:
+You can then do a quick test of your installation on the command line running:
+``tiflash info``
 
 .. image:: images/started.png
 .. warning::
     You should see the path to your Code Composer Studio installation (if not see `Custom CCS Install Path`_)
 
-For more examples of running tiflash please see the Examples page.
+For more examples of running tiflash please see the :ref:`Examples page<examples>`
 
 
 
