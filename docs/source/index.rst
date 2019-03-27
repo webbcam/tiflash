@@ -11,7 +11,7 @@ Launchpads <http://www.ti.com/tools-software/launchpads/overview.html>`__.
 Overview
 --------
 
-| |PyVersions| |CCSVersions| |License|
+| |PyVersions| |CCSVersions| |License| |Downloads|
 
 *TIFlash* is a python/command-line interface for Texas Instruments’ `Code Composer Studio`_.
 It allows you to perform many of the operations possible in the CCS GUI via python or
@@ -74,6 +74,10 @@ Contents
 .. |Docs| image::       https://readthedocs.org/projects/tiflash/badge/?version=latest
     :target:            https://tiflash.readthedocs.io
     :alt:               Documentation
+
+.. |Downloads| image::  https://pepy.tech/badge/tiflash
+    :target:            https://pepy.tech/project/tiflash
+    :alt:               Downloads
 
 .. |License| image::    https://img.shields.io/pypi/l/tiflash.svg?style=flat
     :target:            https://github.com/webbcam/tiflash/blob/master/LICENSE

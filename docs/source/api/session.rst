@@ -15,7 +15,7 @@ Session Arguments
         .. code-block:: python
 
             # Example of providing session args: 'serno' and 'ccs'
-            function_name(serno="LXXXXXX", ccs=7)
+            function_name(serno="LXXXXXX", ccs="7")
 
 
         +------------------+------------+--------------------------------------------------+-------------------------------------+
