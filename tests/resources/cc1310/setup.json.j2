@@ -1,0 +1,17 @@
+{
+    "cc1310": {
+        "serno": "{{ env.cc1310.serno }}",
+        "devicetype": "CC1310F128",
+        "session": ".*Cortex.*",
+        "connection": "Texas Instruments XDS110 USB Debug Probe",
+        "symbol": "&Sensor_msgStats",
+        "opcode": "Erase",
+        "option": "ResetOnRestart",
+        "expression": "MassErase()",
+        "address": "0x20000000",
+        "ccxml-path": "{{ env.paths.resources }}/cc1310/cc1310.ccxml",
+        "binary-image": "{{ env.paths.resources }}/cc1310/sensor_cc1310lp.bin",
+        "hex-image": "{{ env.paths.resources }}/cc1310/sensor_cc1310lp.hex",
+        "symbol-image": "{{ env.paths.resources }}/cc1310/sensor_cc1310lp.out"
+    }
+}

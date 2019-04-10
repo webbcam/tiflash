@@ -1,85 +1,33 @@
 import pytest
 import platform
 import shutil
+import json
 import os
-import setup_parser
 
-test_setup = setup_parser.TestSetup()
-ALL_DEVICES = test_setup.get_devices()
+SETUP_FILE = os.path.join(os.path.dirname(__file__), "env.json")
 
-# def pytest_addoption(parser):
-#    parser.addoption("--devicetype", action="append", default=None,
-#        help="list of devicetypes to run tests on (default will be all)")
-#
-# def pytest_generate_tests(metafunc):
-#    if 'devicetype' in metafunc.fixturenames:
-#        device_list = metafunc.config.getoption("devicetype") or ALL_DEVICES
-#        metafunc.parametrize("devicetype", device_list)
+def pytest_generate_tests(metafunc):
+    with open(SETUP_FILE, "r") as f:
+        tsetup = json.load(f)
+    if 'tdev' in metafunc.fixturenames:
+        tdevlist = [tsetup[dev] for dev in tsetup["devices"]]
+        metafunc.parametrize("tdev", tdevlist, scope="class")
 
 
-@pytest.fixture(params=ALL_DEVICES.keys(), ids=ALL_DEVICES.keys())
-def device(request):
-    """Test fixture that returns a dict with device specific configurations (as
-    specified in devices.cfg
+@pytest.fixture(scope="class")
+def tenv(request):
+    """Fixture for accessing paths set in setup.json file"""
+    with open(SETUP_FILE, "r") as f:
+        tsetup = json.load(f)
 
-    By default will run any test that uses this fixture for each device in
-    devices.cfg. You can specifiy to just run for one particular device with
-    the '-k' cmd line parameter.
-
-    Returns:
-        dict: dictionary of device specific configs
-    """
-    devicename = request.param
-    device = ALL_DEVICES[devicename]
-    device['devicename'] = devicename
-
-    return device
+    return tsetup["paths"]
 
 
-@pytest.fixture(scope='module')
-def t_env(request):
-    """Puts any common testing environment variables
-    necessary for test cases
-    """
-    env = dict()
-    system = platform.system()
-    env['CCS_PREFIX'] = test_setup.get_ccs_prefix()
-    os.environ['CCS_PREFIX'] = env['CCS_PREFIX']
+@pytest.fixture(autouse=True, scope="class")
+def test_env_setup(request, tenv):
+    os.makedirs(tenv["tmp"])
 
-    env['DEVICES'] = test_setup.get_devices()
-
-    env['TEST_DIR'] = os.path.normpath(os.path.dirname(__file__))
-    env['RESOURCE_DIR'] = os.path.normpath(env['TEST_DIR'] + '/resources')
-    env['TEMP_DIR'] = os.path.normpath(env['TEST_DIR'] + '/temp')
-
-    HOME_VAR = 'USERPROFILE' if system == 'Windows' else 'HOME'
-    env['HOME_PATH'] = os.environ[HOME_VAR]
-
-    if system == 'Windows':
-        env['ROOT_PATH'] = os.environ['SYSTEMDRIVE']
-    elif system == 'Linux':
-        env['ROOT_PATH'] = os.environ['HOME']
-    elif system == 'Darwin':
-        env['ROOT_PATH'] = '/Applications'
-    else:
-        raise Exception("Unsupported Operating System: %s" % system)
-
-    env['TARGET_CONFIG_PATH'] = test_setup.get_target_config_directory()
-
-    env['CCS_INSTALLS'] = test_setup.get_ccs_installs()
-    env['CCS_VERSIONS'] = test_setup.get_ccs_versions()
-    env['CCS_PATH'] = env['CCS_INSTALLS'][0]
-
-    # Environment Setup
-    def setup():
-        if not os.path.exists(env['TEMP_DIR']):
-            os.mkdir(env['TEMP_DIR'])
-    setup()
-
-    # Environment Teardown
     def teardown():
-        if os.path.exists(env['TEMP_DIR']):
-            shutil.rmtree(env['TEMP_DIR'])
-    request.addfinalizer(teardown)
+        shutil.rmtree(tenv["tmp"])
 
-    return env
+    request.addfinalizer(teardown)
