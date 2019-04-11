@@ -112,6 +112,7 @@ def configure_setup(envcfg):
 
     # convert ccs versions to list
     env['ccs']['versions'] = [ v.strip() for v in env['ccs']['versions'].split(',') ]
+    env['paths']['ccs'] = env['ccs'][env['ccs']['versions'][0]] # take first ccs version to be default ccs path
 
     env["paths"]["repo"] = get_repo_path()
     env["paths"]["home"] = get_home_path()
