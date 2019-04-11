@@ -21,18 +21,18 @@ class TestXDS110Api():
 
     def test_basic_xds110_list(self, tdev, tenv):
         """Tests xds110_list returns list of all connected devices"""
-#        devices = tenv['devices'].keys()
-#        serno_list = [ tenv[d]['serno'] for d in devices ]
+        devices = tenv['devices']
+        serno_list = [ tenv[d]['serno'] for d in devices ]
 
         result = tiflash.xds110_list()
         result_sernos = [ s for (s,v) in result ]
 
-        #assert len(result_sernos) == len(serno_list)
+        assert len(result_sernos) == len(serno_list)
 
-        #for serno in serno_list:
-        #    assert serno in result_sernos
+        for serno in serno_list:
+            assert serno in result_sernos
 
-        assert tdev['serno'] in result_sernos
+        #assert tdev['serno'] in result_sernos
 
     @pytest.mark.skip(reason="Issue with board connections after xds110 upgrade in testing; Please run manually")
     def test_basic_xds110_upgrade(self, tdev):
