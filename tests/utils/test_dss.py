@@ -15,17 +15,17 @@ else:
 
 class TestDSS():
 
-    def test_find_dss(self, t_env):
-        expected = os.path.normpath(t_env['CCS_PATH'] +
+    def test_find_dss(self, tenv):
+        expected = os.path.normpath(tenv['paths']['ccs'] +
                                     "/eclipse/" + eclipsec)
 
-        result = dss.find_dss(t_env['CCS_PATH'])
+        result = dss.find_dss(tenv['paths']['ccs'])
 
         assert result == expected
 
-    def test_call_dss(self, t_env):
+    def test_call_dss(self, tenv):
         expected = (True, '')
-        dss_path = os.path.normpath(t_env['CCS_PATH'] +
+        dss_path = os.path.normpath(tenv['paths']['ccs'] +
                                     "/eclipse/" + eclipsec)
 
         result = dss.call_dss(dss_path, [], timeout=60)

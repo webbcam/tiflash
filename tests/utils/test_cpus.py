@@ -4,22 +4,22 @@ from tiflash.utils import cpus
 
 
 class TestCPUS():
-    def test_get_cpus_directory(self, t_env):
-        expected = os.path.normpath(t_env['CCS_PATH'] +
+    def test_get_cpus_directory(self, tenv):
+        expected = os.path.normpath(tenv['paths']['ccs'] +
                                     '/ccs_base/common/targetdb/cpus')
 
-        result = cpus.get_cpus_directory(t_env['CCS_PATH'])
+        result = cpus.get_cpus_directory(tenv['paths']['ccs'])
 
         assert result == expected
 
-    def test_get_cpus(self, t_env):
-        result = cpus.get_cpus(t_env['CCS_PATH'])
+    def test_get_cpus(self, tenv):
+        result = cpus.get_cpus(tenv['paths']['ccs'])
 
         assert type(result) is list
 
-    def test_get_cpu_name(self, t_env):
+    def test_get_cpu_name(self, tenv):
         expected = "Cortex_M3"
-        cpuxml = os.path.normpath(t_env['CCS_PATH'] +
+        cpuxml = os.path.normpath(tenv['paths']['ccs'] +
                                   "/ccs_base/common/targetdb/cpus/"
                                   "cortex_m3.xml")
 
