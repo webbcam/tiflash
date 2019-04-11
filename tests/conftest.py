@@ -20,14 +20,14 @@ def tenv(request):
     with open(SETUP_FILE, "r") as f:
         tsetup = json.load(f)
 
-    return tsetup["paths"]
+    return tsetup
 
 
 @pytest.fixture(autouse=True, scope="class")
 def test_env_setup(request, tenv):
-    os.makedirs(tenv["tmp"])
+    os.makedirs(tenv["paths"]["tmp"])
 
     def teardown():
-        shutil.rmtree(tenv["tmp"])
+        shutil.rmtree(tenv["paths"]["tmp"])
 
     request.addfinalizer(teardown)
