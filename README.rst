@@ -141,7 +141,7 @@ Acknowledgments
     :target:            https://pypi.org/project/tiflash/#files
     :alt:               Python Versions
 
-.. |CCSVersions| image:: https://img.shields.io/badge/CCStudio-7.3%20|%207.4%20|%208.0%20|%208.1%20|%208.2-blue.svg?style=flat
+.. |CCSVersions| image:: https://img.shields.io/badge/CCStudio-v6%20|%20v7%20|%20v8%20|%20v9-blue.svg?style=flat
     :target:            http://processors.wiki.ti.com/index.php/Download_CCS
     :alt:               CCS Versions
 

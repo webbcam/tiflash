@@ -65,13 +65,20 @@ def __translate_to_property_xml(devicetype, translator_xml):
         partnums = pf.getElementsByTagName('partnum')
 
         for pn in partnums:
-            beginsWith = pn.attributes['beginsWith'].value
+            part_regex = None
+            part_pattern = None
+            try:
+                part_pattern = pn.attributes['regex'].value
+            except Exception:
+                beginsWith = pn.attributes['beginsWith'].value
 
-            # Prepare for regex
-            beginsWithPattern = beginsWith.replace('*', '.')
-            beginsWith_RE = re.compile("^" + beginsWithPattern)
+                # Prepare for regex
+                beginsWithPattern = beginsWith.replace('*', '.')
+                part_pattern = "^" + beginsWithPattern
 
-            if beginsWith_RE.search(devicetype):
+            part_regex = re.compile(part_pattern)
+
+            if part_regex.search(devicetype):
                 prop_file = property_file_name
                 break
 
