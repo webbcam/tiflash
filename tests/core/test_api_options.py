@@ -69,10 +69,15 @@ class TestOptionsApi():
 
 
     # Setters
-    @pytest.mark.xfail
+    #@pytest.mark.xfail
     def test_basic_set_option(self, tdev):
         """Tests basic set_option function"""
-        tiflash.set_option(option_id=tdev['option'], value="true")
+        tiflash.set_option(
+                option_id=tdev['option'],
+                option_val="true",
+                serno=tdev['serno'],
+                connection=tdev['connection'],
+                devicetype=tdev['devicetype'])
 
 
     # List
@@ -87,6 +92,7 @@ class TestOptionsApi():
 
     def test_list_single_option(self, tdev):
         """Tests listing of one specified option"""
+        option_to_test = tdev['option']
 
         options = tiflash.list_options(
                 option_id=tdev['option'],
