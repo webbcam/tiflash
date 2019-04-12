@@ -1,3 +1,11 @@
+1.2.8
+-----
+Date: 04.11.2019
+
+- fix list_options() issue with CCS9 (`#77`_)
+
+.. _#77: https://github.com/webbcam/tiflash/issues/77
+
 1.2.7
 -----
 Date: 03.25.2019
