@@ -6,7 +6,7 @@ class TestMemoryApi():
 
     def test_basic_memory_read_single_byte(self, tdev):
         """Tests simple memory read"""
-        result = tiflash.memory_read(tdev['address'], 1,
+        result = tiflash.memory_read(tdev['read-address'], 1,
                             serno=tdev['serno'],
                             connection=tdev['connection'],
                             devicetype=tdev['devicetype'])
@@ -15,7 +15,7 @@ class TestMemoryApi():
 
     def test_basic_memory_read_multiple_bytes(self, tdev):
         """Tests simple memory read of multiple bytes"""
-        result = tiflash.memory_read(tdev['address'], 4,
+        result = tiflash.memory_read(tdev['read-address'], 4,
                             serno=tdev['serno'],
                             connection=tdev['connection'],
                             devicetype=tdev['devicetype'])
@@ -26,12 +26,12 @@ class TestMemoryApi():
         """Tests memory read and checks for correct byte values. This test is
         device specific."""
 
-        if "address" not in tdev.keys() or \
-            "value" not in tdev.keys():
+        if "read-address" not in tdev.keys() or \
+            "address-value" not in tdev.keys():
             pytest.skip("Need to add memval and memaddr fields in \
                 setup.cfg for device: %s" % tdev['devicetype'])
 
-        addr = int(tdev['address'], 0)
+        addr = int(tdev['read-address'], 0)
         answer = tdev['value'].split(',')
         answer = [ int(d, 0) for d in answer ]
         result = tiflash.memory_read(addr, len(answer),
@@ -46,7 +46,7 @@ class TestMemoryApi():
     def test_basic_memory_write(self, tdev):
         """Tests simple memory write"""
         WRITE_DATA = [0x11, 0x22, 0x33]
-        tiflash.memory_write(tdev['address'], WRITE_DATA,
+        tiflash.memory_write(tdev['write-address'], WRITE_DATA,
                         serno=tdev['serno'],
                         connection=tdev['connection'],
                         devicetype=tdev['devicetype'])

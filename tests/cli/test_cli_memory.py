@@ -9,7 +9,7 @@ class TestMemoryCli():
         """Tests simple memory read"""
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-read", "\"%s\"" % tdev['address']])
+        cmd.extend(["memory-read", "\"%s\"" % tdev['read-address']])
 
         # Implicitly set 1 byte length
         cmd_str = " ".join(cmd)
@@ -28,7 +28,7 @@ class TestMemoryCli():
         NUM_BYTES = "4"
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-read", "\"%s\"" % tdev['address'], "-n", NUM_BYTES])
+        cmd.extend(["memory-read", "\"%s\"" % tdev['read-address'], "-n", NUM_BYTES])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -40,7 +40,7 @@ class TestMemoryCli():
         WRITE_DATA = "0x11 0x22 0x33"
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-write", "\"%s\"" % tdev['address'], "-d", WRITE_DATA])
+        cmd.extend(["memory-write", "\"%s\"" % tdev['write-address'], "-d", WRITE_DATA])
 
         cmd_str = " ".join(cmd)
 

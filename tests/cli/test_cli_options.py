@@ -10,7 +10,7 @@ class TestOptionsCli():
         """Tests basic get_option function"""
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["options-get", "\"%s\"" % "ResetOnRestart"])
+        cmd.extend(["options-get", "\"%s\"" % tdev['option']])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -18,12 +18,12 @@ class TestOptionsCli():
     @pytest.mark.skip
     def test_get_option_with_preop(self, tdev):
         """Tests get_option with a preop"""
-        if 'ieee' not in tdev.keys():
-            pytest.skip("No IEEE Address provided in setup.cfg for this device")
+        if 'preop' not in tdev.keys():
+            pytest.skip("No preop provided for device")
 
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["options-get", "\"%s\"" % "DeviceIeeePrimary", "-op", "\"ReadPriIeee\""])
+        cmd.extend(["options-get", "\"%s\"" % tdev['preop-option'], "-op", "\"%s\"" % tdev['preop']])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -42,7 +42,7 @@ class TestOptionsCli():
         """Tests get_option raises error when invalid preop provided"""
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["options-get", "\"%s\"" % tdev['option'], "-op", "InvalidPreOp"])
+        cmd.extend(["options-get", "\"%s\"" % tdev['preop-option'], "-op", "InvalidPreOp"])
         cmd_str = " ".join(cmd)
 
         with pytest.raises(subprocess.CalledProcessError):
@@ -53,7 +53,7 @@ class TestOptionsCli():
     def test_basic_set_option(self, tdev):
         """Tests basic set_option function"""
         cmd = get_cmd_with_device_params(tdev)
-        value = True
+        value = tdev['option-val']
 
         cmd.extend(["options-set", "\"%s\"" % tdev['option'], "\"%s\"" % value])
         cmd_str = " ".join(cmd)

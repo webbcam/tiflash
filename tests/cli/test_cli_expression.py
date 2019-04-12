@@ -7,7 +7,7 @@ class TestExpressionCli():
 
     def test_basic_expression(self, tdev):
         """Runs a simple gel command"""
-        EXPRESSION = tdev['expression']
+        EXPRESSION = tdev['expression-name']
 
         cmd = get_cmd_with_device_params(tdev)
 
@@ -31,11 +31,11 @@ class TestExpressionCli():
     def test_expression_with_symbol_load(self, tdev):
         """Tries using expression command with invalid C syntax"""
 
-        if 'symbol' not in tdev.keys() or \
+        if 'symbol-name' not in tdev.keys() or \
             'symbol-image' not in tdev.keys():
             pytest.skip("No symbol image path or symbol name")
 
-        EXPRESSION = tdev['symbol']
+        EXPRESSION = tdev['symbol-name']
         SYMBOL_FILE = tdev['symbol-image']
 
         cmd = get_cmd_with_device_params(tdev)
