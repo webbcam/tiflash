@@ -13,4 +13,4 @@ class TestDSS():
 
         time.sleep(3)
 
-        #p.terminate()
+        p.terminate()
