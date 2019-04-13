@@ -1,6 +1,5 @@
 import os
 import pytest
-import time
 
 from tiflash.utils import dss
 
@@ -10,7 +9,5 @@ class TestDSS():
         ccs_exe = dss.resolve_ccs_exe(tenv["paths"]["ccs"])
         p, port = dss.launch_server(ccs_exe, tenv["paths"]["workspace"])
         assert p.poll() is None
-
-        time.sleep(3)
 
         p.terminate()
