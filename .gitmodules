@@ -1,0 +1,3 @@
+[submodule "tiflash/components/debugserver-js"]
+	path = tiflash/components/debugserver-js
+	url = https://github.com/webbcam/debugserver-js.git
