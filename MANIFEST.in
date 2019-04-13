@@ -1,3 +1,3 @@
-include tiflash/js/*.js
+include tiflash/utils/server.js
 include tiflash/utils/board_ids.json
 include tiflash/utils/debug_probes.json
