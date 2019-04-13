@@ -1,5 +1,4 @@
 import pytest
-import intelhex
 import subprocess
 
 from clihelpers import get_cmd_with_device_params

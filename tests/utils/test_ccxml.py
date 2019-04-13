@@ -29,7 +29,7 @@ class TestCCXML():
     def test_add_serno(self, tenv):
         expected = "TEST!!!"
         temp_ccxml = tenv['paths']['tmp'] + '/NOSERNO.ccxml'
-        shutil.copyfile(tenv['paths']['resources'] + '/no-serno.ccxml', temp_ccxml)
+        shutil.copyfile(tenv['paths']['resources'] + '/general/no-serno.ccxml', temp_ccxml)
         result = ccxml.add_serno(temp_ccxml, expected, tenv['paths']['ccs'])
         assert result is True
 
@@ -63,7 +63,7 @@ class TestCCXML():
                                     "CC3220SF.xml")
 
         result = ccxml.get_device_xml(tenv['paths']['resources'] +
-                                      "/cc3220sf.ccxml",
+                                      "/general/cc3220sf.ccxml",
                                       tenv['paths']['ccs'])
 
         assert result == expected

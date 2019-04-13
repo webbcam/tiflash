@@ -1,6 +1,4 @@
 import pytest
-import intelhex
-
 import tiflash
 
 class TestFlashApi():
