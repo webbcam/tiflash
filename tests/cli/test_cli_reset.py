@@ -3,13 +3,12 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-@pytest.mark.usefixtures("device")
 class TestResetCli():
 
-    def test_basic_reset(self, device):
+    def test_basic_reset(self, tdev):
         """Tests simple reset on each device in devices.cfg"""
 
-        cmd = get_cmd_with_device_params(device)
+        cmd = get_cmd_with_device_params(tdev)
 
         cmd.extend(["reset"])
         cmd_str = " ".join(cmd)

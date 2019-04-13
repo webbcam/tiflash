@@ -3,13 +3,12 @@ import pytest
 import tiflash
 
 
-@pytest.mark.usefixtures("device")
 class TestEraseApi():
 
-    def test_basic_erase(self, device):
+    def test_basic_erase(self, tdev):
         """Tests simple erase on each device in devices.cfg"""
-        result = tiflash.erase(serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+        result = tiflash.erase(serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
 
         assert result is True

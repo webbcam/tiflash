@@ -7,65 +7,65 @@ import tiflash
 class TestHandleCCXML():
 
     # Providing Serno
-    def test_serno_ccxml_no_exist(self, device):
+    def test_serno_ccxml_no_exist(self, tdev):
         pass
 
-    def test_serno_ccxml_no_exist_fresh(self, device):
+    def test_serno_ccxml_no_exist_fresh(self, tdev):
         pass
 
-    def test_serno_ccxml_exist(self, device):
+    def test_serno_ccxml_exist(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_fresh(self, device):
+    def test_serno_ccxml_exist_fresh(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_fresh_connection_provided(self, device):
+    def test_serno_ccxml_exist_fresh_connection_provided(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_fresh_device_provided(self, device):
+    def test_serno_ccxml_exist_fresh_device_provided(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_fresh_connection_device_provided(self, device):
+    def test_serno_ccxml_exist_fresh_connection_device_provided(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_connection_override(self, device):
+    def test_serno_ccxml_exist_connection_override(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_device_override(self, device):
+    def test_serno_ccxml_exist_device_override(self, tdev):
         pass
 
-    def test_serno_ccxml_exist_connection_device_override(self, device):
+    def test_serno_ccxml_exist_connection_device_override(self, tdev):
         pass
 
     # Providing CCXML
-    def test_ccxml_basic(self, device):
+    def test_ccxml_basic(self, tdev):
         pass
 
-    def test_ccxml_basic_fresh(self, device):
+    def test_ccxml_basic_fresh(self, tdev):
         pass
 
-    def test_ccxml_fresh_connection_override(self, device):
+    def test_ccxml_fresh_connection_override(self, tdev):
         pass
 
-    def test_ccxml_fresh_device_override(self, device):
+    def test_ccxml_fresh_device_override(self, tdev):
         pass
 
-    def test_ccxml_fresh_device_connection_override(self, device):
+    def test_ccxml_fresh_device_connection_override(self, tdev):
         pass
 
-    def test_ccxml_no_exist(self, device):
-        pass
-
-    # duplicate
-    def test_ccxml_connection_override(self, device):
+    def test_ccxml_no_exist(self, tdev):
         pass
 
     # duplicate
-    def test_ccxml_device_override(self, device):
+    def test_ccxml_connection_override(self, tdev):
         pass
 
     # duplicate
-    def test_ccxml_device_connection_override(self, device):
+    def test_ccxml_device_override(self, tdev):
+        pass
+
+    # duplicate
+    def test_ccxml_device_connection_override(self, tdev):
         pass
 
     # Raise Error

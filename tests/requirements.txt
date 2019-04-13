@@ -1,2 +1,2 @@
-pytest
-intelhex
+tox
+jinja2

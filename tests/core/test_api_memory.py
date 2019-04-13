@@ -2,63 +2,57 @@ import pytest
 
 import tiflash
 
-ADDRESS = 0x500012F0
-ANSWER = [0xFF, 0xFF, 0xFF, 0xFF]
-
-
-@pytest.mark.usefixtures("device")
 class TestMemoryApi():
 
-    def test_basic_memory_read_single_byte(self, device):
+    def test_basic_memory_read_single_byte(self, tdev):
         """Tests simple memory read"""
-        result = tiflash.memory_read(ADDRESS, 1,
-                            serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+        result = tiflash.memory_read(tdev['read-address'], 1,
+                            serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
 
         assert len(result) == 1
 
-    def test_basic_memory_read_multiple_bytes(self, device):
+    def test_basic_memory_read_multiple_bytes(self, tdev):
         """Tests simple memory read of multiple bytes"""
-        result = tiflash.memory_read(ADDRESS, 4,
-                            serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+        result = tiflash.memory_read(tdev['read-address'], 4,
+                            serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
 
         assert len(result) == 4
 
-    def test_basic_memory_read_and_check_byte_values(self, device):
+    def test_basic_memory_read_and_check_byte_values(self, tdev):
         """Tests memory read and checks for correct byte values. This test is
         device specific."""
 
-        if "memaddr" not in device.keys() or \
-            "memval" not in device.keys():
+        if "read-address" not in tdev.keys() or \
+            "address-value" not in tdev.keys():
             pytest.skip("Need to add memval and memaddr fields in \
-                setup.cfg for device: %s" % device['devicetype'])
+                setup.cfg for device: %s" % tdev['devicetype'])
 
-        addr = int(device['memaddr'], 0)
-        answer = device['memval'].split(',')
+        addr = int(tdev['read-address'], 0)
+        answer = tdev['value'].split(',')
         answer = [ int(d, 0) for d in answer ]
         result = tiflash.memory_read(addr, len(answer),
-                            serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+                            serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
 
         assert len(result) == len(answer)
         assert result == answer
 
 
-    def test_basic_memory_write(self, device):
+    def test_basic_memory_write(self, tdev):
         """Tests simple memory write"""
-        WRITE_ADDRESS = 0x20000000
         WRITE_DATA = [0x11, 0x22, 0x33]
-        tiflash.memory_write(WRITE_ADDRESS, WRITE_DATA,
-                        serno=device['serno'],
-                        connection=device['connection'],
-                        devicetype=device['devicetype'])
+        tiflash.memory_write(tdev['write-address'], WRITE_DATA,
+                        serno=tdev['serno'],
+                        connection=tdev['connection'],
+                        devicetype=tdev['devicetype'])
 
 
-    def test_invalid_address_memory_read(self, device):
+    def test_invalid_address_memory_read(self, tdev):
         """Tests an Error is raised when trying to access invalid memory for
         memory read"""
         INVALID_ADDRESS = 0xFFFFFFFF
@@ -66,12 +60,12 @@ class TestMemoryApi():
 
         with pytest.raises(tiflash.TIFlashError):
             tiflash.memory_read(INVALID_ADDRESS, NUM_BYTES,
-                            serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+                            serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
 
 
-    def test_invalid_address_memory_write(self, device):
+    def test_invalid_address_memory_write(self, tdev):
         """Tests an Error is raised when trying to access invalid memory for
         memory write"""
         INVALID_ADDRESS = 0x10000000
@@ -79,6 +73,6 @@ class TestMemoryApi():
 
         with pytest.raises(tiflash.TIFlashError):
             tiflash.memory_write(INVALID_ADDRESS, WRITE_DATA,
-                            serno=device['serno'],
-                            connection=device['connection'],
-                            devicetype=device['devicetype'])
+                            serno=tdev['serno'],
+                            connection=tdev['connection'],
+                            devicetype=tdev['devicetype'])
