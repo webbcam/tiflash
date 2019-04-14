@@ -24,8 +24,12 @@ def tenv(request):
 
 
 @pytest.fixture(autouse=True, scope="class")
-def test_env_setup(request, tenv):
-    os.makedirs(tenv["paths"]["tmp"])
+def test_env_setup(request, tenv, tdev):
+    if not os.path.exists(tenv["paths"]["tmp"]):
+        os.makedirs(tenv["paths"]["tmp"])
+
+    shutil.copyfile(tdev["ccxml-path"], tenv["paths"]["ccxml"]+"/"+tdev["serno"]+".ccxml")
+    shutil.copyfile(tdev["ccxml-path"], tenv["paths"]["ccxml"]+"/"+tdev["devicetype"]+".ccxml")
 
     def teardown():
         shutil.rmtree(tenv["paths"]["tmp"])
