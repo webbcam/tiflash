@@ -5,6 +5,7 @@ import socket
 import subprocess
 import platform
 
+
 def resolve_ccs_exe(ccs_path):
     """Returns the ccstudio executable given the ccs installation path
 
@@ -48,7 +49,9 @@ def launch_server(ccs_exe, workspace):
         os.path.join(os.path.dirname(__file__), "server.js")
     )
     os.environ["DSS_SCRIPTING_ROOT"] = os.path.abspath(
-        os.path.join(os.path.dirname(os.path.dirname(__file__)),"components", "debugserver-js")
+        os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "components", "debugserver-js"
+        )
     )
     ccsexe = [
         ccs_exe,

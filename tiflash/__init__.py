@@ -4,6 +4,7 @@ Licensed under the MIT license (see `LICENSE` file)
 
 A (unofficial) python module for flashing TI devices.
 """
+"""
 from tiflash.core import    (   get_connections,
                                 get_devicetypes,
                                 get_cpus,
@@ -28,6 +29,8 @@ from tiflash.core import    (   get_connections,
 
                                 TIFlashError
                             )
+"""
+from tiflash.core import TIFlashSession
 
 from tiflash.version import version_string as __version__
 

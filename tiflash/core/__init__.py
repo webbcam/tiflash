@@ -1,3 +1,4 @@
+"""
 from tiflash.core.core import TIFlashError  #, TIFlash
 from tiflash.core.api import(   get_connections,
                                 get_devicetypes,
@@ -24,6 +25,8 @@ from tiflash.core.api import(   get_connections,
                                 detect_devices,
                                 get_info,
                             )
+"""
+from tiflash.core.core import TIFlashSession
 # Remove anything that shouldn't be included at api level
-del core
-del api
+#del core
+#del api
