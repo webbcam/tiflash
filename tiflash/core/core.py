@@ -1,5 +1,13 @@
 from dsclient import DebugServer, DebugSession
-from tiflash.core.helpers import resolve_ccs_path, DEPRECATED
+from tiflash.core.helpers import (
+    resolve_ccs_path,
+    DEPRECATED,
+    resolve_ccxml_path,
+    resolve_serno,
+    resolve_devicetype,
+    resolve_connection,
+    compare_session_args,
+)
 from tiflash.utils.dss import launch_server, resolve_ccs_exe
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, __get_ccs_exe_path
 
@@ -80,7 +88,35 @@ class TIFlashSession(object):
             ccxml (str, optional): full path to ccxml file to use
             fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
         """
-        pass
+        self.ccxml_path = resolve_ccxml_path(
+            ccxml=ccxml, serno=serno, devicetype=devicetype
+        )
+
+        self.serno = resolve_serno(serno=serno, ccxml=self.ccxml_path)
+
+        self.devicetype = resolve_devicetype(
+            devicetype=devicetype,
+            serno=self.serno,
+            ccxml=self.ccxml_path,
+            ccs_path=self.ccs_path,
+        )
+
+        self.connection = resolve_connection(
+            connection=self.connection,
+            ccxml=self.ccxml_path,
+            devicetype=self.devicetype,
+            ccs_path=self.ccs_path,
+        )
+
+        # Compare resolved session args with what's already in ccxml
+        if self.ccxml_path is not None:
+            # Determine if ccxml needs to be regenerated
+            fresh = fresh or compare_session_args(self.ccxml_path,
+                    serno=self.serno, devicetype=self.devicetype,
+                    connection=self.connection)
+
+        # Create ccxml if needed
+
 
     def __del__(self):
         if self.keep_alive is False:
