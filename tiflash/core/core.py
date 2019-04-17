@@ -10,12 +10,14 @@ from tiflash.core.helpers import (
 )
 from tiflash.utils.dss import launch_server, resolve_ccs_exe
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, __get_ccs_exe_path
+from tiflash.utils.ccxml import get_ccxml_directory, add_serno
 
 
 class TIFlashSession(object):
     """TIFlash Session object for interacting with device over DSS"""
 
-    def __init__(self, ccs=None, ccs_path=None, ccs_version=None, keep_alive=False):
+    def __init__(self, ccs=None, ccs_path=None, ccs_version=None, serno=None,
+            devicetype=None, connection=None, ccxml=None, fresh=False, keep_alive=False):
         """Instantiates TIFlashSession object.
 
         Args:
@@ -43,6 +45,10 @@ class TIFlashSession(object):
         # Set CCS path
         self.ccs_path = None
         self.__configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
+
+        # Set Session args
+        self.__configure_session(serno=serno, devicetype=devicetype,
+                connection=connection, ccxml=ccxml, fresh=fresh)
 
         ccs_exe = resolve_ccs_exe(self.ccs_path)
 
@@ -102,7 +108,7 @@ class TIFlashSession(object):
         )
 
         self.connection = resolve_connection(
-            connection=self.connection,
+            connection=connection,
             ccxml=self.ccxml_path,
             devicetype=self.devicetype,
             ccs_path=self.ccs_path,
@@ -116,6 +122,51 @@ class TIFlashSession(object):
                     connection=self.connection)
 
         # Create ccxml if needed
+        if fresh:
+            self.ccxml_path = self.generate_ccxml(serno=self.serno, devicetype=self.devicetype,
+                    connection=self.connection)
+
+    def generate_ccxml(self, name=None, directory=None, **config):
+        """Generates a ccxml file using the provided parameters
+
+        Args:
+            name (str, optional): name to give ccxml file (default is: <serno>.ccxml, <devicetype>.ccxml or <connection.ccxml>)
+            directory (str, optional): directory to place ccxml file (default = default CCSTargetConfigurations directory)
+            **config (**kwargs): key-word args specifying possible configuration parameters to use when creating ccxml
+
+        Returns:
+            str: full path to generated ccxml file
+
+        Raises:
+            Exception: raised if error generating ccxml file
+        """
+        serno = config.get('serno', None)
+        devicetype = config.get('devicetype', None)
+        connection = config.get('connection', None)
+
+        # Determine ccxml file name to use
+        if name is None:
+            name = serno or devicetype or connection or "UNTITLED"
+
+        if name.endswith(".ccxml"):
+            name += ".ccxml"
+
+        if directory is None:
+            directory = get_ccxml_directory()
+
+        ccxml_path = os.path.join(directory, name)
+
+        self.dsclient.create_config(name, connection=connection,
+                device=devicetype, directory=directory)
+
+        if not os.path.exists(ccxml_path):
+            raise Exception("Could not find ccxml file after generating: %s" % ccxml_path)
+
+        if serno is not None:
+            add_serno(ccxml_path, serno, self.ccs_path)
+
+        return ccxml_path
+
 
 
     def __del__(self):
