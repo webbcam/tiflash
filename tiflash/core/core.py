@@ -1,3 +1,4 @@
+import os
 from dsclient import DebugServer, DebugSession
 from tiflash.core.helpers import (
     resolve_ccs_path,
@@ -46,10 +47,6 @@ class TIFlashSession(object):
         self.ccs_path = None
         self.__configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
 
-        # Set Session args
-        self.__configure_session(serno=serno, devicetype=devicetype,
-                connection=connection, ccxml=ccxml, fresh=fresh)
-
         ccs_exe = resolve_ccs_exe(self.ccs_path)
 
         # Launch DebugServer
@@ -57,6 +54,11 @@ class TIFlashSession(object):
 
         # Connect DSClient
         self._dsclient = DebugServer(port=self._server_port)
+
+        # Set Session args
+        if any([serno, devicetype, connection, ccxml]):
+            self.__configure_session(serno=serno, devicetype=devicetype,
+                    connection=connection, ccxml=ccxml, fresh=fresh)
 
     def __configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
         """Finds and sets the path to CCS installation to use
@@ -120,6 +122,8 @@ class TIFlashSession(object):
             fresh = fresh or compare_session_args(self.ccxml_path,
                     serno=self.serno, devicetype=self.devicetype,
                     connection=self.connection)
+        else:
+            fresh = True
 
         # Create ccxml if needed
         if fresh:
@@ -148,7 +152,7 @@ class TIFlashSession(object):
         if name is None:
             name = serno or devicetype or connection or "UNTITLED"
 
-        if name.endswith(".ccxml"):
+        if not name.endswith(".ccxml"):
             name += ".ccxml"
 
         if directory is None:
@@ -156,7 +160,7 @@ class TIFlashSession(object):
 
         ccxml_path = os.path.join(directory, name)
 
-        self.dsclient.create_config(name, connection=connection,
+        self._dsclient.create_config(name, connection=connection,
                 device=devicetype, directory=directory)
 
         if not os.path.exists(ccxml_path):
