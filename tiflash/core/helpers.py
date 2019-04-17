@@ -6,8 +6,8 @@ from tiflash.utils.devices import get_device_from_serno, get_device_xml_from_dev
 from tiflash.utils.connections import get_connection_name
 
 
-def deprecated(message):
-    warnings.warn(message, DeprecationWarning, stacklevel=2)
+def DEPRECATED(message, stacklevel=1):
+    warnings.warn(message, DeprecationWarning, stacklevel=stacklevel)
 
 
 def resolve_ccs_path(ccs_info):

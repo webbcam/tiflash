@@ -1,5 +1,5 @@
 from dsclient import DebugServer, DebugSession
-from tiflash.core.helpers import resolve_ccs_path, deprecated
+from tiflash.core.helpers import resolve_ccs_path, DEPRECATED
 from tiflash.utils.dss import launch_server, resolve_ccs_exe
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, __get_ccs_exe_path
 
@@ -32,14 +32,9 @@ class TIFlashSession(object):
         self.keep_alive = keep_alive
         self.workspace = get_workspace_dir()
 
-        # Resolve which ccs installation to use
-        if ccs is not None:
-            deprecated(
-                "'ccs' arg is deprecated and will be removed in a later version of tiflash; use 'ccs_path' and 'ccs_version' parameters instead."
-            )
-            self.ccs_path = resolve_ccs_path(ccs)
-        else:
-            self.ccs_path = find_ccs(version=ccs_version, ccs_prefix=ccs_path)
+        # Set CCS path
+        self.ccs_path = None
+        self.__configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
 
         ccs_exe = resolve_ccs_exe(self.ccs_path)
 
@@ -48,6 +43,44 @@ class TIFlashSession(object):
 
         # Connect DSClient
         self._dsclient = DebugServer(port=self._server_port)
+
+    def __configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
+        """Finds and sets the path to CCS installation to use
+
+        Args:
+            ccs (str, optional): DEPRECATED: ccs version or path to ccs (default is latest installation found)
+            ccs_path (str, optional): path to ccs installation or directory of installation
+            ccs_version (str, optional): version number of ccs to use (default=latest)
+
+        Warning:
+            Can only be run once (before launch of DebugServer).
+        """
+        if self.ccs_path is not None:
+            raise Exception("CCS path already set to: %s" % self.ccs_path)
+
+        # Resolve which ccs installation to use
+        if ccs is not None:
+            DEPRECATED(
+                "'ccs' arg is deprecated and will be removed in a later version of tiflash; use 'ccs_path' and 'ccs_version' parameters instead.",
+                stacklevel=4,
+            )
+            self.ccs_path = resolve_ccs_path(ccs)
+        else:
+            self.ccs_path = find_ccs(version=ccs_version, ccs_prefix=ccs_path)
+
+    def __configure_session(
+        self, serno=None, devicetype=None, connection=None, ccxml=None, fresh=False
+    ):
+        """
+        Args:
+            serno (str, optional): serial number of device
+            serialnum (str, optional): serial number of device
+            devicetype (str, optional): name of devicetype
+            connection (str, optional): name of connection
+            ccxml (str, optional): full path to ccxml file to use
+            fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
+        """
+        pass
 
     def __del__(self):
         if self.keep_alive is False:
