@@ -1,8 +1,17 @@
 import os
 import warnings
 from tiflash.utils.ccs import find_ccs
-from tiflash.utils.ccxml import get_ccxml_path, get_serno, get_devicetype, get_connection
-from tiflash.utils.devices import get_device_from_serno, get_device_xml_from_devicetype, get_default_connection_xml
+from tiflash.utils.ccxml import (
+    get_ccxml_path,
+    get_serno,
+    get_devicetype,
+    get_connection,
+)
+from tiflash.utils.devices import (
+    get_device_from_serno,
+    get_device_xml_from_devicetype,
+    get_default_connection_xml,
+)
 from tiflash.utils.connections import get_connection_name
 
 
@@ -47,6 +56,7 @@ def resolve_ccs_path(ccs_info):
 
     return ccs_path
 
+
 def resolve_ccxml_path(ccxml=None, serno=None, devicetype=None):
     """Attempts to find an existing ccxml file given the above parameters.
 
@@ -71,6 +81,8 @@ def resolve_ccxml_path(ccxml=None, serno=None, devicetype=None):
     if ccxml is not None:
         if os.path.exists(ccxml):
             ccxml_path = ccxml
+        else:
+            raise Exception("Could not find ccxml file: %s" % ccxml)
 
     elif serno is not None:
         serno_ccxml = get_ccxml_path(serno)
@@ -82,12 +94,13 @@ def resolve_ccxml_path(ccxml=None, serno=None, devicetype=None):
         if devicetype_ccxml is not None and os.path.exists(devicetype_ccxml):
             ccxml_path = devicetype_ccxml
 
-    if ccxml_path is None:
-        raise Exception("Could not resolve ccxml path from (%s, %s, %s)" % (ccxml, serno, devicetype))
+    #    if ccxml_path is None:
+    #        raise Exception("Could not resolve ccxml path from (%s, %s, %s)" % (ccxml, serno, devicetype))
 
     return ccxml_path
 
-def resolve_serno(serno=None, ccxml=None,):
+
+def resolve_serno(serno=None, ccxml=None):
     """Attempts to find the device serial number from the above parameters.
 
     Order of priority:
@@ -106,7 +119,7 @@ def resolve_serno(serno=None, ccxml=None,):
     """
     resolved_serno = None
     if serno is not None:
-         resolved_serno = serno
+        resolved_serno = serno
 
     elif ccxml is not None:
         try:
@@ -114,10 +127,11 @@ def resolve_serno(serno=None, ccxml=None,):
         except Exception:
             pass
 
-    if resolved_serno is None:
-        raise Exception("Could not resolve serno from (%s, %s)" % (serno, ccxml))
+    #    if resolved_serno is None:
+    #        raise Exception("Could not resolve serno from (%s, %s)" % (serno, ccxml))
 
     return resolved_serno
+
 
 def resolve_devicetype(devicetype=None, serno=None, ccxml=None, ccs_path=None):
     """Attempts to find the devicetype from the above parameters.
@@ -149,10 +163,11 @@ def resolve_devicetype(devicetype=None, serno=None, ccxml=None, ccs_path=None):
     elif serno is not None:
         devtype = get_device_from_serno(serno, ccs_path)
 
-    if devtype is None:
-        raise Exception("Could not resolve devicetype from (%s, %s, %s)" % (devicetype, ccxml, serno))
+    #    if devtype is None:
+    #        raise Exception("Could not resolve devicetype from (%s, %s, %s)" % (devicetype, ccxml, serno))
 
     return devtype
+
 
 def resolve_connection(connection=None, ccxml=None, devicetype=None, ccs_path=None):
     """Attempts to find the connection from the above parameters.
@@ -185,9 +200,42 @@ def resolve_connection(connection=None, ccxml=None, devicetype=None, ccs_path=No
             connxml = get_default_connection_xml(devxml, ccs_path)
             conn = get_connection_name(connxml)
         except:
-            pass    # Not all device xml will have default connection
+            pass  # Not all device xml will have default connection
 
-    if conn is None:
-        raise Exception("Could not resolve connection from (%s, %s, %s)" % (connection, ccxml, devicetype))
+    #    if conn is None:
+    #        raise Exception("Could not resolve connection from (%s, %s, %s)" % (connection, ccxml, devicetype))
 
     return conn
+
+
+def compare_session_args(ccxml_path, serno=None, devicetype=None, connection=None):
+    """Compares provided session args with session args in ccxml file.
+
+    Args:
+        ccxml (str): full path to ccxml file to compare with
+        serno (str, optional): serial number of the device
+        devicetype (str, optional): devicetype name of the device
+        connection (str, optional): connection name
+
+    Returns:
+        bool: True if ccxml contains same values for session args; False if different
+    """
+    result = True
+
+    # Check ccxml exists
+    if not os.path.exists(ccxml_path):
+        raise Exception("Could not find ccxml file: %s" % ccxml_path)
+
+    if serno is not None:
+        ccxml_serno = get_serno(ccxml_path)
+        result = result and (ccxml_serno == serno)
+
+    if devicetype is not None:
+        ccxml_devicetype = get_devicetype(ccxml_path)
+        result = result and (ccxml_devicetype == devicetype)
+
+    if connection is not None:
+        ccxml_connection = get_connection(ccxml_path)
+        result = result and (ccxml_connection == connection)
+
+    return result
