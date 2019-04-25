@@ -1,4 +1,5 @@
 import pytest
+import shutil
 import tiflash
 
 
@@ -44,3 +45,35 @@ class TestTIFlashSession:
         """Tests basic instantation of TIFlashSession object with provided device params"""
         ccxml = tdev['ccxml-path']
         device = tiflash.TIFlashSession(ccxml=ccxml)
+
+        assert device.ccxml_path == ccxml
+
+        if 'serno' in tdev.keys():
+            assert device.serno == tdev['serno']
+        assert device.devicetype == tdev['devicetype']
+        assert device.connection == tdev['connection']
+
+    def test_instantiation_with_ccxml_new_serno(self, tenv, tdev):
+        """Tests basic instantation of TIFlashSession object with provided ccxml and different serno"""
+        if 'serno' not in tdev.keys():
+            pytest.skip("Device %s has no serial number" % tdev["devicetype"])
+
+        ccxml = tenv["paths"]["tmp"]+"/"+tdev["serno"]+".ccxml"
+        serno = "NEW_SERNO"
+
+        # Going to be altering the ccxml file so making a copy to modify
+        shutil.copyfile(tdev["ccxml-path"], ccxml)
+
+        device = tiflash.TIFlashSession(serno=serno, ccxml=ccxml)
+
+        assert device.ccxml_path == ccxml
+        assert device.serno != tdev['serno']
+        assert device.serno == serno
+        assert device.devicetype == tdev['devicetype']
+        assert device.connection == tdev['connection']
+
+        # Check the new serial number was updated on the provided ccxml file
+        with open(ccxml) as f:
+            text = f.read()
+            assert serno in text
+            assert tdev['serno'] not in text

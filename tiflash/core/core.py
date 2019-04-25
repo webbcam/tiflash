@@ -17,8 +17,18 @@ from tiflash.utils.ccxml import get_ccxml_directory, add_serno
 class TIFlashSession(object):
     """TIFlash Session object for interacting with device over DSS"""
 
-    def __init__(self, ccs=None, ccs_path=None, ccs_version=None, serno=None,
-            devicetype=None, connection=None, ccxml=None, fresh=False, keep_alive=False):
+    def __init__(
+        self,
+        ccs=None,
+        ccs_path=None,
+        ccs_version=None,
+        serno=None,
+        devicetype=None,
+        connection=None,
+        ccxml=None,
+        fresh=False,
+        keep_alive=False,
+    ):
         """Instantiates TIFlashSession object.
 
         Args:
@@ -57,8 +67,13 @@ class TIFlashSession(object):
 
         # Set Session args
         if any([serno, devicetype, connection, ccxml]):
-            self.__configure_session(serno=serno, devicetype=devicetype,
-                    connection=connection, ccxml=ccxml, fresh=fresh)
+            self.__configure_session(
+                serno=serno,
+                devicetype=devicetype,
+                connection=connection,
+                ccxml=ccxml,
+                fresh=fresh,
+            )
 
     def __configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
         """Finds and sets the path to CCS installation to use
@@ -119,16 +134,32 @@ class TIFlashSession(object):
         # Compare resolved session args with what's already in ccxml
         if self.ccxml_path is not None:
             # Determine if ccxml needs to be regenerated
-            fresh = fresh or compare_session_args(self.ccxml_path,
-                    serno=self.serno, devicetype=self.devicetype,
-                    connection=self.connection)
+            fresh = fresh or not compare_session_args(
+                self.ccxml_path,
+                serno=self.serno,
+                devicetype=self.devicetype,
+                connection=self.connection,
+            )
         else:
             fresh = True
 
         # Create ccxml if needed
         if fresh:
-            self.ccxml_path = self.generate_ccxml(serno=self.serno, devicetype=self.devicetype,
-                    connection=self.connection)
+            if self.ccxml_path is not None:
+                directory, name = os.path.split(self.ccxml_path)
+            else:
+                name = directory = None
+
+            self.ccxml_path = self.generate_ccxml(
+                name=name,
+                directory=directory,
+                serno=self.serno,
+                devicetype=self.devicetype,
+                connection=self.connection,
+            )
+
+        # Set ccxml file
+        self._dsclient.set_config(self.ccxml_path)
 
     def generate_ccxml(self, name=None, directory=None, **config):
         """Generates a ccxml file using the provided parameters
@@ -144,9 +175,9 @@ class TIFlashSession(object):
         Raises:
             Exception: raised if error generating ccxml file
         """
-        serno = config.get('serno', None)
-        devicetype = config.get('devicetype', None)
-        connection = config.get('connection', None)
+        serno = config.get("serno", None)
+        devicetype = config.get("devicetype", None)
+        connection = config.get("connection", None)
 
         # Determine ccxml file name to use
         if name is None:
@@ -160,18 +191,19 @@ class TIFlashSession(object):
 
         ccxml_path = os.path.join(directory, name)
 
-        self._dsclient.create_config(name, connection=connection,
-                device=devicetype, directory=directory)
+        self._dsclient.create_config(
+            name, connection=connection, device=devicetype, directory=directory
+        )
 
         if not os.path.exists(ccxml_path):
-            raise Exception("Could not find ccxml file after generating: %s" % ccxml_path)
+            raise Exception(
+                "Could not find ccxml file after generating: %s" % ccxml_path
+            )
 
         if serno is not None:
             add_serno(ccxml_path, serno, self.ccs_path)
 
         return ccxml_path
-
-
 
     def __del__(self):
         if self.keep_alive is False:
