@@ -52,6 +52,7 @@ class TIFlashSession(object):
         """
         self.keep_alive = keep_alive
         self.workspace = get_workspace_dir()
+        self.ccxml_path = None
 
         # Set CCS path
         self.ccs_path = None
@@ -150,7 +151,7 @@ class TIFlashSession(object):
             else:
                 name = directory = None
 
-            self.ccxml_path = self.generate_ccxml(
+            self.ccxml_path = self.create_config(
                 name=name,
                 directory=directory,
                 serno=self.serno,
@@ -161,7 +162,7 @@ class TIFlashSession(object):
         # Set ccxml file
         self._dsclient.set_config(self.ccxml_path)
 
-    def generate_ccxml(self, name=None, directory=None, **config):
+    def create_config(self, name=None, directory=None, **config):
         """Generates a ccxml file using the provided parameters
 
         Args:
@@ -204,6 +205,46 @@ class TIFlashSession(object):
             add_serno(ccxml_path, serno, self.ccs_path)
 
         return ccxml_path
+
+    def attach_ccs(self):
+        """Opens a CCS GUI for the device in use"""
+        self._dsclient.attach_ccs()
+
+    def get_config(self):
+        """Returns the full path to the ccxml file in use for TIFlashSession
+
+        Returns:
+            str: full path to .ccxml file in use for TIFlashSession
+                (returns None if ccxml has not be set yet)
+        """
+        return self.ccxml_path
+
+    def get_list_of_connections(self):
+        """Returns a list of available connections
+
+        Returns:
+            list: list of available connection names
+        """
+        return self._dsclient.get_list_of_connections()
+
+    def get_list_of_cpus(self):
+        """Returns a list of available cpu/core names for the device in use
+
+        Returns:
+            list: list of available core/cpu names for the device in use
+
+        Raises:
+            Exception: raised if no config set yet
+        """
+        return self._dsclient.get_list_of_cpus()
+
+    def get_list_of_devices(self):
+        """Returns a list of available devices
+
+        Returns:
+            list: list of available device names
+        """
+        return self._dsclient.get_list_of_devices()
 
     def __del__(self):
         if self.keep_alive is False:
