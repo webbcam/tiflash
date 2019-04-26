@@ -206,8 +206,13 @@ class TIFlashSession(object):
 
         return ccxml_path
 
-    def attach_ccs(self):
-        """Opens a CCS GUI for the device in use"""
+    def attach_ccs(self, keep_alive=False):
+        """Opens a CCS GUI for the device in use
+        Args:
+            keep_alive (bool): keep the DebugServer process running in
+                background after object is destroyed
+        """
+        self.keep_alive = keep_alive
         self._dsclient.attach_ccs()
 
     def get_config(self):
@@ -246,6 +251,24 @@ class TIFlashSession(object):
         """
         return self._dsclient.get_list_of_devices()
 
+    def get_core(self, name):
+        """Returns Core object representing a device core
+
+        Args:
+            name (str): name of core to retrieve (can be regex pattern)
+
+        Returns:
+            dsclient.DebugSession: DebugSession object representing the device core
+        """
+        session = None
+        try:
+            session = self._dsclient.get_session(name)
+        except:
+            session = self._dsclient.open_session(name)
+
+        return Core(session)
+
+
     def __del__(self):
         if self.keep_alive is False:
             # Close down server
@@ -257,3 +280,197 @@ class TIFlashSession(object):
                 self._server_pid.wait(timeout=3)
             except Exception:  # TimeoutExpired
                 self._server_pid.terminate()
+
+class Core(object):
+    """Class representing device core"""
+
+    def __init__(self, debugsession):
+        """Instantiates Core object representing a device core
+
+        Args:
+            debugsession (dsclient.DebugSession): debugsession instance
+                returned from DebugServer.open_session()
+
+        Warning:
+            This class should not be directly instantiated. Instead use the
+            TIFlashSession.get_core() function
+        """
+        self._debugsession = debugsession
+
+    def connect(self):
+        """Connect to core"""
+        self._debugsession.connect()
+
+    def disconnect(self):
+        """Disconnects from core"""
+        self._debugsession.disconnect()
+
+    def erase(self):
+        """Erases device's flash memory.  """
+        self._debugsession.erase()
+
+    def reset(self):
+        """Resets device."""
+        self._debugsession.reset()
+
+    def load(self, file, binary=False, address=None):
+        """Loads image into device's flash.
+
+        Args:
+            file (str): full path to file to load into flash
+            binary (boolean, optional): specify to load image as binary (default = False)
+            address (int, optional): specify to load binary image at specifc address (only to be used when 'binary' is True; default=0x0)
+
+
+        Raises:
+            Exception if image fails to load
+        """
+        self._debugsession.load(file, binary=binary, address=address)
+
+    def verify(self, file, binary=False, address=None):
+        """Verifies image in device's flash.
+
+        Args:
+            file (str): full path to file to verify in flash
+            binary (boolean, optional): specify to verify image as binary (default = False)
+            address (int, optional): specify to verify binary image at specifc address (only to be used when 'binary' is True; default=0x0)
+
+
+        Raises:
+            Exception if image fails verification process
+        """
+        self._debugsession.verify(file, binary=binary, address=address)
+
+    def evaluate(self, expression, file=None):
+        """Evaluates an expression (after loading optional symbols file)
+
+        Args:
+            expression (str): C/GEL expression to evaluate
+            file (str, optional): path to file containing symbols to load before evaluating
+
+        Returns:
+            int: result of evaluated expression
+
+
+        Raises:
+            Exception if expression is invalid.
+        """
+        return self._debugsession.evaluate(expression, file=file)
+
+    def read_data(self, address, page=0, num_bytes=1):
+        """Read memory from device
+
+        Args:
+            address (int): address to read data from
+            page (int, optional): page in memory to get address from (default = 0)
+            num_bytes (int, optional): number of bytes to read
+
+        Returns:
+            list: list of bytes(ints) read
+
+
+        Raises:
+            Exception if address location is invalid.
+        """
+        return self._debugsession.read_data(address, page=page, num_bytes=num_bytes)
+
+    def write_data(self, data, address, page=0):
+        """Write to memory on device
+
+        Args:
+            data (list): list of bytes (ints) to write to memory
+            address (int): address to read data from
+            page (int, optional): page in memory to get address from (default = 0)
+
+
+        Raises:
+            Exception if address location is invalid.
+        """
+        return self._debugsession.write_data(data, address, page=page)
+
+    def read_register(self, name):
+        """Read value from register
+
+        Args:
+            name (str): register name to read
+
+        Returns:
+            int: value of register read
+
+
+        Raises:
+            Exception if register name is invalid.
+        """
+        return self._debugsession.read_register(name)
+
+    def write_register(self, name, value):
+        """Write value to register on device
+
+        Args:
+            name (str): register name to write to
+            value (int): value to write to register
+
+
+        Raises:
+            Exception if register name is invalid.
+        """
+        self._debugsession.write_register(name, value)
+
+    def get_option(self, option_id):
+        """Get the value of a device option
+
+        Args:
+            option_id (str): name of device option
+
+        Returns:
+            any: value of option
+
+
+        Raises:
+            Exception if option id is invalid.
+        """
+        return self._debugsession.get_option(option_id)
+
+    def set_option(self, option_id, value):
+        """Set the value of a device option
+
+        Args:
+            option_id (str): name of device option
+            value (any): value to set option to
+
+
+        Raises:
+            Exception if option id is invalid.
+        """
+        self._debugsession.set_option(option_id, value)
+
+    def perform_operation(self, opcode):
+        """Performs flash operation
+
+        Args:
+            opcode (str): name of operation to perform (opcode)
+
+        Returns:
+            any: returns value of performing operation
+
+
+        Raises:
+            Exception if opcode is invalid.
+        """
+        return self._debugsession.perform_operation(opcode)
+
+    def run(self, asynchronous=False):
+        """Issues the run command to the device
+
+        Args:
+            asynchronous (boolean, optional): run and return control immediately (default = False)
+        """
+        self._debugsession.run(asynchronous=asynchronous)
+
+    def halt(self, wait=False):
+        """Halts the device
+
+        Args:
+            wait (boolean): wait until device is actually halted before returning
+        """
+        self._debugsession.halt(wait=wait)
