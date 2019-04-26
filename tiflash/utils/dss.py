@@ -63,7 +63,7 @@ def launch_server(ccs_exe, workspace):
     ccsexe.append(server_script)
     ccsexe.append("-ccs.rhinoArgs")
 
-    p = subprocess.Popen(ccsexe, stdout=subprocess.PIPE)
+    p = subprocess.Popen(ccsexe, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     if p.poll() is not None:
         raise Exception("Could not start server process")
