@@ -208,6 +208,41 @@ def resolve_connection(connection=None, ccxml=None, devicetype=None, ccs_path=No
     return conn
 
 
+def resolve_session_args(
+    ccs_path, ccxml=None, serno=None, devicetype=None, connection=None
+):
+    """Takes session arguments and resolves any missing arguments
+
+    Args:
+        ccs_path (str): full path to ccs to use
+        ccxml (str): full path to ccxml file to compare with
+        serno (str, optional): serial number of the device
+        devicetype (str, optional): devicetype name of the device
+        connection (str, optional): connection name
+
+    Returns:
+        dict: dictionary containing resolved session arguments
+    """
+    r_ccxml = resolve_ccxml_path(ccxml=ccxml, serno=serno, devicetype=devicetype)
+
+    r_serno = resolve_serno(serno=serno, ccxml=r_ccxml)
+
+    r_devicetype = resolve_devicetype(
+        devicetype=devicetype, serno=r_serno, ccxml=r_ccxml, ccs_path=ccs_path
+    )
+
+    r_connection = resolve_connection(
+        connection=connection, ccxml=r_ccxml, devicetype=r_devicetype, ccs_path=ccs_path
+    )
+
+    return {
+        "ccxml": r_ccxml,
+        "serno": r_serno,
+        "devicetype": r_devicetype,
+        "connection": r_connection,
+    }
+
+
 def compare_session_args(ccxml_path, serno=None, devicetype=None, connection=None):
     """Compares provided session args with session args in ccxml file.
 

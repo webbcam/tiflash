@@ -7,11 +7,18 @@ from tiflash.core.helpers import (
     resolve_serno,
     resolve_devicetype,
     resolve_connection,
+    resolve_session_args,
     compare_session_args,
 )
 from tiflash.utils.dss import launch_server, resolve_ccs_exe
 from tiflash.utils.ccs import find_ccs, get_workspace_dir, __get_ccs_exe_path
 from tiflash.utils.ccxml import get_ccxml_directory, add_serno
+
+
+class TIFlashError(Exception):
+    """Generic TI Flash error"""
+
+    pass
 
 
 class TIFlashSession(object):
@@ -51,7 +58,7 @@ class TIFlashSession(object):
 
         """
         self.keep_alive = keep_alive
-        self.workspace = get_workspace_dir()
+        self.workspace = get_workspace_dir()  # TODO: append uuid
         self.ccxml_path = None
 
         # Set CCS path
@@ -112,25 +119,18 @@ class TIFlashSession(object):
             ccxml (str, optional): full path to ccxml file to use
             fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
         """
-        self.ccxml_path = resolve_ccxml_path(
-            ccxml=ccxml, serno=serno, devicetype=devicetype
-        )
 
-        self.serno = resolve_serno(serno=serno, ccxml=self.ccxml_path)
-
-        self.devicetype = resolve_devicetype(
+        session_args = resolve_session_args(
+            self.ccs_path,
+            ccxml=ccxml,
+            serno=serno,
             devicetype=devicetype,
-            serno=self.serno,
-            ccxml=self.ccxml_path,
-            ccs_path=self.ccs_path,
-        )
-
-        self.connection = resolve_connection(
             connection=connection,
-            ccxml=self.ccxml_path,
-            devicetype=self.devicetype,
-            ccs_path=self.ccs_path,
         )
+        self.ccxml_path = session_args["ccxml"]
+        self.serno = session_args["serno"]
+        self.devicetype = session_args["devicetype"]
+        self.connection = session_args["connection"]
 
         # Compare resolved session args with what's already in ccxml
         if self.ccxml_path is not None:
@@ -160,7 +160,10 @@ class TIFlashSession(object):
             )
 
         # Set ccxml file
-        self._dsclient.set_config(self.ccxml_path)
+        try:
+            self._dsclient.set_config(self.ccxml_path)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def create_config(self, name=None, directory=None, **config):
         """Generates a ccxml file using the provided parameters
@@ -197,7 +200,7 @@ class TIFlashSession(object):
         )
 
         if not os.path.exists(ccxml_path):
-            raise Exception(
+            raise TIFlashError(
                 "Could not find ccxml file after generating: %s" % ccxml_path
             )
 
@@ -212,8 +215,11 @@ class TIFlashSession(object):
             keep_alive (bool): keep the DebugServer process running in
                 background after object is destroyed
         """
-        self.keep_alive = keep_alive
-        self._dsclient.attach_ccs()
+        try:
+            self.keep_alive = keep_alive
+            self._dsclient.attach_ccs()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def get_config(self):
         """Returns the full path to the ccxml file in use for TIFlashSession
@@ -230,7 +236,10 @@ class TIFlashSession(object):
         Returns:
             list: list of available connection names
         """
-        return self._dsclient.get_list_of_connections()
+        try:
+            return self._dsclient.get_list_of_connections()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def get_list_of_cpus(self):
         """Returns a list of available cpu/core names for the device in use
@@ -241,7 +250,10 @@ class TIFlashSession(object):
         Raises:
             Exception: raised if no config set yet
         """
-        return self._dsclient.get_list_of_cpus()
+        try:
+            return self._dsclient.get_list_of_cpus()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def get_list_of_devices(self):
         """Returns a list of available devices
@@ -249,7 +261,10 @@ class TIFlashSession(object):
         Returns:
             list: list of available device names
         """
-        return self._dsclient.get_list_of_devices()
+        try:
+            return self._dsclient.get_list_of_devices()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def get_core(self, name):
         """Returns Core object representing a device core
@@ -268,7 +283,6 @@ class TIFlashSession(object):
 
         return Core(session)
 
-
     def __del__(self):
         if self.keep_alive is False:
             # Close down server
@@ -280,6 +294,7 @@ class TIFlashSession(object):
                 self._server_pid.wait(timeout=3)
             except Exception:  # TimeoutExpired
                 self._server_pid.terminate()
+
 
 class Core(object):
     """Class representing device core"""
@@ -295,23 +310,38 @@ class Core(object):
             This class should not be directly instantiated. Instead use the
             TIFlashSession.get_core() function
         """
-        self._debugsession = debugsession
+        try:
+            self._debugsession = debugsession
+        except Exception as e:
+            raise TIFlashError(e)
 
     def connect(self):
         """Connect to core"""
-        self._debugsession.connect()
+        try:
+            self._debugsession.connect()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def disconnect(self):
         """Disconnects from core"""
-        self._debugsession.disconnect()
+        try:
+            self._debugsession.disconnect()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def erase(self):
         """Erases device's flash memory.  """
-        self._debugsession.erase()
+        try:
+            self._debugsession.erase()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def reset(self):
         """Resets device."""
-        self._debugsession.reset()
+        try:
+            self._debugsession.reset()
+        except Exception as e:
+            raise TIFlashError(e)
 
     def load(self, file, binary=False, address=None):
         """Loads image into device's flash.
@@ -325,7 +355,10 @@ class Core(object):
         Raises:
             Exception if image fails to load
         """
-        self._debugsession.load(file, binary=binary, address=address)
+        try:
+            self._debugsession.load(file, binary=binary, address=address)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def verify(self, file, binary=False, address=None):
         """Verifies image in device's flash.
@@ -339,7 +372,10 @@ class Core(object):
         Raises:
             Exception if image fails verification process
         """
-        self._debugsession.verify(file, binary=binary, address=address)
+        try:
+            self._debugsession.verify(file, binary=binary, address=address)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def evaluate(self, expression, file=None):
         """Evaluates an expression (after loading optional symbols file)
@@ -355,7 +391,10 @@ class Core(object):
         Raises:
             Exception if expression is invalid.
         """
-        return self._debugsession.evaluate(expression, file=file)
+        try:
+            return self._debugsession.evaluate(expression, file=file)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def read_data(self, address, page=0, num_bytes=1):
         """Read memory from device
@@ -372,7 +411,10 @@ class Core(object):
         Raises:
             Exception if address location is invalid.
         """
-        return self._debugsession.read_data(address, page=page, num_bytes=num_bytes)
+        try:
+            return self._debugsession.read_data(address, page=page, num_bytes=num_bytes)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def write_data(self, data, address, page=0):
         """Write to memory on device
@@ -386,7 +428,10 @@ class Core(object):
         Raises:
             Exception if address location is invalid.
         """
-        return self._debugsession.write_data(data, address, page=page)
+        try:
+            return self._debugsession.write_data(data, address, page=page)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def read_register(self, name):
         """Read value from register
@@ -401,7 +446,10 @@ class Core(object):
         Raises:
             Exception if register name is invalid.
         """
-        return self._debugsession.read_register(name)
+        try:
+            return self._debugsession.read_register(name)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def write_register(self, name, value):
         """Write value to register on device
@@ -414,7 +462,10 @@ class Core(object):
         Raises:
             Exception if register name is invalid.
         """
-        self._debugsession.write_register(name, value)
+        try:
+            self._debugsession.write_register(name, value)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def get_option(self, option_id):
         """Get the value of a device option
@@ -429,7 +480,10 @@ class Core(object):
         Raises:
             Exception if option id is invalid.
         """
-        return self._debugsession.get_option(option_id)
+        try:
+            return self._debugsession.get_option(option_id)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def set_option(self, option_id, value):
         """Set the value of a device option
@@ -442,7 +496,10 @@ class Core(object):
         Raises:
             Exception if option id is invalid.
         """
-        self._debugsession.set_option(option_id, value)
+        try:
+            self._debugsession.set_option(option_id, value)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def perform_operation(self, opcode):
         """Performs flash operation
@@ -457,7 +514,10 @@ class Core(object):
         Raises:
             Exception if opcode is invalid.
         """
-        return self._debugsession.perform_operation(opcode)
+        try:
+            return self._debugsession.perform_operation(opcode)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def run(self, asynchronous=False):
         """Issues the run command to the device
@@ -465,7 +525,10 @@ class Core(object):
         Args:
             asynchronous (boolean, optional): run and return control immediately (default = False)
         """
-        self._debugsession.run(asynchronous=asynchronous)
+        try:
+            self._debugsession.run(asynchronous=asynchronous)
+        except Exception as e:
+            raise TIFlashError(e)
 
     def halt(self, wait=False):
         """Halts the device
@@ -473,4 +536,7 @@ class Core(object):
         Args:
             wait (boolean): wait until device is actually halted before returning
         """
-        self._debugsession.halt(wait=wait)
+        try:
+            self._debugsession.halt(wait=wait)
+        except Exception as e:
+            raise TIFlashError(e)

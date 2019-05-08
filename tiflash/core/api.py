@@ -1,13 +1,27 @@
 import os
 from platform import python_version
 
+from tiflash.core.helpers import resolve_ccs_path
 from tiflash.version import version_string as __version__, release_date
-from tiflash.core.core import TIFlash, TIFlashError
-from tiflash.utils.ccxml import (CCXMLError, get_device_xml,
-                                get_devicetype, get_connection, get_serno,
-                                 get_connection_xml, get_ccxml_path)
-from tiflash.utils.ccs import (find_ccs, get_workspace_dir, FindCCSError,
-                                get_ccs_version, get_ccs_prefix, get_ccs_pf_filters)
+from tiflash.core.core import TIFlashSession, TIFlashError
+from tiflash.core.helpers import resolve_session_args
+from tiflash.utils.ccxml import (
+    CCXMLError,
+    get_device_xml,
+    get_devicetype,
+    get_connection,
+    get_serno,
+    get_connection_xml,
+    get_ccxml_path,
+)
+from tiflash.utils.ccs import (
+    find_ccs,
+    get_workspace_dir,
+    FindCCSError,
+    get_ccs_version,
+    get_ccs_prefix,
+    get_ccs_pf_filters,
+)
 from tiflash.utils import flash_properties
 from tiflash.utils import cpus
 from tiflash.utils import connections
@@ -15,11 +29,6 @@ from tiflash.utils import devices
 from tiflash.utils import dss
 from tiflash.utils import xds110
 from tiflash.utils import detect
-
-
-class TIFlashAPIError(TIFlashError):
-    """Generic TIFlash API Error"""
-    pass
 
 
 def __get_cpu_from_ccxml(ccxml_path, ccs_path):
@@ -38,276 +47,6 @@ def __get_cpu_from_ccxml(ccxml_path, ccs_path):
     return cpu
 
 
-def __handle_ccs(ccs):
-    """Takes either ccs version number or path to custom ccs installation and
-    verifies and returns the path to the ccs installation
-
-    Args:
-        ccs (str): version number of CCS to use or path to custom installation
-
-    Returns:
-        str: returns full path to ccs installation
-
-    Raises:
-        FindCCSError: raises error if cannot find ccs installation
-    """
-    ccs_path = None
-
-    if ccs is None: # Get latest ccs installation
-        ccs_path = find_ccs()
-
-    else:
-
-        # Convert any int to str to support backwards-compatibility
-        if type(ccs) is int:
-            ccs = str(ccs)
-
-        # check if string is version number or a file path
-        try:    #TODO: Hacky? Look into better solution
-            int(ccs.replace('.',''))    # Throws error if not a version number
-            ccs_path = find_ccs(version=ccs)
-
-        except ValueError:
-            if not os.path.exists(ccs):
-                raise FindCCSError(
-                    "Invalid path to ccs installation: %s" % ccs)
-            else:
-                ccs_path = find_ccs(ccs_prefix=ccs)
-
-    return ccs_path
-
-def __generate_ccxml(ccs_path, serno=None,
-                   devicetype=None, connection=None, debug=False):
-    """Helper function for generating ccxml files using the provided
-    information.
-
-    Args:
-        ccs_path (str): path to ccs installation
-        connection type (str, optional): connection type to use when
-            generating new ccxml file
-        devicetype (str, optional): devicetype to use when generating new
-            ccxml file
-        serno (str, optional): serial number to use when creating new
-            ccxml file
-        debug (bool): option to display all output when running
-    """
-    devicexml = None
-    flash = TIFlash(ccs_path)
-    flash.set_debug(on=debug)
-
-    if devicetype is None:
-        raise TIFlashError("Could not determine devicetype to use.")
-
-    if connection is None:
-        raise TIFlashError("Could not determine connection type to use.")
-
-
-    ccxml_path = flash.generate_ccxml(connection, devicetype, serno)
-    return ccxml_path
-
-def __handle_ccxml_args(ccs_path, ccxml=None, serno=None,
-                   devicetype=None, connection=None, **ignored):
-    """Takes ccxml arguments and returns a dictionary containing serno,
-    devicetype, connection, and ccxml_path.
-
-    Args:
-        ccs_path (str): path to ccs installation
-        ccxml (str, optional): name (full path) to ccxml file to use
-            (only arg needed if ccxml already exists).
-        connection type (str, optional): connection type to use when
-            generating new ccxml file
-        devicetype (str, optional): devicetype to use when generating new
-            ccxml file
-        serno (str, optional): serial number to use when creating new
-            ccxml file
-        ignored (dict): any further args are ignored (this allows to just pass
-                        **session_args directly to this function)
-    Returns:
-        dict: dictionary containing serno, devicetype, connection and
-        ccxml_path (or None for any key that cannot be determined).
-    """
-    ccxml_args = {
-        'serno': None,
-        'devicetype': None,
-        'connection': None,
-        'ccxml_path' : None,
-    }
-
-
-    # GET CCXML
-    if ccxml:
-        if os.path.exists(ccxml):
-            ccxml_args['ccxml_path'] = ccxml
-
-    elif serno:
-        serno_ccxml = get_ccxml_path(serno)
-        if serno_ccxml is not None and os.path.exists(serno_ccxml):
-            ccxml_args['ccxml_path'] = serno_ccxml
-
-    elif devicetype:
-        devicetype_ccxml = get_ccxml_path(devicetype)
-        if devicetype_ccxml is not None and os.path.exists(devicetype_ccxml):
-            ccxml_args['ccxml_path'] = devicetype_ccxml
-
-    # GET SERNO
-    if serno:
-        ccxml_args['serno'] = serno
-    elif ccxml_args['ccxml_path'] is not None:
-        try:
-            ccxml_args['serno'] = get_serno(ccxml_path)
-        except Exception:
-            pass    # Device may not use serial numbers
-
-    # GET DEVICETYPE
-    if devicetype:
-        ccxml_args['devicetype'] = devicetype
-    elif ccxml_args['ccxml_path'] is not None:
-        ccxml_args['devicetype']  = get_devicetype(ccxml_args['ccxml_path'])
-    elif serno:
-        ccxml_args['devicetype'] = devices.get_device_from_serno(serno, ccs_path)
-
-    # GET CONNECTION
-    if connection:
-        ccxml_args['connection'] = connection
-    elif ccxml_args['ccxml_path'] is not None:
-        ccxml_args['connection']  = get_connection(ccxml_args['ccxml_path'])
-    elif ccxml_args['devicetype'] is not None:
-        try:
-            device_xml = devices.get_device_xml_from_devicetype(ccxml_args['devicetype'], ccs_path)
-            connection_xml = devices.get_default_connection_xml(device_xml, ccs_path)
-            ccxml_args['connection'] = connections.get_connection_name(connection_xml)
-        except Exception:
-            pass    # Not all device xml will have default connection
-
-    return ccxml_args
-
-
-
-def __handle_ccxml(ccs_path, ccxml=None, serno=None, devicetype=None,
-                    connection=None, fresh=False, debug=False):
-    """Takes ccxml args and returns a corresponding ccxml file.
-
-    CCXML args can be an existing ccxml file path itself or the necessary
-    components to create a ccxml file. If a serial number or devicetype
-    is provided, a check will be done to see if the ccxml file already
-    exists. If a serno is provided but not the devicetype and/or
-    connection, AND the ccxml needs to be generated, then an attempt
-    will be made to get the devicetype and/or connection to use based
-    off of the serial number.
-
-    Args:
-        ccs_path (str): path to ccs installation
-        ccxml (str, optional): name (full path) to ccxml file to use
-            (only arg needed if ccxml already exists).
-        connection type (str, optional): connection type to use when
-            generating new ccxml file
-        devicetype (str, optional): devicetype to use when generating new
-            ccxml file
-        serno (str, optional): serial number to use when creating new
-            ccxml file
-        fresh (bool): option to force a new (fresh) ccxml file to be generated
-        debug (bool): option to display all output when running
-
-    Returns:
-        str: full path to ccxml file
-    """
-    ccxml_path = None
-    default_devicetype = None
-    default_connection = None
-    default_serno = None
-
-    ccxml_args = __handle_ccxml_args(ccs_path, ccxml=ccxml, serno=serno,
-                            devicetype=devicetype, connection=connection)
-    ccxml_path = ccxml_args['ccxml_path']
-
-    if ccxml and ccxml_path is None:
-        raise TIFlashError("Could not find ccxml: %s" % ccxml)
-
-    if ccxml_path is not None:
-        default_devicetype = get_devicetype(ccxml_path)
-        default_connection = get_connection(ccxml_path)
-        try:
-            default_serno = get_serno(ccxml_path)
-        except Exception:
-            pass    # Device may not use serial numbers
-
-        if devicetype is not None and ccxml_args['devicetype'] != default_devicetype:
-            fresh = True
-
-        if connection is not None and ccxml_args['connection'] != default_connection:
-            fresh = True
-
-        if serno is not None and ccxml_args['serno'] != default_serno:
-            fresh = True
-
-    if fresh or ccxml_path is None:
-        # Generate ccxml
-        ccxml_path = __generate_ccxml(ccs_path, serno=ccxml_args['serno'],
-                                     devicetype=ccxml_args['devicetype'],
-                                     connection=ccxml_args['connection'],
-                                     debug=debug)
-
-    return ccxml_path
-
-
-def __handle_session(ccs_path, chip=None, timeout=None, devicetype=None,
-                     ccxml=None, connection=None, serno=None, debug=False,
-                     fresh=False, attach=False):
-    """Takes session args and returns a TIFlash object with given session
-    settings
-
-    At the very least you'll need to provide a device serno (serial
-    number). TIFlash will attempt to determine the rest of the necessary
-    information. If any information cannot be determined an error will be
-    thrown. In this case you'll need to provide that specific argument.
-
-    Args:
-        ccs_path (str): path to ccs installation
-        chip (str, optional): chip/cpu name to use when starting a DS session
-        timeout (float, optional): timeout value to give command
-        ccxml (str): name (full path) to ccxml file to use (only arg needed if
-            ccxml already exists).
-        devicetype (str): devicetype to use when generating new ccxml file
-        connection type (str): connection type to use when generating new
-            ccxml file
-        serno (str, optional): serialnumber to use when creating new ccxml file
-        debug (bool): option to display all output when running
-        fresh (bool): option create new ccxml (ignoring if ccxml already exists
-            or not)
-        attach (bool): option to attach CCS session to device after completing
-            an action
-
-
-    Returns:
-        core.TIFlash: returns a TIFlash object with given session settings
-
-    Raises:
-        CCXMLError: raises Exception if provided parameters are invalid
-    """
-    ccxml_path = __handle_ccxml(ccs_path, ccxml=ccxml, devicetype=devicetype,
-                            connection=connection, serno=serno, fresh=fresh,
-                            debug=debug)
-
-    chip = chip or __get_cpu_from_ccxml(ccxml_path, ccs_path)
-
-    flash = TIFlash(ccs_path)
-    flash.set_debug(on=debug)
-    flash.set_session(ccxml_path, chip)
-    flash.set_timeout(timeout)
-    flash.set_attach(attach)
-    if attach:
-        workspace = os.path.basename(ccxml_path)
-        workspace = os.path.splitext(workspace)[0]
-
-        workspace_dir = get_workspace_dir()
-
-        workspace_path = workspace_dir + os.sep + workspace
-
-        flash.set_workspace(workspace_path)
-
-    return flash
-
-
 def get_connections(ccs=None, search=None):
     """Gets list of all connections installed on machine (ccs installation)
 
@@ -321,13 +60,14 @@ def get_connections(ccs=None, search=None):
     Raises:
         FindCCSError: raises exception if cannot find ccs installation
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     connection_list = connections.get_connections(ccs_path)
 
     if search:
-        connection_list = [ connection for connection in connection_list \
-                            if search in connection ]
+        connection_list = [
+            connection for connection in connection_list if search in connection
+        ]
 
     return connection_list
 
@@ -345,12 +85,12 @@ def get_devicetypes(ccs=None, search=None):
     Raises:
         FindCCSError: raises exception if cannot find ccs installation
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     device_list = devices.get_devicetypes(ccs_path)
 
     if search:
-        device_list = [ dev for dev in device_list if search in dev ]
+        device_list = [dev for dev in device_list if search in dev]
 
     return device_list
 
@@ -368,12 +108,12 @@ def get_cpus(ccs=None, search=None):
     Raises:
         FindCCSError: raises exception if cannot find ccs installation
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     cpu_list = cpus.get_cpus(ccs_path)
 
     if search:
-        cpu_list = [ cpu for cpu in cpu_list if search in cpu ]
+        cpu_list = [cpu for cpu in cpu_list if search in cpu]
 
     return cpu_list
 
@@ -388,22 +128,31 @@ def list_options(option_id=None, ccs=None, **session_args):
     Returns:
         list(dict): list of option dictionaries
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
+    serno = session_args.get("serno", None)
+    devicetype = session_args.get("devicetype", None)
+    connection = session_args.get("connection", None)
+    ccxml = session_args.get("ccxml", None)
+
+    session = resolve_session_args(
+        ccs_path, ccxml=ccxml, connection=connection, devicetype=devicetype, serno=serno
+    )
 
     # Check we received a valid devicetype
-    if ccxml_args['devicetype'] is None:
+    if session["devicetype"] is None:
         raise TIFlashError("Could not determine devicetype.")
 
     # Get devicetype for retrieving properties xml
-    devicetype = ccxml_args['devicetype']
+    devicetype = session["devicetype"]
 
     dev_prop_xml = flash_properties.get_device_properties_xml(devicetype, ccs_path)
     gen_prop_xml = flash_properties.get_generic_properties_xml(ccs_path)
 
     property_elements = flash_properties.get_property_elements(dev_prop_xml)
-    property_elements.extend(flash_properties.get_property_elements(gen_prop_xml, target="generic"))
+    property_elements.extend(
+        flash_properties.get_property_elements(gen_prop_xml, target="generic")
+    )
 
     # Convert elements to dictionaries
     options = dict()
@@ -421,77 +170,7 @@ def list_options(option_id=None, ccs=None, **session_args):
     return options
 
 
-def print_options(option_id=None, ccs=None, **session_args):
-    """"Prints all available options for the session device.
-
-    Args:
-        option_id (str, optional): regex string used to filter options printed
-        ccs (str): version number of CCS to use or path to custom installation
-
-    """
-    ccs_path = __handle_ccs(ccs)
-
-    flash = __handle_session(ccs_path, **session_args)
-
-    flash.print_options(option_id=option_id)
-
-
-def get_bool_option(option_id, pre_operation=None, ccs=None,
-                    **session_args):
-    """Reads and returns the boolean value of the option_id.
-
-    Args:
-        option_id (str): Option ID to request the value of. These ids are
-            device specific and can viewed using TIFlash.print_options().
-        pre_operation (str): Operation to run prior to reading option_id.
-        ccs (str): version number of CCS to use or path to custom installation
-        session_args (**dict): keyword arguments containing settings for
-            the device connection
-
-    Returns:
-        bool: Boolean value of option_id
-
-    Raises:
-        TIFlashError: raises error if option does not exist
-    """
-
-    option_val = get_option(option_id, pre_operation=pre_operation,
-                            ccs=ccs, **session_args)
-
-    bool_val = dss.parse_response_bool(option_val)
-
-    return bool_val
-
-
-def get_float_option(option_id, pre_operation=None, ccs=None,
-                     **session_args):
-    """Reads and returns the float value of the option_id.
-
-    Args:
-        option_id (str): Option ID to request the value of. These ids are
-            device specific and can viewed using TIFlash.print_options().
-        pre_operation (str): Operation to run prior to reading option_id.
-        ccs (str): version number of CCS to use or path to custom installation
-        session_args (**dict): keyword arguments containing settings for
-            the device connection
-
-    Returns:
-        float: Boolean value of option_id
-
-    Raises:
-        TIFlashError: raises error if option does not exist
-    """
-
-    option_val = get_option(option_id, pre_operation=pre_operation,
-                            ccs=ccs, **session_args)
-
-    float_val = dss.parse_response_float(option_val)
-
-    return float_val
-
-
-def get_option(option_id, pre_operation=None, ccs=None,
-               **session_args):
+def get_option(option_id, pre_operation=None, ccs=None, **session_args):
     """Reads and returns the value of the option_id.
 
     Args:
@@ -508,17 +187,25 @@ def get_option(option_id, pre_operation=None, ccs=None,
     Raises:
         TIFlashError: raises error if option does not exist
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    option_val = flash.get_option(option_id, pre_operation)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    if pre_operation is not None:
+        dev.core.perform_operation(pre_operation)
+    option_val = dev.core.get_option(option_id)
 
     return option_val
 
 
-def set_option(option_id, option_val, post_operation=None, ccs=None,
-               **session_args):
+def set_option(option_id, option_val, post_operation=None, ccs=None, **session_args):
     """Sets the value of the option_id.
 
     Args:
@@ -533,41 +220,56 @@ def set_option(option_id, option_val, post_operation=None, ccs=None,
     Raises:
         TIFlashError: raises error if option does not exist
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
+
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    dev.core.set_option(option_id, option_val)
 
     if post_operation is not None:
-        flash.set_operation(post_operation)
-
-    flash.set_option(option_id, option_val)
-
-    flash.nop() # Just set option and operation and run
+        dev.core.perform_operation(post_operation)
 
 
-
-def reset(options=None, ccs=None, **session_args):
+def reset(ccs=None, options=None, **session_args):
     """Performs a Board Reset on device
 
       Args:
+          ccs (str): version number of CCS to use or path to custom installation
           options (dict): dictionary of options in the format
               {option_id: option_val}; These options are set first before
               calling reset function.
-          ccs (str): version number of CCS to use or path to custom installation
           session_args (**dict): keyword arguments containing settings for
               the device connection
 
       Returns:
           bool: True if reset was successful; False otherwise
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.reset(options)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+    if options is not None:
+        for optionID in options.keys():
+            dev.core.set_option(optionID, options[optionID])
+    dev.core.reset()
+
+    return True
 
 
-def erase(options=None, ccs=None, **session_args):
+def erase(ccs=None, options=None, **session_args):
     """Erases device; setting 'options' before erasing device
 
       Args:
@@ -584,15 +286,25 @@ def erase(options=None, ccs=None, **session_args):
       Raises:
           TIFlashError: raises error if option invalid
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.erase(options)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+    if options is not None:
+        for optionID in options.keys():
+            dev.core.set_option(optionID, options[optionID])
+    dev.core.erase()
+
+    return True
 
 
-def verify(image, binary=False, address=None, options=None, ccs=None,
-           **session_args):
+def verify(image, binary=False, address=None, options=None, ccs=None, **session_args):
     """Verifies device; setting 'options' before erasing device
 
     Args:
@@ -612,15 +324,25 @@ def verify(image, binary=False, address=None, options=None, ccs=None,
     Raises:
         TIFlashError: raises error if option invalid
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.verify(image, binary=binary, address=address, options=options)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+    if options is not None:
+        for optionID in options.keys():
+            dev.core.set_option(optionID, options[optionID])
+    dev.core.verify(image, binary=binary, address=address)
+
+    return True
 
 
-def flash(image, binary=False, address=None, options=None, ccs=None,
-          **session_args):
+def flash(image, binary=False, address=None, options=None, ccs=None, **session_args):
     """Flashes device; setting 'options' before flashing device
 
     Args:
@@ -640,11 +362,22 @@ def flash(image, binary=False, address=None, options=None, ccs=None,
     Raises:
         TIFlashError: raises error if option invalid
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.flash(image, binary=binary, address=address, options=options)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+    if options is not None:
+        for optionID in options.keys():
+            dev.core.set_option(optionID, options[optionID])
+    dev.core.load(image, binary=binary, address=address)
+
+    return True
 
 
 def memory_read(address, num_bytes=1, page=0, ccs=None, **session_args):
@@ -661,11 +394,18 @@ def memory_read(address, num_bytes=1, page=0, ccs=None, **session_args):
     Returns:
         list: Returns list of bytes read from memory
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.memory_read(address, num_bytes, page)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    return dev.core.read_data(address, num_bytes=num_bytes, page=page)
 
 
 def memory_write(address, data, page=0, ccs=None, **session_args):
@@ -682,11 +422,18 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     Raises:
         TIFlashError: raises error when memory read error received
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    flash.memory_write(address, data, page=0)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    dev.core.write_data(data, address, page=0)
 
 
 def register_read(regname, ccs=None, **session_args):
@@ -704,11 +451,18 @@ def register_read(regname, ccs=None, **session_args):
     Raises:
         TIFlashError: raised if regname is invalid
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.register_read(regname)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    return dev.core.read_register(regname)
 
 
 def register_write(regname, value, ccs=None, **session_args):
@@ -724,11 +478,18 @@ def register_write(regname, value, ccs=None, **session_args):
     Raises:
         TIFlashError: raised if regname is invalid
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.register_write(regname, value)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    return dev.core.write_register(regname, value)
 
 
 def evaluate(expr, symbol_file=None, ccs=None, **session_args):
@@ -747,11 +508,18 @@ def evaluate(expr, symbol_file=None, ccs=None, **session_args):
     Raises:
         TIFlashError: raises error when expression error is raised
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    flash = __handle_session(ccs_path, **session_args)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    return flash.evaluate(expr, symbol_file=symbol_file)
+    dev.core = dev.get_core(core)
+    dev.core.connect()
+
+    return dev.core.evaluate(expr, file=symbol_file)
 
 
 def attach(ccs=None, **session_args):
@@ -764,34 +532,20 @@ def attach(ccs=None, **session_args):
 
     Raises:
         TIFlashError: raises error when expression error is raised
+    Warning:
+        Implicitly sets 'keep_alive' to True; this means the DebugServer will
+        not shutdown after the command is run and need to be manually shutdown.
     """
-    # Set attach for session args
-    session_args['attach'] = True
+    ccs_path = resolve_ccs_path(ccs)
 
-    ccs_path = __handle_ccs(ccs)
+    dev = TIFlashSession(ccs_path=ccs_path, **session_args)
+    if "chip" not in session_args.keys():
+        core = __get_cpu_from_ccxml(dev.get_config(), ccs_path)
+    else:
+        core = session_args["chip"]
 
-    flash = __handle_session(ccs_path, **session_args)
-
-    flash.nop()
-
-
-def nop(ccs=None, **session_args):
-    """No-op command. This essentially just calls the dss with the provided
-    session args.
-
-    Args:
-        ccs (str): version number of CCS to use or path to custom installation
-        session_args (**dict): keyword arguments containing settings for
-            the device connection
-
-    Raises:
-        TIFlashError: raises error when expression error is raised
-    """
-    ccs_path = __handle_ccs(ccs)
-
-    flash = __handle_session(ccs_path, **session_args)
-
-    flash.nop()
+    dev.core = dev.get_core(core)
+    dev.attach_ccs(keep_alive=True)
 
 
 def xds110_reset(ccs=None, **session_args):
@@ -809,15 +563,13 @@ def xds110_reset(ccs=None, **session_args):
         TIFlashError: raises if serno not set
         XDS110Error: raises if xds110_reset fails
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
-    ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
-
-    if ccxml_args['serno'] is None :
+    if "serno" not in session_args.keys():
         raise TIFlashError("Must provide 'serno' to call xds110_reset")
+    xds110.xds110_reset(ccs_path, serno=session_args["serno"])
 
-    return xds110.xds110_reset(ccs_path, serno=ccxml_args['serno'])
-
+    return True
 
 
 def xds110_list(ccs=None, **session_args):
@@ -834,7 +586,7 @@ def xds110_list(ccs=None, **session_args):
     Raises:
         XDS110Error: raises if xdsdfu does not exist or fails
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     return xds110.xds110_list(ccs_path)
 
@@ -858,14 +610,17 @@ def xds110_upgrade(ccs=None, **session_args):
         XDS110Error: raises if xds110 firmware update fails
     """
 
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     ccxml_args = __handle_ccxml_args(ccs_path, **session_args)
 
-    if ccxml_args['serno'] is None :
+    if "serno" not in session_args.keys():
         raise TIFlashError("Must provide 'serno' to call xds110_upgrade")
 
-    return xds110.xds110_upgrade(ccs_path, serno=ccxml_args['serno'])
+    xds110.xds110_upgrade(ccs_path, serno=session_args["serno"])
+
+    return True
+
 
 def detect_devices(ccs=None, **session_args):
     """Detect devices connected to machine.
@@ -873,7 +628,7 @@ def detect_devices(ccs=None, **session_args):
     Returns:
         list: list of dictionaries describing connected devices
     """
-    ccs_path = __handle_ccs(ccs)
+    ccs_path = resolve_ccs_path(ccs)
 
     device_list = list()
     detected_devices = detect.detect_devices()
@@ -881,25 +636,24 @@ def detect_devices(ccs=None, **session_args):
     for vid, pid, serno in detected_devices:
         try:
             connection_xml = connections.get_connection_xml_from_vidpid(
-                vid, pid, ccs_path)
+                vid, pid, ccs_path
+            )
             connection = connections.get_connection_name(connection_xml)
         except connections.ConnectionsError:
-            continue # only include TI Devices
+            continue  # only include TI Devices
 
         try:
-            devicetype_xml = devices.get_device_xml_from_serno(
-                                                    serno, ccs_path)
+            devicetype_xml = devices.get_device_xml_from_serno(serno, ccs_path)
             devicetype = devices.get_devicetype(devicetype_xml)
         except devices.DeviceError:
             devicetype = None
 
-        dev = { 'connection': connection,
-                'devicetype': devicetype,
-                'serno':serno }
+        dev = {"connection": connection, "devicetype": devicetype, "serno": serno}
 
         device_list.append(dev)
 
     return device_list
+
 
 def get_info(ccs=None, **session_args):
     """Returns dict of information regarding tiflash environment
@@ -911,18 +665,18 @@ def get_info(ccs=None, **session_args):
         dict: dictionary of information regarding tiflash environment
     """
     info_dict = dict()
-    try:
-        ccs_path = __handle_ccs(ccs)
-    except:
-        ccs_path = None
+    ccs_path = resolve_ccs_path(ccs)
 
-    info_dict['tiflash version'] = __version__
-    info_dict['release date'] = release_date
-    info_dict['python version'] = python_version()
-    info_dict['ccs version'] = get_ccs_version(ccs_path) if ccs_path is not None else "N/A"
-    info_dict['ccs location'] = ccs_path if ccs_path is not None else "N/A"
-    info_dict['ccs prefix'] = get_ccs_prefix()
-    info_dict['device drivers'] = ','.join(get_ccs_pf_filters(ccs_path)) if ccs_path is not None else "N/A"
+    info_dict["tiflash version"] = __version__
+    info_dict["release date"] = release_date
+    info_dict["python version"] = python_version()
+    info_dict["ccs version"] = (
+        get_ccs_version(ccs_path) if ccs_path is not None else "N/A"
+    )
+    info_dict["ccs location"] = ccs_path if ccs_path is not None else "N/A"
+    info_dict["ccs prefix"] = get_ccs_prefix()
+    info_dict["device drivers"] = (
+        ",".join(get_ccs_pf_filters(ccs_path)) if ccs_path is not None else "N/A"
+    )
 
     return info_dict
-

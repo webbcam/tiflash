@@ -6,7 +6,9 @@ class TestMemoryApi():
 
     def test_basic_memory_read_single_byte(self, tdev):
         """Tests simple memory read"""
-        result = tiflash.memory_read(tdev['read-address'], 1,
+        result = tiflash.memory_read(tdev['read-address'],
+                            page=0,
+                            num_bytes=1,
                             serno=tdev['serno'],
                             connection=tdev['connection'],
                             devicetype=tdev['devicetype'])
@@ -34,7 +36,8 @@ class TestMemoryApi():
         addr = int(tdev['read-address'], 0)
         answer = tdev['value'].split(',')
         answer = [ int(d, 0) for d in answer ]
-        result = tiflash.memory_read(addr, len(answer),
+        result = tiflash.memory_read(addr,
+                            num_bytes=len(answer),
                             serno=tdev['serno'],
                             connection=tdev['connection'],
                             devicetype=tdev['devicetype'])

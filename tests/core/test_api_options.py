@@ -58,6 +58,7 @@ class TestOptionsApi():
 
 
     # List
+    @pytest.mark.skip("List Options not implemented yet.")
     def test_list_options(self, tdev):
         """Tests all options returned in list are valid"""
         options = tiflash.list_options(
@@ -67,6 +68,7 @@ class TestOptionsApi():
 
         assert len(options) > 1
 
+    @pytest.mark.skip("List Options not implemented yet.")
     def test_list_single_option(self, tdev):
         """Tests listing of one specified option"""
         options = tiflash.list_options(
@@ -78,6 +80,7 @@ class TestOptionsApi():
         assert len(options) == 1
         assert tdev['option'] in options.keys()
 
+    @pytest.mark.skip("List Options not implemented yet.")
     def test_list_single_nonexistant_option(self, tdev):
         """Tests listing of specified option that does not exist"""
         options = tiflash.list_options(
