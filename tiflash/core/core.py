@@ -1,4 +1,5 @@
 import os
+import shutil
 from dsclient import DebugServer, DebugSession
 from tiflash.core.helpers import (
     resolve_ccs_path,
@@ -11,7 +12,7 @@ from tiflash.core.helpers import (
     compare_session_args,
 )
 from tiflash.utils.dss import launch_server, resolve_ccs_exe
-from tiflash.utils.ccs import find_ccs, get_workspace_dir, __get_ccs_exe_path
+from tiflash.utils.ccs import find_ccs, get_unique_workspace, __get_ccs_exe_path
 from tiflash.utils.ccxml import get_ccxml_directory, add_serno
 
 
@@ -57,25 +58,25 @@ class TIFlashSession(object):
               installation to use
 
         """
-        self.keep_alive = keep_alive
-        self.workspace = get_workspace_dir()  # TODO: append uuid
-        self.ccxml_path = None
+        self._keep_alive = keep_alive
+        self._workspace = get_unique_workspace()
+        self._ccxml_path = None
 
         # Set CCS path
-        self.ccs_path = None
-        self.__configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
+        self._ccs_path = None
+        self.configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
 
-        ccs_exe = resolve_ccs_exe(self.ccs_path)
+        ccs_exe = resolve_ccs_exe(self._ccs_path)
 
         # Launch DebugServer
-        self._server_pid, self._server_port = launch_server(ccs_exe, self.workspace)
+        self._server_pid, self._server_port = launch_server(ccs_exe, self._workspace)
 
         # Connect DSClient
         self._dsclient = DebugServer(port=self._server_port)
 
         # Set Session args
         if any([serno, devicetype, connection, ccxml]):
-            self.__configure_session(
+            self.configure_session(
                 serno=serno,
                 devicetype=devicetype,
                 connection=connection,
@@ -83,7 +84,7 @@ class TIFlashSession(object):
                 fresh=fresh,
             )
 
-    def __configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
+    def configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
         """Finds and sets the path to CCS installation to use
 
         Args:
@@ -94,8 +95,8 @@ class TIFlashSession(object):
         Warning:
             Can only be run once (before launch of DebugServer).
         """
-        if self.ccs_path is not None:
-            raise Exception("CCS path already set to: %s" % self.ccs_path)
+        if self._ccs_path is not None:
+            raise Exception("CCS path already set to: %s" % self._ccs_path)
 
         # Resolve which ccs installation to use
         if ccs is not None:
@@ -103,11 +104,11 @@ class TIFlashSession(object):
                 "'ccs' arg is deprecated and will be removed in a later version of tiflash; use 'ccs_path' and 'ccs_version' parameters instead.",
                 stacklevel=4,
             )
-            self.ccs_path = resolve_ccs_path(ccs)
+            self._ccs_path = resolve_ccs_path(ccs)
         else:
-            self.ccs_path = find_ccs(version=ccs_version, ccs_prefix=ccs_path)
+            self._ccs_path = find_ccs(version=ccs_version, ccs_prefix=ccs_path)
 
-    def __configure_session(
+    def configure_session(
         self, serno=None, devicetype=None, connection=None, ccxml=None, fresh=False
     ):
         """
@@ -120,48 +121,54 @@ class TIFlashSession(object):
             fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
         """
 
+        # check if session args already set (ccxml already set)
+        if self._ccxml_path is not None:
+            raise TIFlashError(
+                "session already configured; session can only be configured once per TIFlashSession object"
+            )
+
         session_args = resolve_session_args(
-            self.ccs_path,
+            self._ccs_path,
             ccxml=ccxml,
             serno=serno,
             devicetype=devicetype,
             connection=connection,
         )
-        self.ccxml_path = session_args["ccxml"]
-        self.serno = session_args["serno"]
-        self.devicetype = session_args["devicetype"]
-        self.connection = session_args["connection"]
+        self._ccxml_path = session_args["ccxml"]
+        self._serno = session_args["serno"]
+        self._devicetype = session_args["devicetype"]
+        self._connection = session_args["connection"]
 
         # Compare resolved session args with what's already in ccxml
-        if self.ccxml_path is not None:
+        if self._ccxml_path is not None:
             # Determine if ccxml needs to be regenerated
             fresh = fresh or not compare_session_args(
-                self.ccxml_path,
-                serno=self.serno,
-                devicetype=self.devicetype,
-                connection=self.connection,
+                self._ccxml_path,
+                serno=self._serno,
+                devicetype=self._devicetype,
+                connection=self._connection,
             )
         else:
             fresh = True
 
         # Create ccxml if needed
         if fresh:
-            if self.ccxml_path is not None:
-                directory, name = os.path.split(self.ccxml_path)
+            if self._ccxml_path is not None:
+                directory, name = os.path.split(self._ccxml_path)
             else:
                 name = directory = None
 
-            self.ccxml_path = self.create_config(
+            self._ccxml_path = self.create_config(
                 name=name,
                 directory=directory,
-                serno=self.serno,
-                devicetype=self.devicetype,
-                connection=self.connection,
+                serno=self._serno,
+                devicetype=self._devicetype,
+                connection=self._connection,
             )
 
         # Set ccxml file
         try:
-            self._dsclient.set_config(self.ccxml_path)
+            self._dsclient.set_config(self._ccxml_path)
         except Exception as e:
             raise TIFlashError(e)
 
@@ -205,18 +212,17 @@ class TIFlashSession(object):
             )
 
         if serno is not None:
-            add_serno(ccxml_path, serno, self.ccs_path)
+            add_serno(ccxml_path, serno, self._ccs_path)
 
         return ccxml_path
 
     def attach_ccs(self, keep_alive=False):
         """Opens a CCS GUI for the device in use
         Args:
-            keep_alive (bool): keep the DebugServer process running in
-                background after object is destroyed
+            keep_alive (bool): keep the DebugServer process running in background after object is destroyed
         """
         try:
-            self.keep_alive = keep_alive
+            self._keep_alive = keep_alive
             self._dsclient.attach_ccs()
         except Exception as e:
             raise TIFlashError(e)
@@ -228,7 +234,7 @@ class TIFlashSession(object):
             str: full path to .ccxml file in use for TIFlashSession
                 (returns None if ccxml has not be set yet)
         """
-        return self.ccxml_path
+        return self._ccxml_path
 
     def get_list_of_connections(self):
         """Returns a list of available connections
@@ -284,7 +290,7 @@ class TIFlashSession(object):
         return Core(session)
 
     def __del__(self):
-        if self.keep_alive is False:
+        if self._keep_alive is False:
             # Close down server
             self._dsclient.kill()
 
@@ -294,6 +300,10 @@ class TIFlashSession(object):
                 self._server_pid.wait(timeout=3)
             except Exception:  # TimeoutExpired
                 self._server_pid.terminate()
+
+            # Remove workspace dir
+            if os.path.exists(self._workspace):
+                shutil.rmtree(self._workspace)
 
 
 class Core(object):
@@ -396,7 +406,7 @@ class Core(object):
         except Exception as e:
             raise TIFlashError(e)
 
-    def read_data(self, address, page=0, num_bytes=1):
+    def read_memory(self, address, page=0, num_bytes=1):
         """Read memory from device
 
         Args:
@@ -416,7 +426,7 @@ class Core(object):
         except Exception as e:
             raise TIFlashError(e)
 
-    def write_data(self, data, address, page=0):
+    def write_memory(self, data, address, page=0):
         """Write to memory on device
 
         Args:
