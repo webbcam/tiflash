@@ -10,6 +10,7 @@ DEVICES = "/devices"
 
 class XMLHelperError(Exception):
     """Generic XML Helper Error"""
+
     pass
 
 
@@ -43,8 +44,10 @@ def get_attrib_value(attribs, options, clean=True):
             value = attribs[opt]
             break
     else:
-        raise XMLHelperError("Could not find any of the provided attribute "
-                            "options in the attributes dict.")
+        raise XMLHelperError(
+            "Could not find any of the provided attribute "
+            "options in the attributes dict."
+        )
 
     if clean:
         value = clean_attrib(value)
@@ -65,7 +68,7 @@ def clean_attrib(value):
     """
     clean_value = value
     if value.endswith("_0"):
-        clean_value = clean_value.strip('_0')
+        clean_value = clean_value.strip("_0")
 
     return clean_value
 
@@ -104,6 +107,7 @@ def get_xml_root(xml_path):
 
     return root
 
+
 def get_sibling(target_node, parent_node, index):
     """Returns the sibling node at the index relative to the target_node.
 
@@ -130,7 +134,6 @@ def get_sibling(target_node, parent_node, index):
     return children[abs_index]
 
 
-
 def extract_ccs_path(file_path):
     """Extracts and returns the ccs path from file path.
 
@@ -140,9 +143,9 @@ def extract_ccs_path(file_path):
     Returns:
         str: ccs path (contained in 'file_path')
     """
-    file_path = file_path.replace('\\', '/')
-    index = file_path.index('ccsv')
-    end = file_path.index('/', index)
+    file_path = file_path.replace("\\", "/")
+    index = file_path.index("ccsv")
+    end = file_path.index("/", index)
 
     ccs_path = file_path[:end]
 
@@ -161,26 +164,26 @@ def get_targetDB(ccs_path):
     if not os.path.exists(ccs_path):
         raise XMLHelperError("Could not find ccs installation: %s" % ccs_path)
 
-    return os.path.normpath(ccs_path + '/' + TARGETDB_DIR)
+    return os.path.normpath(ccs_path + "/" + TARGETDB_DIR)
 
 
 def get_connections_db(ccs_path):
     """Returns path to connections folder"""
-    conns_path = get_targetDB(ccs_path) + '/' + CONNECTIONS
+    conns_path = get_targetDB(ccs_path) + "/" + CONNECTIONS
 
     return os.path.normpath(conns_path)
 
 
 def get_cpus_db(ccs_path):
     """Returns path to cpus folder"""
-    cpus_path = get_targetDB(ccs_path) + '/' + CPUS
+    cpus_path = get_targetDB(ccs_path) + "/" + CPUS
 
     return os.path.normpath(cpus_path)
 
 
 def get_devices_db(ccs_path):
     """Returns path to devices folder"""
-    devices_path = get_targetDB(ccs_path) + '/' + DEVICES
+    devices_path = get_targetDB(ccs_path) + "/" + DEVICES
 
     return os.path.normpath(devices_path)
 
@@ -197,7 +200,7 @@ def get_propertyDB(ccs_path):
     if not os.path.exists(ccs_path):
         raise XMLHelperError("Could not find ccs installation: %s" % ccs_path)
 
-    return os.path.normpath(ccs_path + '/' + PROPERTYDB_DIR)
+    return os.path.normpath(ccs_path + "/" + PROPERTYDB_DIR)
 
 
 def get_attribute_value(element, attribute):
@@ -232,13 +235,13 @@ def get_elements_by(xmldoc, *args, **kwargs):
         list: returns list of xml.Elements that have given tag, attribute(s)
         and/or attribute key-val(s)
     """
-    if 'tag' in kwargs.keys():
-        tag = kwargs.pop('tag')
+    if "tag" in kwargs.keys():
+        tag = kwargs.pop("tag")
     else:
         tag = None
 
     if tag is None:  # Get all elements
-        tag = '*'
+        tag = "*"
     elements = xmldoc.getElementsByTagName(tag)
 
     if len(args):
@@ -247,8 +250,11 @@ def get_elements_by(xmldoc, *args, **kwargs):
 
     if len(kwargs):
         for k in kwargs.keys():
-            elements = [e for e in elements if e.hasAttribute(k) and
-                        e.attributes[k].value == kwargs[k]]
+            elements = [
+                e
+                for e in elements
+                if e.hasAttribute(k) and e.attributes[k].value == kwargs[k]
+            ]
 
     return elements
 
@@ -269,8 +275,8 @@ def get_unique_element_by(xmldoc, *args, **kwargs):
         list: returns xml.Element that has given tag, attribute(s)
         and/or attribute key-val(s)
     """
-    if 'tag' in kwargs.keys():
-        tag = kwargs.pop('tag')
+    if "tag" in kwargs.keys():
+        tag = kwargs.pop("tag")
     else:
         tag = None
 
@@ -292,11 +298,11 @@ def get_text_from_element(element):
     text_elements = []
     if element.hasChildNodes():
         children = element.childNodes
-        text_elements = [te for te in children if te.nodeName == '#text']
+        text_elements = [te for te in children if te.nodeName == "#text"]
 
     if len(text_elements) == 0:
-        #raise XMLHelperError("Could not find text from given element")
-        text = ''
+        # raise XMLHelperError("Could not find text from given element")
+        text = ""
     else:
         text = text_elements[0].nodeValue
 

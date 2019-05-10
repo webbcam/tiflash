@@ -3,19 +3,18 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestRegisterCli():
 
+class TestRegisterCli:
     def test_basic_register_read(self, tdev):
         """Tests simple register read"""
         REGNAME = "PC"
 
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["register-read", "\"%s\"" % REGNAME])
+        cmd.extend(["register-read", '"%s"' % REGNAME])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
     def test_basic_register_write(self, tdev):
         """Tests simple register write"""
@@ -24,11 +23,10 @@ class TestRegisterCli():
 
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["register-write", "\"%s\"" % REGNAME, VALUE])
+        cmd.extend(["register-write", '"%s"' % REGNAME, VALUE])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
     def test_invalid_register_read(self, tdev):
         """Tests an Error is raised when trying to access invalid register for
@@ -38,12 +36,10 @@ class TestRegisterCli():
         with pytest.raises(subprocess.CalledProcessError):
             cmd = get_cmd_with_device_params(tdev)
 
-            cmd.extend(["register-read", "\"%s\"" % INVALID_REGNAME])
+            cmd.extend(["register-read", '"%s"' % INVALID_REGNAME])
             cmd_str = " ".join(cmd)
 
             subprocess.check_call(cmd_str, shell=True)
-
-
 
     @pytest.mark.xfail
     def test_invalid_register_write(self, tdev):
@@ -55,7 +51,7 @@ class TestRegisterCli():
         with pytest.raises(subprocess.CalledProcessError):
             cmd = get_cmd_with_device_params(tdev)
 
-            cmd.extend(["register-write", "\"%s\"" % INVALID_REGNAME, VALUE])
+            cmd.extend(["register-write", '"%s"' % INVALID_REGNAME, VALUE])
             cmd_str = " ".join(cmd)
 
             subprocess.check_call(cmd_str, shell=True)

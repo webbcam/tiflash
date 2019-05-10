@@ -3,14 +3,14 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestVerifyCli():
 
+class TestVerifyCli:
     def test_basic_verify(self, tdev):
         """Tests simple flash on each device in devices.cfg"""
         cmd = get_cmd_with_device_params(tdev)
 
         # First Flash image
-        cmd.extend(["flash", "\"%s\"" % tdev["hex-image"]])
+        cmd.extend(["flash", '"%s"' % tdev["hex-image"]])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -18,11 +18,10 @@ class TestVerifyCli():
         # Then Verify image
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["verify", "\"%s\"" % tdev["hex-image"]])
+        cmd.extend(["verify", '"%s"' % tdev["hex-image"]])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
     @pytest.mark.xfail
     def test_binary_verify(self, tdev):
@@ -38,7 +37,7 @@ class TestVerifyCli():
         # Basic Binary Flash
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["flash", "\"%s\"" % tdev['binary-image'], "--bin"])
+        cmd.extend(["flash", '"%s"' % tdev["binary-image"], "--bin"])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -46,26 +45,24 @@ class TestVerifyCli():
         # Basic Binary Verify
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["verify", "\"%s\"" % tdev['binary-image'], "--bin"])
+        cmd.extend(["verify", '"%s"' % tdev["binary-image"], "--bin"])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
         # Verifying binary without specifying binary=True
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["verify", "\"%s\"" % tdev['binary-image']])
+        cmd.extend(["verify", '"%s"' % tdev["binary-image"]])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
         # Verify hex image with specifying binary image = True
         with pytest.raises(subprocess.CalledProcessError):
             cmd = get_cmd_with_device_params(tdev)
 
-            cmd.extend(["verify", "\"%s\"" % tdev['hex-image'], "--bin"])
+            cmd.extend(["verify", '"%s"' % tdev["hex-image"], "--bin"])
             cmd_str = " ".join(cmd)
 
             subprocess.check_call(cmd_str, shell=True)

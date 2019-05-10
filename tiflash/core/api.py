@@ -405,7 +405,7 @@ def memory_read(address, num_bytes=1, page=0, ccs=None, **session_args):
     dev.core = dev.get_core(core)
     dev.core.connect()
 
-    return dev.core.read_data(address, num_bytes=num_bytes, page=page)
+    return dev.core.read_memory(address, num_bytes=num_bytes, page=page)
 
 
 def memory_write(address, data, page=0, ccs=None, **session_args):
@@ -433,7 +433,7 @@ def memory_write(address, data, page=0, ccs=None, **session_args):
     dev.core = dev.get_core(core)
     dev.core.connect()
 
-    dev.core.write_data(data, address, page=0)
+    dev.core.write_memory(data, address, page=0)
 
 
 def register_read(regname, ccs=None, **session_args):

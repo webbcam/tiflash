@@ -4,7 +4,7 @@
 import tiflash
 
 
-class TestHandleCCXML():
+class TestHandleCCXML:
 
     # Providing Serno
     def test_serno_ccxml_no_exist(self, tdev):

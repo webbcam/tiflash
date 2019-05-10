@@ -2,12 +2,14 @@
 
 import os
 import platform
+
 system = platform.system()
 
 
 if system == "Windows":
     import re
-    if platform.python_version().startswith('2'):
+
+    if platform.python_version().startswith("2"):
         import _winreg as winreg
     else:
         import winreg
@@ -17,6 +19,7 @@ else:
 
 class DetectError(Exception):
     """Device Detection Error"""
+
     pass
 
 
@@ -77,8 +80,10 @@ def get_serno_from_vidpid(vid, pid):
             serno = dev[2]
             break
     else:
-        raise Exception("Was not able to find a connection with given vid (%s) and pid (%s)" % (vid, pid))
-
+        raise Exception(
+            "Was not able to find a connection with given vid (%s) and pid (%s)"
+            % (vid, pid)
+        )
 
     return serno
 
@@ -91,11 +96,14 @@ def _win_detect_devices():
             connected.
     """
     device_list = list()
-    ti_vidpid_pattern = "USB\\\\VID_([0-9a-fA-F]{4})&PID_([0-9a-fA-F]{4})\\\\([0-9A-Za-z]*)"
+    ti_vidpid_pattern = (
+        "USB\\\\VID_([0-9a-fA-F]{4})&PID_([0-9a-fA-F]{4})\\\\([0-9A-Za-z]*)"
+    )
     ti_vidpid_re = re.compile(ti_vidpid_pattern)
 
-    usbccgp_key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,
-        r"SYSTEM\CurrentControlSet\Services\usbccgp\Enum")
+    usbccgp_key = winreg.OpenKey(
+        winreg.HKEY_LOCAL_MACHINE, r"SYSTEM\CurrentControlSet\Services\usbccgp\Enum"
+    )
 
     num_devices = winreg.QueryInfoKey(usbccgp_key)[1]
     for i in range(num_devices):
@@ -106,7 +114,6 @@ def _win_detect_devices():
             device_list.append(dev)
 
     return device_list
-
 
 
 def _unix_detect_devices():

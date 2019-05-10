@@ -18,6 +18,7 @@ CPUS_DIR = "/ccs_base/common/targetdb/cpus"
 
 class CPUError(Exception):
     """Generic CPU Error"""
+
     pass
 
 
@@ -62,7 +63,7 @@ def get_cpus(ccs_path):
 
     cpu_list = list()
     for cxml in cpu_xmls:
-        try:    # Some xmls are not valid cpu xml files
+        try:  # Some xmls are not valid cpu xml files
             cpu = get_cpu_name(cxml)
         except Exception:
             continue
@@ -82,10 +83,10 @@ def get_cpu_xmls(ccs_path, full_path=False):
         list: list of cpu xml files
     """
     cpu_dir = get_cpus_directory(ccs_path)
-    cpus = [f for f in os.listdir(cpu_dir) if f.endswith('.xml')]
+    cpus = [f for f in os.listdir(cpu_dir) if f.endswith(".xml")]
 
     if full_path:
-        cpus = [ os.path.abspath(cpu_dir + '/' + c) for c in cpus ]
+        cpus = [os.path.abspath(cpu_dir + "/" + c) for c in cpus]
 
     return cpus
 
@@ -105,15 +106,14 @@ def get_cpu_xml_path(xml_name, ccs_path):
     """
     cpu_xml = None
 
-    if not xml_name.endswith('.xml'):
+    if not xml_name.endswith(".xml"):
         xml_name += ".xml"
 
     #   Set Connections directory
     cpu_xmls = get_cpu_xmls(ccs_path)
 
     if xml_name in cpu_xmls:
-        cpu_xml = os.path.normpath(
-                            get_cpus_directory(ccs_path) + "/" + xml_name)
+        cpu_xml = os.path.normpath(get_cpus_directory(ccs_path) + "/" + xml_name)
 
     return cpu_xml
 

@@ -10,7 +10,8 @@ ccxml.py    --   helper module for modifying a ccxml file
 
 import platform
 import os
-#import xml.etree.ElementTree as ET
+
+# import xml.etree.ElementTree as ET
 
 from tiflash.utils.connections import get_connections_directory
 from tiflash.utils.devices import get_devices_directory
@@ -21,22 +22,24 @@ TARGET_CONFIG_EXT = "ti/CCSTargetConfigurations"
 
 class CCXMLError(Exception):
     """Generic CCXML Error"""
+
     pass
 
 
 def get_ccxml_directory():
     system = platform.system()
     if system == "Windows":
-        WINDOWS_TARGET_CONFIGS_PATH = \
-            os.environ['USERPROFILE'] + '/' + TARGET_CONFIG_EXT
+        WINDOWS_TARGET_CONFIGS_PATH = (
+            os.environ["USERPROFILE"] + "/" + TARGET_CONFIG_EXT
+        )
         ccxml_directory = WINDOWS_TARGET_CONFIGS_PATH
     elif system == "Linux" or system == "Darwin":
-        UNIX_TARGET_CONFIGS_PATH = os.environ['HOME'] + '/' + TARGET_CONFIG_EXT
+        UNIX_TARGET_CONFIGS_PATH = os.environ["HOME"] + "/" + TARGET_CONFIG_EXT
         ccxml_directory = UNIX_TARGET_CONFIGS_PATH
     else:
         raise CCXMLError("Unsupported Operating System: %s" % system)
 
-    ccxml_dir =  os.path.normpath(ccxml_directory)
+    ccxml_dir = os.path.normpath(ccxml_directory)
     if not os.path.isdir(ccxml_dir):
         os.makedirs(ccxml_dir)
 
@@ -87,7 +90,6 @@ def get_connection(ccxml_path):
     return connection
 
 
-
 def get_serno(ccxml_path):
     """Returns the serno from the ccxml file
 
@@ -100,13 +102,14 @@ def get_serno(ccxml_path):
     serno = None
     root = __get_ccxml_root(ccxml_path)
 
-    instance = root.find("configuration/connection/"
-                            "property[@id='Debug Probe Selection']/"
-                            "choice[@Name='Select by serial number']/property")
+    instance = root.find(
+        "configuration/connection/"
+        "property[@id='Debug Probe Selection']/"
+        "choice[@Name='Select by serial number']/property"
+    )
 
     if instance is None:
-        raise CCXMLError("%s does not support Debug Probe Selection"
-                            % ccxml_path)
+        raise CCXMLError("%s does not support Debug Probe Selection" % ccxml_path)
 
     serno = xmlhelper.get_attrib_value(instance.attrib, ["Value"])
 
@@ -133,14 +136,14 @@ def add_serno(ccxml_path, serno, ccs_path):
     platform_element = connection_element.find("platform[last()]")
 
     # Get index of where to insert serno property
-    children = list(connection_element)     # Get list of children
+    children = list(connection_element)  # Get list of children
     serno_index = children.index(platform_element)
 
     # Insert serno property
     connection_element.insert(serno_index, serno_property)
 
     # Update ccxml file
-    tree.write(ccxml_path, encoding='utf-8', xml_declaration=True)
+    tree.write(ccxml_path, encoding="utf-8", xml_declaration=True)
 
     return True
 
@@ -165,29 +168,27 @@ def _create_serno_property(serno, conn_xml):
     debugprobe_property = root.find("property[@Name='Debug Probe Selection']")
 
     if debugprobe_property is None:
-        raise CCXMLError("This connection does support "
-                        "Serial Number specification")
+        raise CCXMLError("This connection does support " "Serial Number specification")
 
-    debugprobe_property.attrib['id'] = debugprobe_property.attrib.pop('Name')
+    debugprobe_property.attrib["id"] = debugprobe_property.attrib.pop("Name")
 
-    debugprobe_property.attrib.pop('desc', None)
+    debugprobe_property.attrib.pop("desc", None)
 
-    debugprobe_property.attrib['Value'] = '1'
+    debugprobe_property.attrib["Value"] = "1"
 
-    debugprobe_property.attrib.pop('ID')
+    debugprobe_property.attrib.pop("ID")
 
     serno_property = debugprobe_property.find(
-        "choice[@Name='Select by serial number']"
-        "/property[@ID='SEPK.POD_SERIAL']")
+        "choice[@Name='Select by serial number']" "/property[@ID='SEPK.POD_SERIAL']"
+    )
 
-    serno_property.attrib['Value'] = serno
-    serno_property.attrib['id'] = serno_property.attrib.pop('Name')
-    serno_property.attrib.pop('ID')
+    serno_property.attrib["Value"] = serno
+    serno_property.attrib["id"] = serno_property.attrib.pop("Name")
+    serno_property.attrib.pop("ID")
 
-    serno_choice = debugprobe_property.find(
-                        "choice[@Name='Select by serial number']")
+    serno_choice = debugprobe_property.find("choice[@Name='Select by serial number']")
 
-    choices = list(debugprobe_property)     # Get list of children
+    choices = list(debugprobe_property)  # Get list of children
     for choice in choices:
         if choice != serno_choice:
             debugprobe_property.remove(choice)
@@ -209,8 +210,9 @@ def get_connection_xml(ccxml_path, ccs_path):
     xmlpath = None
 
     connection_name = get_connection(ccxml_path)
-    connection_instance = root.find("configuration/instance[@id='%s']"
-                                    % connection_name)
+    connection_instance = root.find(
+        "configuration/instance[@id='%s']" % connection_name
+    )
     conn_element = root.find("configuration/connection")
     p_conn_element = root.find("configuration/connection/..")
 
@@ -218,9 +220,9 @@ def get_connection_xml(ccxml_path, ccs_path):
     if conn_instance is None:
         raise CCXMLError("Could not find connection xml from given ccxml file")
 
-    xmlname = conn_instance.attrib['xml']
+    xmlname = conn_instance.attrib["xml"]
 
-    xmlpath = get_connections_directory(ccs_path) + '/' + xmlname
+    xmlpath = get_connections_directory(ccs_path) + "/" + xmlname
     xmlpath = os.path.normpath(xmlpath)
 
     return xmlpath
@@ -243,9 +245,9 @@ def get_device_xml(ccxml_path, ccs_path):
     if device_instance is None:
         raise CCXMLError("Could not find device xml from given ccxml file")
 
-    xmlname = device_instance.attrib['xml']
+    xmlname = device_instance.attrib["xml"]
 
-    xmlpath = get_devices_directory(ccs_path) + '/' + xmlname
+    xmlpath = get_devices_directory(ccs_path) + "/" + xmlname
     xmlpath = os.path.normpath(xmlpath)
 
     return xmlpath
@@ -261,11 +263,10 @@ def get_ccxmls(full_path=False):
         list: list of target configurations (ccxml files)
     """
     ccxml_dir = get_ccxml_directory()
-    ccxmls = [f for f in os.listdir(ccxml_dir) if f.endswith('.ccxml')]
+    ccxmls = [f for f in os.listdir(ccxml_dir) if f.endswith(".ccxml")]
 
     if full_path:
-        ccxmls = [ os.path.abspath(ccxml_dir + '/' + c) for c in ccxmls ]
-
+        ccxmls = [os.path.abspath(ccxml_dir + "/" + c) for c in ccxmls]
 
     return ccxmls
 
