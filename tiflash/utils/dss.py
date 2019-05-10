@@ -58,6 +58,8 @@ def launch_server(ccs_exe, workspace):
         "-noSplash",
         "-application",
         "com.ti.ccstudio.apps.runScript",
+        "-data",
+        workspace,
         "-ccs.script",
     ]
     ccsexe.append(server_script)
