@@ -37,10 +37,10 @@ class TIFlashSession(object):
         fresh=False,
         keep_alive=False,
     ):
-        """Instantiates TIFlashSession object.
+        """Instantiates :py:class:`TIFlashSession` object.
 
         Args:
-            ccs (str, optional): DEPRECATED: ccs version or path to ccs (default is latest installation found)
+            ccs (str, optional): `DEPRECATED`: ccs version or path to ccs (default is latest installation found)
             ccs_path (str, optional): path to ccs installation or directory of installation
             ccs_version (str, optional): version number of ccs to use (default=latest)
             serno (str, optional): serial number of device
@@ -50,13 +50,8 @@ class TIFlashSession(object):
             ccxml (str, optional): full path to ccxml file to use
             fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
             debug (bool, optional): output extra debugging information (default=False)
-            keep_alive (bool, optional): keep the debugserver running even after TIFlashSession object is destroyed (default=False)
-
-        Warning:
-            Deprecated parameters are listed below. These parameters will be removed in future version of TIFlash:
-            - ccs: use `ccs_version` and `ccs_path` to specifiy which ccs
-              installation to use
-
+            keep_alive (bool, optional): keep the debugserver running even
+                after :py:class:`TIFlashSession` object is destroyed (default=False)
         """
         self._keep_alive = keep_alive
         self._workspace = get_unique_workspace()
@@ -88,7 +83,7 @@ class TIFlashSession(object):
         """Finds and sets the path to CCS installation to use
 
         Args:
-            ccs (str, optional): DEPRECATED: ccs version or path to ccs (default is latest installation found)
+            ccs (str, optional): `DEPRECATED`: ccs version or path to ccs (default is latest installation found)
             ccs_path (str, optional): path to ccs installation or directory of installation
             ccs_version (str, optional): version number of ccs to use (default=latest)
 
@@ -124,7 +119,7 @@ class TIFlashSession(object):
         # check if session args already set (ccxml already set)
         if self._ccxml_path is not None:
             raise TIFlashError(
-                "session already configured; session can only be configured once per TIFlashSession object"
+                "session already configured; session can only be configured once per :py:class:`TIFlashSession` object"
             )
 
         session_args = resolve_session_args(
@@ -218,6 +213,7 @@ class TIFlashSession(object):
 
     def attach_ccs(self, keep_alive=False):
         """Opens a CCS GUI for the device in use
+
         Args:
             keep_alive (bool): keep the DebugServer process running in background after object is destroyed
         """
@@ -228,11 +224,10 @@ class TIFlashSession(object):
             raise TIFlashError(e)
 
     def get_config(self):
-        """Returns the full path to the ccxml file in use for TIFlashSession
+        """Returns the full path to the ccxml file in use for :py:class:`TIFlashSession`
 
         Returns:
-            str: full path to .ccxml file in use for TIFlashSession
-                (returns None if ccxml has not be set yet)
+            str: full path to .ccxml file in use for :py:class:`TIFlashSession` (returns None if ccxml has not be set yet)
         """
         return self._ccxml_path
 
@@ -279,7 +274,7 @@ class TIFlashSession(object):
             name (str): name of core to retrieve (can be regex pattern)
 
         Returns:
-            dsclient.DebugSession: DebugSession object representing the device core
+            DeviceCore: DebugSession object representing the device core
         """
         session = None
         try:
@@ -287,7 +282,7 @@ class TIFlashSession(object):
         except:
             session = self._dsclient.open_session(name)
 
-        return Core(session)
+        return DeviceCore(session)
 
     def __del__(self):
         if self._keep_alive is False:
@@ -306,7 +301,7 @@ class TIFlashSession(object):
                 shutil.rmtree(self._workspace)
 
 
-class Core(object):
+class DeviceCore(object):
     """Class representing device core"""
 
     def __init__(self, debugsession):
@@ -318,7 +313,7 @@ class Core(object):
 
         Warning:
             This class should not be directly instantiated. Instead use the
-            TIFlashSession.get_core() function
+            :py:meth:`TIFlashSession.get_core()` function
         """
         try:
             self._debugsession = debugsession

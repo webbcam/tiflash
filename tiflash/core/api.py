@@ -534,7 +534,7 @@ def attach(ccs=None, **session_args):
         TIFlashError: raises error when expression error is raised
     Warning:
         Implicitly sets 'keep_alive' to True; this means the DebugServer will
-        not shutdown after the command is run and need to be manually shutdown.
+        not shutdown after the command is run and thus will need to be manually shutdown.
     """
     ccs_path = resolve_ccs_path(ccs)
 
