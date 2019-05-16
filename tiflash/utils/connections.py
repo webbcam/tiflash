@@ -20,8 +20,10 @@ DEBUG_PROBES_PATH = "/ccs_base/cloudagent/src/targetDetection/debug_probes.json"
 # Place this file in utils/ folder to use a custom debug_probes file
 CUSTOM_DEBUG_PROBES_FILE = "debug_probes.json"
 
+
 class ConnectionsError(Exception):
     """Generic Connection Error"""
+
     pass
 
 
@@ -67,7 +69,7 @@ def get_connections(ccs_path):
 
     connection_list = list()
     for cxml in connection_xmls:
-        try:    # Some xmls are not valid connection xml files
+        try:  # Some xmls are not valid connection xml files
             connection = get_connection_name(cxml)
         except Exception:
             continue
@@ -93,7 +95,7 @@ def get_connection_xml_path(xml_name, ccs_path):
     """
     connection_xml = None
 
-    if not xml_name.endswith('.xml'):
+    if not xml_name.endswith(".xml"):
         xml_name += ".xml"
 
     #   Set Connections directory
@@ -101,10 +103,10 @@ def get_connection_xml_path(xml_name, ccs_path):
 
     if xml_name in connection_xmls:
         connection_xml = os.path.normpath(
-                            get_connections_directory(ccs_path) + "/" + xml_name)
+            get_connections_directory(ccs_path) + "/" + xml_name
+        )
 
     return connection_xml
-
 
 
 def get_connection_xmls(ccs_path, full_path=False):
@@ -118,10 +120,10 @@ def get_connection_xmls(ccs_path, full_path=False):
         list: list of connection xml files
     """
     conn_dir = get_connections_directory(ccs_path)
-    conns = [f for f in os.listdir(conn_dir) if f.endswith('.xml')]
+    conns = [f for f in os.listdir(conn_dir) if f.endswith(".xml")]
 
     if full_path:
-        conns = [ os.path.abspath(conn_dir + '/' + c) for c in conns ]
+        conns = [os.path.abspath(conn_dir + "/" + c) for c in conns]
 
     return conns
 
@@ -178,6 +180,7 @@ def find_connection(connection_name, ccs_path):
 
     return match_list
 
+
 def get_connection_xml_from_vidpid(vid, pid, ccs_path):
     """Get full connection name of device given vid and pid
 
@@ -193,8 +196,9 @@ def get_connection_xml_from_vidpid(vid, pid, ccs_path):
     probe_list = None
 
     # Allow for using custom debug probes file by placing custom file in utils/
-    custom_debug_probes_path = os.path.normpath(os.path.dirname(__file__) +
-                                            '/' + CUSTOM_DEBUG_PROBES_FILE)
+    custom_debug_probes_path = os.path.normpath(
+        os.path.dirname(__file__) + "/" + CUSTOM_DEBUG_PROBES_FILE
+    )
 
     if os.path.isfile(custom_debug_probes_path):
         debug_probes_file = custom_debug_probes_path
@@ -202,24 +206,26 @@ def get_connection_xml_from_vidpid(vid, pid, ccs_path):
         debug_probes_file = os.path.normpath(ccs_path + "/" + DEBUG_PROBES_PATH)
 
     if not os.path.isfile(debug_probes_file):
-        raise DeviceError("Could not find 'debug_probes.json' file: %s"
-                          % debug_probes_file)
+        raise DeviceError(
+            "Could not find 'debug_probes.json' file: %s" % debug_probes_file
+        )
 
     with open(debug_probes_file) as f:
         probe_list = json.load(f)
 
     for probe in probe_list:
-        if int(probe['vid'], 16) == vid and int(probe['pid'], 16) == pid:
+        if int(probe["vid"], 16) == vid and int(probe["pid"], 16) == pid:
             if "connectionXml" in probe.keys():
-                connection = probe['connectionXml']
+                connection = probe["connectionXml"]
                 break
             elif "probeDetection" in probe.keys():
-                connection = probe['probeDetection']['algorithm']
+                connection = probe["probeDetection"]["algorithm"]
                 break
     else:
         raise ConnectionsError(
             "Was not able to find a connection with given vid (%s) and pid (%s)"
-             % (vid, pid))
+            % (vid, pid)
+        )
 
     connection_path = get_connection_xml_path(connection, ccs_path)
     return connection_path
@@ -235,8 +241,7 @@ def __get_connection_root(connection_path):
         xml.Element: root element of connection file
     """
     if not os.path.exists(connection_path):
-        raise ConnectionsError("Could not find connection xml: %s" %
-            connection_path)
+        raise ConnectionsError("Could not find connection xml: %s" % connection_path)
 
     root = xmlhelper.get_xml_root(connection_path)
 

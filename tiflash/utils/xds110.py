@@ -15,9 +15,12 @@ import subprocess
 
 XDS110_DIRECTORY = "ccs_base/common/uscif/xds110"
 
+
 class XDS110Error(Exception):
     """Generic XDS110 Error"""
+
     pass
+
 
 def get_xds110_dir(ccs_path):
     """Returns full path to xds110 directory.
@@ -31,11 +34,12 @@ def get_xds110_dir(ccs_path):
     Raises:
         XDS110Error: raises if xds110 directory cannot be found.
     """
-    xds110_path = os.path.abspath(ccs_path + '/' + XDS110_DIRECTORY)
+    xds110_path = os.path.abspath(ccs_path + "/" + XDS110_DIRECTORY)
     if not os.path.isdir(xds110_path):
         raise XDS110Error("Could not find xds110 directory (%s)" % xds110_path)
 
     return xds110_path
+
 
 def get_xds110_exe_path(ccs_path, exe):
     """Returns full path xds110 executable
@@ -51,14 +55,13 @@ def get_xds110_exe_path(ccs_path, exe):
         XDS110Error: raises if xdsdfu executable cannot be found.
     """
     xds_dir = get_xds110_dir(ccs_path)
-    xds_exe_path = os.path.abspath(xds_dir + '/' + exe)
+    xds_exe_path = os.path.abspath(xds_dir + "/" + exe)
 
     if platform.system() == "Windows":
         xds_exe_path += ".exe"
 
     if not os.path.exists(xds_exe_path):
-        raise XDS110Error("Could not find xdsdfu executable (%s)"
-            % xds_exe_path)
+        raise XDS110Error("Could not find xdsdfu executable (%s)" % xds_exe_path)
 
     return xds_exe_path
 
@@ -77,13 +80,12 @@ def xds110_reset(ccs_path, serno=None):
     Raises:
         XDS110Error: raises if xds110reset.exe fails
     """
-    xdsreset_path = get_xds110_exe_path(ccs_path, 'xds110reset')
+    xdsreset_path = get_xds110_exe_path(ccs_path, "xds110reset")
 
-    xds_exe = [ xdsreset_path ]
-
+    xds_exe = [xdsreset_path]
 
     if serno:
-        xds_exe.extend(['-s', serno])
+        xds_exe.extend(["-s", serno])
 
     proc = subprocess.Popen(xds_exe, stdout=subprocess.PIPE)
     out, err = proc.communicate()
@@ -114,10 +116,10 @@ def xds110_list(ccs_path):
     serno_pattern = r"Serial Num\:\s+([A-Z0-9]{8})"
     version_pattern = r"Version\:\s+([0-9\.]+)"
 
-    xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
-    xds_exe = [ xdsdfu_path]
+    xdsdfu_path = get_xds110_exe_path(ccs_path, "xdsdfu")
+    xds_exe = [xdsdfu_path]
 
-    xds_exe.extend(['-e'])
+    xds_exe.extend(["-e"])
 
     proc = subprocess.Popen(xds_exe, stdout=subprocess.PIPE)
     out, err = proc.communicate()
@@ -158,16 +160,15 @@ def xds110_upgrade(ccs_path, serno=None):
     Raises:
         XDS110Error: raises if xds110 firmware update fails
     """
-    xdsdfu_path = get_xds110_exe_path(ccs_path, 'xdsdfu')
-    firmware_path = os.path.abspath(get_xds110_dir(ccs_path) + '/'+ "firmware.bin")
+    xdsdfu_path = get_xds110_exe_path(ccs_path, "xdsdfu")
+    firmware_path = os.path.abspath(get_xds110_dir(ccs_path) + "/" + "firmware.bin")
 
     if not os.path.exists(firmware_path):
-        raise XDS110Error("Could not find firmware.bin file (%s)" %
-            firmware_path)
+        raise XDS110Error("Could not find firmware.bin file (%s)" % firmware_path)
 
-    serno_list = [ s for (s,v) in xds110_list(ccs_path) ]
-    xds_dfu_cmd = [ xdsdfu_path]
-    xds_flash_cmd = [ xdsdfu_path]
+    serno_list = [s for (s, v) in xds110_list(ccs_path)]
+    xds_dfu_cmd = [xdsdfu_path]
+    xds_flash_cmd = [xdsdfu_path]
 
     # Get Device Index using Serno
     if serno:
@@ -176,13 +177,13 @@ def xds110_upgrade(ccs_path, serno=None):
         except ValueError:
             raise XDS110Error("Device: %s not connected." % serno)
 
-        xds_dfu_cmd += ['-i', str(index)]
+        xds_dfu_cmd += ["-i", str(index)]
 
         # After putting device in DFU mode, its index will be 0
-        xds_flash_cmd += ['-i', '0']
+        xds_flash_cmd += ["-i", "0"]
 
     # Put device in DFU mode first
-    xds_dfu_cmd += ['-m']
+    xds_dfu_cmd += ["-m"]
 
     proc = subprocess.Popen(xds_dfu_cmd, stdout=subprocess.PIPE)
     out, err = proc.communicate()
@@ -195,7 +196,7 @@ def xds110_upgrade(ccs_path, serno=None):
     time.sleep(1)
 
     # Flash Firmware to Device
-    xds_flash_cmd += ['-f', firmware_path, '-r']
+    xds_flash_cmd += ["-f", firmware_path, "-r"]
 
     proc = subprocess.Popen(xds_flash_cmd, stdout=subprocess.PIPE)
     out, err = proc.communicate()

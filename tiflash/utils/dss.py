@@ -1,228 +1,84 @@
-"""
-helper module for calling Debug Server Scripting (dss)
-
-
-Author: Cameron Webb
-Date: March 2018
-Contact: webbjcam@gmail.com
-
-"""
-
+import os
+import re
+import json
+import socket
 import subprocess
 import platform
-import os
-
-from tiflash.utils.result import ResultServer
-
-MAIN_JS_PATH = "js/main.js"
-ECLIPSE_SUBPATH = "/eclipse"
-DSS_ARGS = ['-nosplash', '-application', 'com.ti.ccstudio.apps.runScript',
-            '-product', 'com.ti.ccstudio.branding.product', '-dss.rhinoArgs']
-
-CMD_DEFAULT_TIMEOUT = 60
-
-class DSSError(Exception):
-    """Generic DSS Error"""
-    pass
 
 
-def find_dss(ccs_path):
-    """Finds path to eclipsec/ccstudio executable.
-
-    Searches (OS specific) CCS installation directory for eclipsec/ccstudio
-    executable.
+def resolve_ccs_exe(ccs_path):
+    """Returns the ccstudio executable given the ccs installation path
 
     Args:
-        ccs_path (str): path to ccs installation to use
+        ccs_path (str): full path to ccs installation
 
     Returns:
-        str: path to eclipsec/ccstudio exe
-
-    Raises:
-        DSSError: raises exception if can not find DSS script launcher
-
+        str: full path to the ccs executable
     """
+    exe = None
     system = platform.system()
-    script_launcher = None
-    script_launcher_path = None
-
     if system == "Windows":
-        script_launcher = "eclipsec.exe"
+        exe = "eclipse/eclipsec.exe"
     elif system == "Linux":
-        script_launcher = "ccstudio"
+        exe = "eclipse/ccstudio"
     elif system == "Darwin":
-        script_launcher = "ccstudio"
+        exe = "eclipse/Ccstudio.app/Contents/MacOS/ccstudio"
     else:
-        raise DSSError("Unsupported Operating System: %s" % system)
+        raise Exception("Unsupported Operating System: %s" % system)
 
-    if not os.path.exists(ccs_path):
-        raise DSSError("Could not find CCS installation: %s" % ccs_path)
+    ccs_exe = os.path.join(ccs_path, exe)
+    ccs_exe = os.path.normpath(ccs_exe)
 
-    walker = os.walk(ccs_path + ECLIPSE_SUBPATH)
+    if not os.path.exists(ccs_exe):
+        raise Exception("Could not find ccstudio executable: %s" % ccs_exe)
 
-    for root, dirs, files in walker:
-        if script_launcher in files:
-            script_launcher_path = os.path.join(root, script_launcher)
-            script_launcher_path = os.path.normpath(script_launcher_path)
-            break
-
-    else:
-        raise DSSError("Could not find script launcher: %s" % script_launcher)
-
-    return script_launcher_path
+    return ccs_exe
 
 
-def call_dss(dss_path, commands, workspace=None, timeout=CMD_DEFAULT_TIMEOUT):
-    """Calls js/main.js via new script runner (eclipsec)
-
-    Makes a subprocess call to main.js by using the given eclipsec exe
+def launch_server(ccs_exe, workspace):
+    """Launches DebugServer process
 
     Args:
-        dss_path (str): Path to dss.bat/.sh installation to use
-        commands (list): list of string commands to pass to main.js
-        workspace (str): workspace name
-        timeout (int):  time to give command to complete (negative == infinite)
+        ccs_exe (str): full path to ccs executable
+        workspace (str): full path to workspace to use
 
     Returns:
-        (bool, str): returns tuple with (bool=result, str=value)
-            caller must convert value to proper value
-
+        (subprocess.PID, int): returns tuple containing process id and port number
     """
-    # Open local socket for IPC (result of command is posted to socket)
-    result_server = ResultServer(debug=False)
-    port = result_server.start()
-    result = None
+    server_script = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "server.js")
+    )
+    os.environ["DSS_SCRIPTING_ROOT"] = os.path.abspath(
+        os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "components", "debugserver-js"
+        )
+    )
+    ccsexe = [
+        ccs_exe,
+        "-noSplash",
+        "-application",
+        "com.ti.ccstudio.apps.runScript",
+        "-data",
+        workspace,
+        "-ccs.script",
+    ]
+    ccsexe.append(server_script)
+    ccsexe.append("-ccs.rhinoArgs")
 
-    # Remove timeout if negative number provided (inifinite timeout)
-    if timeout < 0:
-        timeout = None
+    p = subprocess.Popen(ccsexe, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-    main_js = os.path.abspath(os.path.dirname(
-        __file__) + "/../" + MAIN_JS_PATH)
-    if not os.path.isfile(main_js):
-        raise DSSError("Trouble finding main.js: %s" % main_js)
-    main_js = "\"%s\"" % main_js
+    if p.poll() is not None:
+        raise Exception("Could not start server process")
 
-    cwd = "\"%s\"" % os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
-
-    # Create list of args for calling dss exec
-    cmd = [dss_path]
-    if workspace:
-        cmd.extend(["-data", workspace])
-    cmd.extend(DSS_ARGS)
-
-    # Create list of args for js script
-    script_args = [main_js, cwd, str(port)]
-    script_args.extend(commands)
-    # Convert list to one string (necessary for rhino exec)
-    script_args = map(str, script_args)
-    script_args_str = " ".join(script_args)
-
-    cmd.append(script_args_str)
+    # Wait until Debug Server has started
+    line = ""
+    while "PORT" not in str(line):
+        line = p.stdout.readline()
     try:
-        retcode = subprocess.call(cmd)
-    except Exception as e:
-        print(e)
-        return (False, "Command Failed")
+        m = re.search("PORT: ([0-9]+)", str(line))
+        port = int(m.group(1))
+    except:
+        p.terminate()
+        raise Exception("Could not retrieve port from debugserver process.")
 
-    # Wait on result to be populated
-    result = result_server.get_result(timeout=timeout)
-
-    return (retcode == 0, result)
-
-
-def format_args(args):
-    """Converts args dict to properly formatted cmd list for dss scripts
-    """
-    if type(args) is not dict:
-        raise DSSError("Arguments passed must be of type 'dict'")
-
-    arg_list = []
-    for k in args:
-        arg_list.append("--%s" % k)
-        if type(args[k]) == dict:
-            for k2 in args[k]:
-                arg_list.append("-%s" % k2)
-                arg_list.append(args[k][k2])
-        else:
-            pass
-
-    return arg_list
-
-
-def parse_response_float(response):
-    """Handles the parsing of a string response representing a float
-
-    All responses are sent as strings. In order to convert these strings to
-    their python equivalent value, you must call a parse_response_* function.
-
-    Args:
-        response (str): response string to parse and convert to proper value
-
-    Returns:
-        (float): returns reponse string converted to float
-    """
-
-    parsed_response = float(response)
-
-    return parsed_response
-
-
-def parse_response_number(response):
-    """Handles the parsing of a string response representing a number (no
-    decimal)
-
-    All responses are sent as strings. In order to convert these strings to
-    their python equivalent value, you must call a parse_response_* function.
-
-    Args:
-        response (str): response string to parse and convert to proper value
-
-    Returns:
-        (int): returns reponse string converted to int or long
-    """
-    parsed_response = int(response)
-
-    return parsed_response
-
-
-def parse_response_list(response):
-    """Handles the parsing of a string response representing a list
-
-    All responses are sent as strings. In order to convert these strings to
-    their python equivalent value, you must call a parse_response_* function.
-
-    Args:
-        response (str): response string to parse and convert to proper value
-
-    Returns:
-        (list): returns reponse string converted to list
-    """
-    element_sep = ";;"
-
-    parsed_response = response.split(element_sep)
-
-    return parsed_response
-
-
-def parse_response_bool(response):
-    """Handles the parsing of a string response representing a bool
-
-    All responses are sent as strings. In order to convert these strings to
-    their python equivalent value, you must call a parse_response_* function.
-
-    Args:
-        response (str): response string to parse and convert to proper value
-
-    Returns:
-        (bool): returns reponse string converted to bool
-    """
-    parsed_response = None
-    if response.lower() == 'true':
-        parsed_response = True
-    elif response.lower() == 'false':
-        parsed_response = False
-    else:
-        raise DSSError("Invalid boolean response")
-
-    return parsed_response
+    return (p, port)

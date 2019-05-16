@@ -26,6 +26,7 @@ CUSTOM_BOARD_IDS_FILE = "board_ids.json"
 
 class DeviceError(Exception):
     """Generic Device Error"""
+
     pass
 
 
@@ -66,7 +67,7 @@ def get_device_xml_from_devicetype(devicetype, ccs_path):
     device_xmls = get_device_xmls(ccs_path, full_path=True)
 
     for dxml in device_xmls:
-        try:    # Some xmls are not valid device xml files
+        try:  # Some xmls are not valid device xml files
             device = get_devicetype(dxml)
         except Exception:
             continue
@@ -76,8 +77,11 @@ def get_device_xml_from_devicetype(devicetype, ccs_path):
             break
 
     else:
-        raise DeviceError("Could not find device xml for %s. Please install "
-                            "drivers for %s.""" % (devicetype, devicetype))
+        raise DeviceError(
+            "Could not find device xml for %s. Please install "
+            "drivers for %s."
+            "" % (devicetype, devicetype)
+        )
 
     return device_xml
 
@@ -95,8 +99,7 @@ def get_devicetype(device_xml):
     root = __get_device_root(device_xml)
 
     if root.tag != "device":
-        raise DeviceError("Error parsing devicetype from device xml: %s" %
-                        device_xml)
+        raise DeviceError("Error parsing devicetype from device xml: %s" % device_xml)
 
     devicetype = xmlhelper.get_attrib_value(root.attrib, ["desc", "partnum", "id"])
 
@@ -142,13 +145,13 @@ def get_default_connection_xml(device_xml, ccs_path):
     conn_element = root.find(".//property[@id='DefaultConnection']")
 
     if conn_element is None:
-        raise DeviceError("Device XML: %s does not contain a Default "
-                            "Connection type." % device_xml)
+        raise DeviceError(
+            "Device XML: %s does not contain a Default " "Connection type." % device_xml
+        )
 
     xml_name = xmlhelper.get_attrib_value(conn_element.attrib, ["Value"])
 
-
-    connection_xml = get_connections_directory(ccs_path) + '/' + xml_name
+    connection_xml = get_connections_directory(ccs_path) + "/" + xml_name
     connection_xml = os.path.normpath(connection_xml)
 
     return connection_xml
@@ -165,10 +168,10 @@ def get_device_xmls(ccs_path, full_path=False):
         list: list of device xml files
     """
     device_dir = get_devices_directory(ccs_path)
-    devices = [f for f in os.listdir(device_dir) if f.endswith('.xml')]
+    devices = [f for f in os.listdir(device_dir) if f.endswith(".xml")]
 
     if full_path:
-        devices = [ os.path.abspath(device_dir + '/' + c) for c in devices ]
+        devices = [os.path.abspath(device_dir + "/" + c) for c in devices]
 
     return devices
 
@@ -188,14 +191,13 @@ def get_device_xml_path(xml_name, ccs_path):
     """
     device_xml = None
 
-    if not xml_name.endswith('.xml'):
+    if not xml_name.endswith(".xml"):
         xml_name += ".xml"
 
     device_xmls = get_device_xmls(ccs_path)
 
     if xml_name in device_xmls:
-        device_xml = os.path.normpath(
-                            get_devices_directory(ccs_path) + "/" + xml_name)
+        device_xml = os.path.normpath(get_devices_directory(ccs_path) + "/" + xml_name)
 
     return device_xml
 
@@ -225,7 +227,7 @@ def get_cpu_xml(device_xml, ccs_path):
 
     xml_name = xmlhelper.get_attrib_value(instance_element.attrib, ["xml"])
 
-    cpu_xml = get_cpus_directory(ccs_path) + '/' + xml_name
+    cpu_xml = get_cpus_directory(ccs_path) + "/" + xml_name
     cpu_xml = os.path.normpath(cpu_xml)
 
     return cpu_xml
@@ -256,7 +258,7 @@ def get_devicetypes(ccs_path):
 
     device_list = list()
     for cxml in device_xmls:
-        try:    # Some xmls are not valid device xml files
+        try:  # Some xmls are not valid device xml files
             device = get_devicetype(cxml)
         except Exception:
             continue
@@ -315,8 +317,9 @@ def get_device_xml_from_serno(serno, ccs_path):
     devices_directory = get_devices_directory(ccs_path)
 
     # Allow for using custom boards_id file by placing custom file in utils/
-    custom_board_ids_path = os.path.normpath(os.path.dirname(__file__) + '/' +
-                                             CUSTOM_BOARD_IDS_FILE)
+    custom_board_ids_path = os.path.normpath(
+        os.path.dirname(__file__) + "/" + CUSTOM_BOARD_IDS_FILE
+    )
 
     if os.path.isfile(custom_board_ids_path):
         board_ids_path = custom_board_ids_path
@@ -324,8 +327,7 @@ def get_device_xml_from_serno(serno, ccs_path):
         board_ids_path = os.path.normpath(ccs_path + "/" + BOARD_IDS_PATH)
 
     if not os.path.isfile(board_ids_path):
-        raise DeviceError("Could not find 'board_ids.json' file: %s"
-                          % board_ids_path)
+        raise DeviceError("Could not find 'board_ids.json' file: %s" % board_ids_path)
 
     with open(board_ids_path) as board_ids_f:
         board_ids = json.load(board_ids_f)
@@ -333,11 +335,10 @@ def get_device_xml_from_serno(serno, ccs_path):
         sernos = board_ids.keys()
         for s in sernos:
             if serno.startswith(s):
-                dxml = board_ids[s]['deviceXml'] + ".xml"
+                dxml = board_ids[s]["deviceXml"] + ".xml"
                 break
         else:
-            raise DeviceError(
-                "Could not determine devicetype from %s." % serno)
+            raise DeviceError("Could not determine devicetype from %s." % serno)
 
         dxml_fullpath = os.path.abspath(devices_directory + "/" + dxml)
         if not os.path.isfile(dxml_fullpath):

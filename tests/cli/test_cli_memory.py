@@ -3,13 +3,13 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestMemoryCli():
 
+class TestMemoryCli:
     def test_basic_memory_read_single_byte(self, tdev):
         """Tests simple memory read"""
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-read", "\"%s\"" % tdev['read-address']])
+        cmd.extend(["memory-read", '"%s"' % tdev["read-address"]])
 
         # Implicitly set 1 byte length
         cmd_str = " ".join(cmd)
@@ -22,17 +22,15 @@ class TestMemoryCli():
 
         subprocess.check_call(cmd_str, shell=True)
 
-
     def test_basic_memory_read_multiple_bytes(self, tdev):
         """Tests simple memory read of multiple bytes"""
         NUM_BYTES = "4"
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-read", "\"%s\"" % tdev['read-address'], "-n", NUM_BYTES])
+        cmd.extend(["memory-read", '"%s"' % tdev["read-address"], "-n", NUM_BYTES])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
     def test_basic_memory_write(self, tdev):
         """Tests simple memory write"""
@@ -40,12 +38,11 @@ class TestMemoryCli():
         WRITE_DATA = "0x11 0x22 0x33"
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["memory-write", "\"%s\"" % tdev['write-address'], "-d", WRITE_DATA])
+        cmd.extend(["memory-write", '"%s"' % tdev["write-address"], "-d", WRITE_DATA])
 
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
-
 
     def test_invalid_address_memory_read(self, tdev):
         """Tests an Error is raised when trying to access invalid memory for
@@ -56,11 +53,10 @@ class TestMemoryCli():
         with pytest.raises(subprocess.CalledProcessError):
             cmd = get_cmd_with_device_params(tdev)
 
-            cmd.extend(["memory-read", "\"%s\"" % INVALID_ADDRESS, "-n", NUM_BYTES])
+            cmd.extend(["memory-read", '"%s"' % INVALID_ADDRESS, "-n", NUM_BYTES])
             cmd_str = " ".join(cmd)
 
             subprocess.check_call(cmd_str, shell=True)
-
 
     def test_invalid_address_memory_write(self, tdev):
         """Tests an Error is raised when trying to access invalid memory for
@@ -71,7 +67,7 @@ class TestMemoryCli():
         with pytest.raises(subprocess.CalledProcessError):
             cmd = get_cmd_with_device_params(tdev)
 
-            cmd.extend(["memory-write", "\"%s\"" % INVALID_ADDRESS, "-d", WRITE_DATA])
+            cmd.extend(["memory-write", '"%s"' % INVALID_ADDRESS, "-d", WRITE_DATA])
             cmd_str = " ".join(cmd)
 
             subprocess.check_call(cmd_str, shell=True)

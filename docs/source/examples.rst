@@ -1,28 +1,15 @@
 .. _examples:
 
-Device Examples
-===============
+Examples
+========
 
-Each device type will have specific options you can specify when performing an
-action in tiflash. These options are the same options available through the CCS
-GUI.
+Below are some generic examples of how to use tiflash on both the command line
+and in Python.
 
-This page attempts to cover some of the more common options used for a few of these device types.
-
-.. note::
-    Note that tiflash will work with any device that can be
-    used in CCS! The devices listed below are just a few examples.
-
-*You can view the available options for a particular device by running:*
-
-::
-
-    tiflash -d DEVICETYPE options-list
+For more device specific functionality, please see the `Device Examples <device_examples.html>`_.
 
 .. toctree::
-    :caption: Device Families
-    :maxdepth: 1
+    :hidden:
+    :maxdepth: 2
 
-    examples/msp432
-    examples/cc32xx
-    examples/cc13xx-cc26xx
+    device_examples

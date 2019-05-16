@@ -3,8 +3,8 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestResetCli():
 
+class TestResetCli:
     def test_basic_reset(self, tdev):
         """Tests simple reset on each device in devices.cfg"""
 

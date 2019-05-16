@@ -3,15 +3,15 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestExpressionCli():
 
+class TestExpressionCli:
     def test_basic_expression(self, tdev):
         """Runs a simple gel command"""
-        EXPRESSION = tdev['expression-name']
+        EXPRESSION = tdev["expression-name"]
 
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["evaluate", "\"%s\"" % EXPRESSION])
+        cmd.extend(["evaluate", '"%s"' % EXPRESSION])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)
@@ -22,7 +22,7 @@ class TestExpressionCli():
         EXPRESSION = "var i = 0"
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["evaluate", "\"%s\"" % EXPRESSION])
+        cmd.extend(["evaluate", '"%s"' % EXPRESSION])
         cmd_str = " ".join(cmd)
 
         with pytest.raises(subprocess.CalledProcessError):
@@ -31,16 +31,15 @@ class TestExpressionCli():
     def test_expression_with_symbol_load(self, tdev):
         """Tries using expression command with invalid C syntax"""
 
-        if 'symbol-name' not in tdev.keys() or \
-            'symbol-image' not in tdev.keys():
+        if "symbol-name" not in tdev.keys() or "symbol-image" not in tdev.keys():
             pytest.skip("No symbol image path or symbol name")
 
-        EXPRESSION = tdev['symbol-name']
-        SYMBOL_FILE = tdev['symbol-image']
+        EXPRESSION = tdev["symbol-name"]
+        SYMBOL_FILE = tdev["symbol-image"]
 
         cmd = get_cmd_with_device_params(tdev)
 
-        cmd.extend(["evaluate", "\"%s\"" % EXPRESSION, "--symbols", "\"%s\"" % SYMBOL_FILE])
+        cmd.extend(["evaluate", '"%s"' % EXPRESSION, "--symbols", '"%s"' % SYMBOL_FILE])
         cmd_str = " ".join(cmd)
 
         subprocess.check_call(cmd_str, shell=True)

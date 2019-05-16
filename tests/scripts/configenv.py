@@ -53,7 +53,7 @@ def get_home_path():
     """Returns user's HOME path"""
     system = platform.system()
 
-    HOME_VAR = 'USERPROFILE' if system == 'Windows' else 'HOME'
+    HOME_VAR = "USERPROFILE" if system == "Windows" else "HOME"
     return os.environ[HOME_VAR]
 
 
@@ -61,16 +61,17 @@ def get_root_path():
     """Returns system's ROOT path"""
     system = platform.system()
     root_path = ""
-    if system == 'Windows':
-        root_path = os.environ['SYSTEMDRIVE']
-    elif system == 'Linux':
-        root_path = os.environ['HOME']
-    elif system == 'Darwin':
-        root_path = '/Applications'
+    if system == "Windows":
+        root_path = os.environ["SYSTEMDRIVE"]
+    elif system == "Linux":
+        root_path = os.environ["HOME"]
+    elif system == "Darwin":
+        root_path = "/Applications"
     else:
         raise Exception("Unsupported Operating System: %s" % system)
 
     return root_path
+
 
 def render_j2_to_file(j2_file, output=None, **kwargs):
     """Renders the .j2 file with the provided kwargs
@@ -107,12 +108,14 @@ def configure_setup(envcfg):
             envcfg (str): full path to the env.cfg file
     """
     env = cfg_to_dict(envcfg)
-    if 'paths' not in env.keys():
-        env['paths'] = dict()
+    if "paths" not in env.keys():
+        env["paths"] = dict()
 
     # convert ccs versions to list
-    env['ccs']['versions'] = [ v.strip() for v in env['ccs']['versions'].split(',') ]
-    env['paths']['ccs'] = env['ccs'][env['ccs']['versions'][0]] # take first ccs version to be default ccs path
+    env["ccs"]["versions"] = [v.strip() for v in env["ccs"]["versions"].split(",")]
+    env["paths"]["ccs"] = env["ccs"][
+        env["ccs"]["versions"][0]
+    ]  # take first ccs version to be default ccs path
 
     env["paths"]["repo"] = get_repo_path()
     env["paths"]["home"] = get_home_path()

@@ -9,15 +9,20 @@ Contact: webbjcam@gmail.com
 """
 
 import platform
+import uuid
 import os
 import re
 
 TI_DIRECTORY = "ti"
-DEFAULT_WORKSPACE = "@user.home/.tiflash/workspace"
+DEFAULT_WORKSPACE = "~/.tiflash/workspace"  # be sure to use os.path.expanduser
+# DEFAULT_WORKSPACE = "@user.home/.tiflash/workspace"
+
 
 class FindCCSError(Exception):
     """Generic FindCCS Error"""
+
     pass
+
 
 def get_ccs_prefix():
     """Returns full path to directory containing ccs installations.
@@ -28,16 +33,16 @@ def get_ccs_prefix():
     Returns:
         str: full path to directory containing ccs installations
     """
-    try:    # Custom CCS Installation path
-        ccs_prefix = os.environ['CCS_PREFIX']
+    try:  # Custom CCS Installation path
+        ccs_prefix = os.environ["CCS_PREFIX"]
 
-    except KeyError:    # Default CCS Installation paths
+    except KeyError:  # Default CCS Installation paths
         system = platform.system()
         if system == "Windows":
-            WINDOWS_CCS_PATH = os.environ['HOMEDRIVE']
+            WINDOWS_CCS_PATH = os.environ["HOMEDRIVE"]
             ccs_prefix = WINDOWS_CCS_PATH
         elif system == "Linux":
-            LINUX_CCS_PATH = os.environ['HOME']
+            LINUX_CCS_PATH = os.environ["HOME"]
             ccs_prefix = LINUX_CCS_PATH
         elif system == "Darwin":
             MAC_CCS_PATH = "/Applications"
@@ -45,13 +50,14 @@ def get_ccs_prefix():
         else:
             raise FindCCSError("Unsupported Operating System: %s" % system)
 
-        ccs_prefix = os.path.normpath(ccs_prefix + '/' + TI_DIRECTORY)
+        ccs_prefix = os.path.normpath(ccs_prefix + "/" + TI_DIRECTORY)
 
     # Ensure ccs_directory exists
     if not os.path.exists(ccs_prefix):
         raise FindCCSError("Could not a find CCS Installation directory")
 
     return ccs_prefix
+
 
 def __get_ccs_exe_name():
     """Returns the name of the ccstudio executable according to OS.
@@ -74,6 +80,7 @@ def __get_ccs_exe_name():
         raise Exception("Unsupported Operating System: %s" % system)
 
     return ccs_exe
+
 
 def __get_ccs_exe_path():
     """Returns the path of ccstudio executable relative to the ccs-root directory
@@ -115,8 +122,11 @@ def __is_ccs_root(path):
         OSError: raised if path does not exist
     """
     ccs_exe = __get_ccs_exe_path()
-    directories = [ directory for directory in os.listdir(path)
-                    if os.path.isdir(path + '/' + directory) ]
+    directories = [
+        directory
+        for directory in os.listdir(path)
+        if os.path.isdir(path + "/" + directory)
+    ]
 
     # 0. Check for eclipse folder
     if "eclipse" not in directories:
@@ -127,7 +137,7 @@ def __is_ccs_root(path):
         return False
 
     # 2. Check for ccs executable
-    if not os.path.exists(path + '/' + ccs_exe):
+    if not os.path.exists(path + "/" + ccs_exe):
         return False
 
     # 3. Check for ccs_base directory
@@ -135,6 +145,7 @@ def __is_ccs_root(path):
         return False
 
     return True
+
 
 def get_ccs_pf_filters(ccs_root):
     """Returns list of PF Filters installed with passed ccs installation
@@ -146,14 +157,15 @@ def get_ccs_pf_filters(ccs_root):
         list: list of PF Filters (strings) installed in ccs installation
     """
     pf_filters = list()
-    with open(ccs_root + '/eclipse/ccs.properties') as f:
+    with open(ccs_root + "/eclipse/ccs.properties") as f:
         lines = f.readlines()
         for line in lines:
             match = re.match("^PF_FILTERS=([a-zA-Z0-9\,]*)", line, flags=re.IGNORECASE)
             if match:
-                pf_filters = match.group(1).split(',')
+                pf_filters = match.group(1).split(",")
                 break
     return pf_filters
+
 
 def get_ccs_version(ccs_root):
     """Returns the version number of the ccs installation
@@ -168,14 +180,17 @@ def get_ccs_version(ccs_root):
         OSError: raised if ccs.properties file cannot be found
     """
     version = None
-    with open(ccs_root + '/eclipse/ccs.properties') as f:
+    with open(ccs_root + "/eclipse/ccs.properties") as f:
         lines = f.readlines()
         for line in lines:
-            match = re.match("^ccs_buildid=([0-9]+.[0-9]+.[0-9]+.[0-9]+)", line, flags=re.IGNORECASE)
+            match = re.match(
+                "^ccs_buildid=([0-9]+.[0-9]+.[0-9]+.[0-9]+)", line, flags=re.IGNORECASE
+            )
             if match:
                 version = match.group(1)
                 break
     return version
+
 
 def get_ccs_installations(ccs_prefix):
     """Returns a list of paths to all found ccs-root locations.
@@ -197,14 +212,20 @@ def get_ccs_installations(ccs_prefix):
         if __is_ccs_root(path):
             paths.append(path)
         else:
-            directories = [ directory for directory in os.listdir(path)
-                            if os.path.isdir(path + '/' + directory) ]
+            directories = [
+                directory
+                for directory in os.listdir(path)
+                if os.path.isdir(path + "/" + directory)
+            ]
 
-            ccs_directories = [ ccs_directory for ccs_directory in directories
-                                if re.search("^ccs", ccs_directory, flags=re.IGNORECASE) ]
+            ccs_directories = [
+                ccs_directory
+                for ccs_directory in directories
+                if re.search("^ccs", ccs_directory, flags=re.IGNORECASE)
+            ]
 
             for ccs_dir in ccs_directories:
-                paths.extend(dfw_search(path + '/' + ccs_dir))
+                paths.extend(dfw_search(path + "/" + ccs_dir))
 
         return paths
 
@@ -218,7 +239,20 @@ def get_workspace_dir():
         str: workspace to use for tiflash (fullpath)
     """
     # Uses user's home directory
-    workspace = DEFAULT_WORKSPACE
+    workspace = os.path.expanduser(DEFAULT_WORKSPACE)
+
+    return workspace
+
+
+def get_unique_workspace():
+    """Returns a unique tiflash workspace directory to use for a device.
+
+    Returns:
+        str: unique tiflash workspace to use for a device (fullpath)
+    """
+    # Uses user's home directory
+    uid = str(uuid.uuid4()).split("-")[0]
+    workspace = get_workspace_dir() + "/" + uid
 
     return workspace
 
@@ -255,25 +289,28 @@ def find_ccs(version=None, ccs_prefix=None):
 
     # Check if any CCS installations were found
     if len(ccs_installations) == 0:
-        raise FindCCSError(
-            "Could not find any installations of Code Composer Studio")
+        raise FindCCSError("Could not find any installations of Code Composer Studio")
 
     # Get version numbers of installations
     for installation in ccs_installations:
         try:
             v = get_ccs_version(installation)
-            ccs_installation_versions[v] = installation     # duplicate versions will be overwritten
+            ccs_installation_versions[
+                v
+            ] = installation  # duplicate versions will be overwritten
             version_list.append(v)
         except:
             continue
 
     # Filter to only matching version numbers
     if version is not None:
-        version_list = [ v for v in version_list if re.search("^" + version, v) ]
+        version_list = [v for v in version_list if re.search("^" + version, v)]
 
         # Raise error if specific version could not be found
         if len(version_list) == 0:
-            raise FindCCSError("Could not find installation for CCS version: %s" % version)
+            raise FindCCSError(
+                "Could not find installation for CCS version: %s" % version
+            )
 
     ccs_path = ccs_installation_versions[max(version_list)]
     return os.path.normpath(ccs_path)

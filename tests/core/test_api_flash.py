@@ -1,14 +1,17 @@
 import pytest
 import tiflash
 
-class TestFlashApi():
 
+class TestFlashApi:
     def test_basic_flash(self, tdev):
         """Tests simple flash on each device in devices.cfg"""
-        assert tdev['hex-image'] is not None
-        result = tiflash.flash(tdev['hex-image'], serno=tdev['serno'],
-                            connection=tdev['connection'],
-                            devicetype=tdev['devicetype'])
+        assert tdev["hex-image"] is not None
+        result = tiflash.flash(
+            tdev["hex-image"],
+            serno=tdev["serno"],
+            connection=tdev["connection"],
+            devicetype=tdev["devicetype"],
+        )
 
         assert result is True
 
@@ -24,22 +27,34 @@ class TestFlashApi():
         """
 
         # Basic Binary Test
-        assert tdev['binary-image'] is not None
-        result = tiflash.flash(tdev['binary-image'], binary=True, serno=tdev['serno'],
-                            connection=tdev['connection'],
-                            devicetype=tdev['devicetype'])
+        assert tdev["binary-image"] is not None
+        result = tiflash.flash(
+            tdev["binary-image"],
+            binary=True,
+            serno=tdev["serno"],
+            connection=tdev["connection"],
+            devicetype=tdev["devicetype"],
+        )
         assert result is True
 
         # Flashing binary without specifying binary=True
-        assert tdev['binary-image'] is not None
+        assert tdev["binary-image"] is not None
         with pytest.raises(tiflash.TIFlashError):
-            result = tiflash.flash(tdev['binary-image'], binary=False, serno=tdev['serno'],
-                                connection=tdev['connection'],
-                                devicetype=tdev['devicetype'])
+            result = tiflash.flash(
+                tdev["binary-image"],
+                binary=False,
+                serno=tdev["serno"],
+                connection=tdev["connection"],
+                devicetype=tdev["devicetype"],
+            )
 
         # Flashing hex image with specifying binary image = True
-        assert tdev['hex-image'] is not None
+        assert tdev["hex-image"] is not None
         with pytest.raises(tiflash.TIFlashError):
-            result = tiflash.flash(tdev['hex-image'], binary=True, serno=tdev['serno'],
-                                connection=tdev['connection'],
-                                devicetype=tdev['devicetype'])
+            result = tiflash.flash(
+                tdev["hex-image"],
+                binary=True,
+                serno=tdev["serno"],
+                connection=tdev["connection"],
+                devicetype=tdev["devicetype"],
+            )

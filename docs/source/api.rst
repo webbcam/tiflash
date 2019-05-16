@@ -11,6 +11,7 @@ Below is the TIFlash Python API.
 
     api/session
     api/core
+    api/advanced
 
 .. container::
 

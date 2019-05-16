@@ -3,8 +3,8 @@ import subprocess
 
 from clihelpers import get_cmd_with_device_params
 
-class TestEraseCli():
 
+class TestEraseCli:
     def test_basic_erase(self, tdev):
         """Tests simple erase on each device in devices.cfg"""
 

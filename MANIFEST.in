@@ -1,3 +1,8 @@
-include tiflash/js/*.js
+include tiflash/components/debugserver-js/DebugServer.js
+include tiflash/components/debugserver-js/handlers.js
+include tiflash/components/debugserver-js/package.json
+recursive-include tiflash/components/debugserver-js/utils *.js
+recursive-include tiflash/components/debugserver-js/handlers *.js
+include tiflash/utils/server.js
 include tiflash/utils/board_ids.json
 include tiflash/utils/debug_probes.json

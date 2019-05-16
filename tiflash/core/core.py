@@ -1,737 +1,547 @@
 import os
+import shutil
+from dsclient import DebugServer, DebugSession
+from tiflash.core.helpers import (
+    resolve_ccs_path,
+    DEPRECATED,
+    resolve_ccxml_path,
+    resolve_serno,
+    resolve_devicetype,
+    resolve_connection,
+    resolve_session_args,
+    compare_session_args,
+)
+from tiflash.utils.dss import launch_server, resolve_ccs_exe
+from tiflash.utils.ccs import find_ccs, get_unique_workspace, __get_ccs_exe_path
+from tiflash.utils.ccxml import get_ccxml_directory, add_serno
 
-from tiflash.utils import dss
-from tiflash.utils import ccxml
-from tiflash.utils import ccs
-
-CMD_DEFAULT_TIMEOUT = 60
 
 class TIFlashError(Exception):
     """Generic TI Flash error"""
+
     pass
 
 
-class TIFlash(object):
-    """TIFlash class for performing TIFlash commands on an object"""
+class TIFlashSession(object):
+    """TIFlash Session object for interacting with device over DSS"""
 
-    def __init__(self, ccs_path):
-        """Initializes TIFlash object.
+    def __init__(
+        self,
+        ccs=None,
+        ccs_path=None,
+        ccs_version=None,
+        serno=None,
+        devicetype=None,
+        connection=None,
+        ccxml=None,
+        fresh=False,
+        keep_alive=False,
+    ):
+        """Instantiates :py:class:`TIFlashSession` object.
 
         Args:
-            ccs_path (str): Path to ccs directory to use
+            ccs (str, optional): `DEPRECATED`: ccs version or path to ccs (default is latest installation found)
+            ccs_path (str, optional): path to ccs installation or directory of installation
+            ccs_version (str, optional): version number of ccs to use (default=latest)
+            serno (str, optional): serial number of device
+            serialnum (str, optional): serial number of device
+            devicetype (str, optional): name of devicetype
+            connection (str, optional): name of connection
+            ccxml (str, optional): full path to ccxml file to use
+            fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
+            debug (bool, optional): output extra debugging information (default=False)
+            keep_alive (bool, optional): keep the debugserver running even
+                after :py:class:`TIFlashSession` object is destroyed (default=False)
         """
-        self.set_ccs_path(ccs_path)
-        self.ccxml = None   # path to ccxml file
-        self.chip = None    # chip name to use when starting a session
-        self.attach = False
-        self.workspace = ccs.get_workspace_dir()
-        self.timeout = CMD_DEFAULT_TIMEOUT
-        self.args = dict()
+        self._keep_alive = keep_alive
+        self._workspace = get_unique_workspace()
+        self._ccxml_path = None
 
-    def __run_cmd(self, args):
-        """PRIVATE FUNCTION: Runs dss cmd script with given arguments
+        # Set CCS path
+        self._ccs_path = None
+        self.configure_ccs(ccs=ccs, ccs_version=ccs_version, ccs_path=ccs_path)
 
-        This function should be called by wrapper functions that are specific
-        to the given arguments (i.e. flash, reset, etc)
+        ccs_exe = resolve_ccs_exe(self._ccs_path)
+
+        # Launch DebugServer
+        self._server_pid, self._server_port = launch_server(ccs_exe, self._workspace)
+
+        # Connect DSClient
+        self._dsclient = DebugServer(port=self._server_port)
+
+        # Set Session args
+        if any([serno, devicetype, connection, ccxml]):
+            self.configure_session(
+                serno=serno,
+                devicetype=devicetype,
+                connection=connection,
+                ccxml=ccxml,
+                fresh=fresh,
+            )
+
+    def configure_ccs(self, ccs=None, ccs_version=None, ccs_path=None):
+        """Finds and sets the path to CCS installation to use
 
         Args:
-            args (dict): argument dictionary to use (often a copy of self.args
-            with function specific args added)
+            ccs (str, optional): `DEPRECATED`: ccs version or path to ccs (default is latest installation found)
+            ccs_path (str, optional): path to ccs installation or directory of installation
+            ccs_version (str, optional): version number of ccs to use (default=latest)
+
+        Warning:
+            Can only be run once (before launch of DebugServer).
+        """
+        if self._ccs_path is not None:
+            raise Exception("CCS path already set to: %s" % self._ccs_path)
+
+        # Resolve which ccs installation to use
+        if ccs is not None:
+            DEPRECATED(
+                "'ccs' arg is deprecated and will be removed in a later version of tiflash; use 'ccs_path' and 'ccs_version' parameters instead.",
+                stacklevel=4,
+            )
+            self._ccs_path = resolve_ccs_path(ccs)
+        else:
+            self._ccs_path = find_ccs(version=ccs_version, ccs_prefix=ccs_path)
+
+    def configure_session(
+        self, serno=None, devicetype=None, connection=None, ccxml=None, fresh=False
+    ):
+        """
+        Args:
+            serno (str, optional): serial number of device
+            serialnum (str, optional): serial number of device
+            devicetype (str, optional): name of devicetype
+            connection (str, optional): name of connection
+            ccxml (str, optional): full path to ccxml file to use
+            fresh (bool, optional): create a fresh ccxml file instead of using existing (default=False)
+        """
+
+        # check if session args already set (ccxml already set)
+        if self._ccxml_path is not None:
+            raise TIFlashError(
+                "session already configured; session can only be configured once per :py:class:`TIFlashSession` object"
+            )
+
+        session_args = resolve_session_args(
+            self._ccs_path,
+            ccxml=ccxml,
+            serno=serno,
+            devicetype=devicetype,
+            connection=connection,
+        )
+        self._ccxml_path = session_args["ccxml"]
+        self._serno = session_args["serno"]
+        self._devicetype = session_args["devicetype"]
+        self._connection = session_args["connection"]
+
+        # Compare resolved session args with what's already in ccxml
+        if self._ccxml_path is not None:
+            # Determine if ccxml needs to be regenerated
+            fresh = fresh or not compare_session_args(
+                self._ccxml_path,
+                serno=self._serno,
+                devicetype=self._devicetype,
+                connection=self._connection,
+            )
+        else:
+            fresh = True
+
+        # Create ccxml if needed
+        if fresh:
+            if self._ccxml_path is not None:
+                directory, name = os.path.split(self._ccxml_path)
+            else:
+                name = directory = None
+
+            self._ccxml_path = self.create_config(
+                name=name,
+                directory=directory,
+                serno=self._serno,
+                devicetype=self._devicetype,
+                connection=self._connection,
+            )
+
+        # Set ccxml file
+        try:
+            self._dsclient.set_config(self._ccxml_path)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def create_config(self, name=None, directory=None, **config):
+        """Generates a ccxml file using the provided parameters
+
+        Args:
+            name (str, optional): name to give ccxml file (default is: <serno>.ccxml, <devicetype>.ccxml or <connection.ccxml>)
+            directory (str, optional): directory to place ccxml file (default = default CCSTargetConfigurations directory)
+            **config (**kwargs): key-word args specifying possible configuration parameters to use when creating ccxml
 
         Returns:
-            (bool, str): returns a tuple of format (result, msg) where result
-            is a boolean based off of the success/failure of running the
-            command and 'msg' is a string that represents any return value or
-            error message passed by javascript side.
+            str: full path to generated ccxml file
+
+        Raises:
+            Exception: raised if error generating ccxml file
         """
-        arg_list = dss.format_args(args)
+        serno = config.get("serno", None)
+        devicetype = config.get("devicetype", None)
+        connection = config.get("connection", None)
 
-        (retcode, retval) = dss.call_dss(self.dss_path, arg_list,
-                                        workspace=self.workspace,
-                                        timeout=self.timeout)
+        # Determine ccxml file name to use
+        if name is None:
+            name = serno or devicetype or connection or "UNTITLED"
 
-        return (retcode, retval)
+        if not name.endswith(".ccxml"):
+            name += ".ccxml"
 
-    def set_debug(self, on=True):
-        """Turns debug mode on/off for dss calls.
+        if directory is None:
+            directory = get_ccxml_directory()
 
-        Sets/Unsets debug argument in self.args
+        ccxml_path = os.path.join(directory, name)
 
-        Args:
-            on (bool): Value to set Debug Mode: True = on; False = off
-        """
-        # Turn Debugging on
-        if on:
-            self.args['debug'] = True
+        self._dsclient.create_config(
+            name, connection=connection, device=devicetype, directory=directory
+        )
 
-        # Turn Debugging off
-        elif 'debug' in self.args.keys():
-            self.args.pop('debug')
-
-    def set_attach(self, attach=True):
-        """Attaches CCS session after action completes.
-
-        Args:
-            attach (bool): True = attach; False = do not attach
-        """
-        if attach:
-            self.args['attach'] = True
-
-        # Turn Attach
-        elif 'attach' in self.args.keys():
-            self.args.pop('attach')
-
-    def set_ccs_path(self, ccs_path):
-        """Explicitly sets the ccs_path and updates the dss_path automatically
-        """
-        self.ccs_path = ccs_path
-        self.dss_path = dss.find_dss(ccs_path)
-
-    def set_ccxml(self, ccxml_path):
-        """Explicitly set ccxml file to use.
-
-        Sets the ccxml file to use. If None is provided, no ccxml file will be
-        used when running commands (which may cause errors if certain commands
-        depend on a ccxml set).
-
-        Args:
-            ccxml_path (str): full path to ccxml file to use
-        """
         if not os.path.exists(ccxml_path):
-            raise TIFlashError("Could not find ccxml at: %s" % ccxml_path)
+            raise TIFlashError(
+                "Could not find ccxml file after generating: %s" % ccxml_path
+            )
 
-        self.ccxml = ccxml_path
-        if 'session' not in self.args.keys():
-            self.args['session'] = dict()
-
-        self.args['session']['ccxml'] = ccxml_path
-
-    def set_chip(self, chip):
-        """Explicitly set chip to use when starting a Debug Server Session.
-
-        Args:
-            chip (str): chip name (you can see chip options running
-                get_cpus())
-        """
-        # TODO: Add verification of chip name
-
-        self.chip = chip
-        if 'session' not in self.args.keys():
-            self.args['session'] = dict()
-
-        self.args['session']['chip'] = chip
-
-    def set_workspace(self, workspace):
-        """Explicitly set workspace to use when starting a Debug Server Session.
-
-        Args:
-            workspace (str): workspace name to use
-        """
-
-        # Set workspace
-        self.workspace = workspace
-
-    def set_timeout(self, timeout):
-        """Explicitly set timeout to use when starting a Debug Server Session.
-
-        Args:
-            timeout (float): timeout value to give command (in seconds)
-        """
-
-        # Set timeout to default if None provided
-        if timeout is None:
-            timeout = CMD_DEFAULT_TIMEOUT
-
-        self.timeout = timeout
-
-        if 'session' not in self.args.keys():
-            self.args['session'] = dict()
-
-        # Adjust timeout for javascript side to be in seconds (default in ms)
-        self.args['session']['timeout'] = int(self.timeout * 1000)
-
-    def set_session(self, ccxml_path, chip):
-        """Sets the session information (ccxml file to use and chip to use)
-
-        Args:
-            ccxml_path (str): full path to ccxml file to use
-            chip (str): chip name (you can see chip options running
-                get_cpus())
-        """
-
-        self.set_ccxml(ccxml_path)
-        self.set_chip(chip)
-
-    def generate_ccxml(self, connection, devicetype, serno=None):
-        """Generates a ccxml given the serial number, connection type, and
-        devicetype.
-
-        Generates a ccxml with javascript using the given connection type
-        and devicetype, then uses python to modify and add the serial number
-
-        Args:
-            connection (str): connection type to use in ccxml
-            devicetype (str): device type to use in ccxml
-            serno (str, optional): serial number of device to use for ccxml
-        """
-        genccxml_args = dict()
-
-        # Add ccxml directory
-        ccxml_directory = ccxml.get_ccxml_directory()
-        genccxml_args.update({'directory': ccxml_directory})
-
-        # Add ccxml name
-        ccxml_name = "%s.ccxml" % (serno or devicetype)
-        genccxml_args.update({'ccxml': ccxml_name})
-
-        # Add connection
-        genccxml_args.update({'connection': connection})
-
-        # Add devicetype
-        genccxml_args.update({'devicetype': devicetype})
-
-        ccxml_path = "%s/%s" % (ccxml_directory, ccxml_name)
-        ccxml_path = os.path.normpath(ccxml_path)
-
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        # Add genccxml args to self.args
-        args.update({'genccxml': genccxml_args})
-
-        (code, msg) = self.__run_cmd(args)
-        if not code or not os.path.exists(ccxml_path):
-            raise TIFlashError(msg)
-            #raise TIFlashError("Could not successfully generate ccxml file")
-
-        # Add serial number to ccxml file
-        if serno:
-            ccxml.add_serno(ccxml_path, serno, self.ccs_path)
+        if serno is not None:
+            add_serno(ccxml_path, serno, self._ccs_path)
 
         return ccxml_path
 
-    def get_connections(self):
-        """Returns a list of possible connections.
-
-        Connections are based off of the connection drivers installed in CCS
-
-        Returns:
-            (list): A list of possible connections based off of the connection
-            drivers installed in CCS
-        """
-        # DSS method of getting connections
-        result = self.get_list("connections")
-
-        return result
-
-    def get_devicetypes(self):
-        """Returns a list of possible devicetypes.
-
-        Devicetypes are based off of the device drivers installed in CCS
-
-        Returns:
-            (list): A list of possible devicetypes based off of the device
-            drivers installed in CCS
-        """
-        # DSS method of getting devicetypes
-        result =  self.get_list("devices")
-
-        return result
-
-    def get_cpus(self):
-        """Returns a list of possible cpus.
-
-        CPUs are based off of the device drivers installed in CCS
-
-        Returns:
-            (list): A list of possible cpus based off of the device
-            drivers installed in CCS
-        """
-        # DSS method of getting cpus
-        result =  self.get_list("cpus")
-
-        return result
-
-    def get_list(self, list_type):
-        """Returns a list of 'list_type' elements.
-
-        'list_type' elements are based off of the 'list_type' drivers
-        installed in CCS. this method uses a DebugServer to get these values.
-        A quicker way is by parsing the XML files themselves.
+    def attach_ccs(self, keep_alive=False):
+        """Opens a CCS GUI for the device in use
 
         Args:
-            list_type (str): type of list to get. this can be lists such as
-            connections, device, cpus, etc.
+            keep_alive (bool): keep the DebugServer process running in background after object is destroyed
+        """
+        try:
+            self._keep_alive = keep_alive
+            self._dsclient.attach_ccs()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def get_config(self):
+        """Returns the full path to the ccxml file in use for :py:class:`TIFlashSession`
 
         Returns:
-            (list): A list of possible 'list_types' options based off the
-            drivers installed in CCS
+            str: full path to .ccxml file in use for :py:class:`TIFlashSession` (returns None if ccxml has not be set yet)
         """
-        list_args = {'list': list_type}
+        return self._ccxml_path
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args.update(list_args)
-
-        (code, vals) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError("Could not get %s list" % list_type)
-        else:
-            parsed_vals = dss.parse_response_list(vals)
-            return parsed_vals
-
-    def set_operation(self, operation):
-        """Sets device specifc operation to perform
-
-        Only one operation can be performed.
-
-        Args:
-            operation (str): operation to perform (must be supported by device)
-        """
-        op_args = {'opcode': operation}
-
-        # Make a copy of self.args so we are not modifying directly
-        self.args['operation'] = op_args
-
-    def print_options(self, option_id=None):
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        if option_id:
-            args.update({'printoptions': {'id': option_id}})
-        else:
-            args.update({'printoptions': True})
-
-        (code, vals) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError("Could not print options")
-        else:
-            return True
-
-    def get_option(self, option_id, pre_operation=None):
-        """Get the value of an option.
-
-        Args:
-            option_id (str): The name/id of the option to retrieve
-            pre_operation (str, optional): An operation to run before
-                retrieving the option value.
+    def get_list_of_connections(self):
+        """Returns a list of available connections
 
         Returns:
-            (str): Returns the value of the option as a string
+            list: list of available connection names
+        """
+        try:
+            return self._dsclient.get_list_of_connections()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def get_list_of_cores(self):
+        """Returns a list of available cpu/core names for the device in use
+
+        Returns:
+            list: list of available core/cpu names for the device in use
 
         Raises:
-            (TIFlashError): Raises error if option does not exist
+            Exception: raised if no config set yet
         """
-        operation_args = {'opcode': pre_operation}
-        option_args = {'id': option_id}
+        try:
+            return self._dsclient.get_list_of_cpus()
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        if pre_operation:
-            args.update({'operation': operation_args})
-
-        args.update({'getoption': option_args})
-
-        (code, response) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError("Could not get option: %s" % option_id)
-
-        return response
-
-    def set_option(self, option_id, option_val):
-        """Sets an option to specified value. Option will persist for all
-        functions called after setting. If you want to unset an option you'll
-        have to set it to another value or call 'unset_option()'.
-
-        Args:
-            option_id (str): id of option to set
-            option_val (?): value to set option to
-                (type can be str, float, bool)
-
-        Raises:
-            (TIFlashError): Raises error if option does not exist
-        """
-        if 'setoption' not in self.args.keys():
-            self.args['setoption'] = dict()
-
-        self.args['setoption'].update({option_id: option_val})
-
-    def set_options(self, options):
-        """Sets all options given in 'options' dict.
-
-        Args:
-            options (dict): dictionary of options in the format
-                {option_id: option_val}; These options are set first before
-                calling erase function.
-
-        Raises:
-            TIFlashError: raises error if option invalid
-        """
-        for option_id in options.keys():
-            self.set_option(option_id, options[option_id])
-
-    def unset_option(self, option_id):
-        """Removes an option that was set from calling 'set_option()'
-
-        Args:
-            option_id (str): id of option to set
-
-        Notes:
-            Does nothing if option does not exist or is not set in args
-        """
-        if 'setoption' in self.args.keys():
-            if option_id in self.args['setoption'].keys():
-                self.args['setoption'].pop(option_id)
-
-            if len(self.args['setoption'].keys()) == 0:
-                self.args.pop('setoption')
-
-    def unset_options(self, options):
-        """Sets all options given in 'options' dict.
-
-        Args:
-            options (dict or list): dictionary or list of options in the
-                format {option_id: option_val} or [option_id, option_id]
-
-        Raises:
-            TIFlashError: raises error if options is not a dict or list
-
-        Notes:
-            Does nothing if option does not exist or is not set in args
-        """
-        if type(options) is not dict and type(options) is not list:
-            raise TIFlashError("""'options' arg must be a dict or list
-                of option ids""")
-
-        option_ids = options.keys() if type(options) == dict else options
-
-        for option_id in option_ids:
-            self.unset_option(option_id)
-
-    def reset(self, options=None):
-        """Performs a Board Reset on device
-
-        Args:
-            options (dict): dictionary of options in the format
-                {option_id: option_val}; These options are set first before
-                calling reset function.
-
-            Returns:
-                bool: True if reset was successful; False otherwise
-        """
-        # Set options before calling reset()
-        if options is not None:
-            self.set_options(options)
-
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['reset'] = True
-
-        (code, result) = self.__run_cmd(args)
-
-        # Unset options so they do not persist
-        if options is not None:
-            self.unset_options(options)
-
-        if not code:
-            if result:
-                # raise TIFlashError("Could not reset device")
-                raise TIFlashError(result)
-            return False
-        else:
-            return True
-
-    def erase(self, options=None):
-        """Erases device; setting 'options' before erasing device
-
-        Args:
-            options (dict): dictionary of options in the format
-                {option_id: option_val}; These options are set first before
-                calling erase function.
+    def get_list_of_devices(self):
+        """Returns a list of available devices
 
         Returns:
-            bool: Result of erase operation (success/failure)
-
-        Raises:
-            TIFlashError: raises error if option invalid
+            list: list of available device names
         """
+        try:
+            return self._dsclient.get_list_of_devices()
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Set options before calling erase()
-        if options is not None:
-            self.set_options(options)
-
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['erase'] = True
-
-        # call erase()
-        (code, result) = self.__run_cmd(args)
-
-        # Unset options so they do not persist
-        if options is not None:
-            self.unset_options(options)
-
-        if not code:
-            if result:
-                # raise TIFlashError("Could not erase device")
-                raise TIFlashError(result)
-            return False
-        else:
-            return True
-
-    def verify(self, image, binary=False, address=None, options=None):
-        """Verifies device; setting 'options' before erasing device
+    def get_core(self, name):
+        """Returns Core object representing a device core
 
         Args:
-            image (str): path to image to use for verifying
-            binary (bool): verifies image as binary if True
-            address(int): offset address to verify image
-            options (dict): dictionary of options in the format
-                {option_id: option_val}; These options are set first before
-                calling verify function.
+            name (str): name of core to retrieve (can be regex pattern)
 
         Returns:
-            bool: Result of verify operation (success/failure)
-
-        Raises:
-            TIFlashError: raises error if option invalid
+            DeviceCore: DebugSession object representing the device core
         """
+        session = None
+        try:
+            session = self._dsclient.get_session(name)
+        except:
+            session = self._dsclient.open_session(name)
 
-        verify_args = {'image': os.path.abspath(image)}
-        if binary:
-            verify_args['bin'] = True
-        if address:
-            verify_args['address'] = str(address)
+        return DeviceCore(session)
 
-        # Set options before calling verify()
-        if options is not None:
-            self.set_options(options)
+    def __del__(self):
+        if self._keep_alive is False:
+            # Close down server
+            self._dsclient.kill()
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['verify'] = verify_args
+            # Ensure process is closed down properly
+            try:
+                # timeout param only availble in python3
+                self._server_pid.wait(timeout=3)
+            except Exception:  # TimeoutExpired
+                self._server_pid.terminate()
 
-        # call verify()
-        (code, result) = self.__run_cmd(args)
+            # Remove workspace dir
+            if os.path.exists(self._workspace):
+                shutil.rmtree(self._workspace)
 
-        # Unset options so they do not persist
-        if options is not None:
-            self.unset_options(options)
 
-        if not code:
-            if result:
-                # raise TIFlashError("Could not verify device")
-                raise TIFlashError(result)
-            return False
-        else:
-            return True
+class DeviceCore(object):
+    """Class representing device core"""
 
-    def flash(self, image, binary=False, address=None, options=None):
-        """Flashes device; setting 'options' before flashing device
+    def __init__(self, debugsession):
+        """Instantiates Core object representing a device core
 
         Args:
-            image (str): path to image to use for flashing
-            binary (bool): flashes image as binary if True
-            address(int): offset address to flash image
-            options (dict): dictionary of options in the format
-                {option_id: option_val}; These options are set first before
-                calling flash function.
+            debugsession (dsclient.DebugSession): debugsession instance
+                returned from DebugServer.open_session()
+
+        Warning:
+            This class should not be directly instantiated. Instead use the
+            :py:meth:`TIFlashSession.get_core()` function
+        """
+        try:
+            self._debugsession = debugsession
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def connect(self):
+        """Connect to core"""
+        try:
+            self._debugsession.connect()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def disconnect(self):
+        """Disconnects from core"""
+        try:
+            self._debugsession.disconnect()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def erase(self):
+        """Erases device's flash memory.  """
+        try:
+            self._debugsession.erase()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def reset(self):
+        """Resets device."""
+        try:
+            self._debugsession.reset()
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def load(self, file, binary=False, address=None):
+        """Loads image into device's flash.
+
+        Args:
+            file (str): full path to file to load into flash
+            binary (boolean, optional): specify to load image as binary (default = False)
+            address (int, optional): specify to load binary image at specifc address (only to be used when 'binary' is True; default=0x0)
+
+
+        Raises:
+            Exception if image fails to load
+        """
+        try:
+            self._debugsession.load(file, binary=binary, address=address)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def verify(self, file, binary=False, address=None):
+        """Verifies image in device's flash.
+
+        Args:
+            file (str): full path to file to verify in flash
+            binary (boolean, optional): specify to verify image as binary (default = False)
+            address (int, optional): specify to verify binary image at specifc address (only to be used when 'binary' is True; default=0x0)
+
+
+        Raises:
+            Exception if image fails verification process
+        """
+        try:
+            self._debugsession.verify(file, binary=binary, address=address)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def evaluate(self, expression, file=None):
+        """Evaluates an expression (after loading optional symbols file)
+
+        Args:
+            expression (str): C/GEL expression to evaluate
+            file (str, optional): path to file containing symbols to load before evaluating
 
         Returns:
-            bool: Result of flash operation (success/failure)
+            int: result of evaluated expression
+
 
         Raises:
-            TIFlashError: raises error if option invalid
+            Exception if expression is invalid.
         """
-        flash_args = {'image': os.path.abspath(image)}
-        if binary:
-            flash_args['binary'] = True
-        if address:
-            flash_args['address'] = str(address)
+        try:
+            return self._debugsession.evaluate(expression, file=file)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Set options before calling flash()
-        if options is not None:
-            self.set_options(options)
-
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['flash'] = flash_args
-
-        # call flash()
-        (code, result) = self.__run_cmd(args)
-
-        # Unset options so they do not persist
-        if options is not None:
-            self.unset_options(options)
-
-        if not code:
-            if result:
-                # raise TIFlashError("Could not flash device")
-                raise TIFlashError(result)
-            return False
-        else:
-            return True
-
-    def memory_read(self, address, num_bytes=1, page=0):
-        """Reads specified bytes from memory
+    def read_memory(self, address, page=0, num_bytes=1):
+        """Read memory from device
 
         Args:
-            address (long): memory address to read from
-            num_bytes (int): number of bytes to read
-            page (int, optional): page number to read memory from
+            address (int): address to read data from
+            page (int, optional): page in memory to get address from (default = 0)
+            num_bytes (int, optional): number of bytes to read
 
         Returns:
-            list: Returns list of bytes read from memory
-        """
-        memory_args = {'read': True}
-        memory_args['address'] = str(address)
-        memory_args['numBytes'] = str(num_bytes)
-        memory_args['page'] = str(page)
+            list: list of bytes(ints) read
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['memory'] = memory_args
-
-        # call memory_read
-        (code, result) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError(result)
-        else:
-            parsed_result = dss.parse_response_list(result)
-            parsed_result.reverse() # Reverse order
-            parsed_result = [ int(e) for e in parsed_result ]
-            return parsed_result
-
-
-    def memory_write(self, address, data, page=0):
-        """Writes specified data to memory
-
-        Args:
-            address (long): memory address to read from
-            data (list): list of bytes to write to memory
-            page (int, optional): page number to read memory from
 
         Raises:
-            TIFlashError: raises error when memory read error received
+            Exception if address location is invalid.
         """
-        memory_args = {'write': True}
-        memory_args['address'] = str(address)
-        data = [ str(e) for e in list(data) ]
-        memory_args['data'] = ' '.join(data)
-        memory_args['page'] = str(page)
+        try:
+            return self._debugsession.read_data(address, page=page, num_bytes=num_bytes)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['memory'] = memory_args
-
-        # call memory_write
-        (code, result) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError(result)
-
-
-    def register_read(self, regname):
-        """Reads specified register of device
+    def write_memory(self, data, address, page=0):
+        """Write to memory on device
 
         Args:
-            regname (str): register name to read from
+            data (list): list of bytes (ints) to write to memory
+            address (int): address to read data from
+            page (int, optional): page in memory to get address from (default = 0)
+
+
+        Raises:
+            Exception if address location is invalid.
+        """
+        try:
+            return self._debugsession.write_data(data, address, page=page)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def read_register(self, name):
+        """Read value from register
+
+        Args:
+            name (str): register name to read
 
         Returns:
-            int: returns register value
+            int: value of register read
+
 
         Raises:
-            TIFlashError: raised if regname is invalid
+            Exception if register name is invalid.
         """
-        register_args = {'read': True}
-        register_args['regname'] = str(regname)
+        try:
+            return self._debugsession.read_register(name)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['register'] = register_args
-
-        # call register_read
-        (code, result) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError(result)
-        else:
-            parsed_result = dss.parse_response_number(result)
-            return parsed_result
-
-
-    def register_write(self, regname, value):
-        """Writes a value to specified register of device
+    def write_register(self, name, value):
+        """Write value to register on device
 
         Args:
-            regname (str): register name to read from
+            name (str): register name to write to
             value (int): value to write to register
 
+
         Raises:
-            TIFlashError: raised if regname is invalid
+            Exception if register name is invalid.
         """
-        register_args = {'write': True}
-        register_args['regname'] = str(regname)
-        register_args['value'] = str(value)
+        try:
+            self._debugsession.write_register(name, value)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['register'] = register_args
-
-        # call register_read
-        (code, result) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError(result)
-
-
-    def evaluate(self, expr, symbol_file=None):
-        """Evaluates the given C/GEL expression
+    def get_option(self, option_id):
+        """Get the value of a device option
 
         Args:
-            expr (str): C or GEL expression
-            symbol_file (str): .out or GEL symbol file to load before evaluating
+            option_id (str): name of device option
 
         Returns:
-            str: String result from evaluating expression
+            any: value of option
+
 
         Raises:
-            TIFlashError: raises error when expression error is raised
+            Exception if option id is invalid.
         """
-        expression_args = {'expression': expr}
+        try:
+            return self._debugsession.get_option(option_id)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        if symbol_file is not None:
-            expression_args['symbols'] = symbol_file
+    def set_option(self, option_id, value):
+        """Set the value of a device option
 
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
-        args['evaluate'] = expression_args
+        Args:
+            option_id (str): name of device option
+            value (any): value to set option to
 
-        # call expression
-        (code, result) = self.__run_cmd(args)
-
-        if not code:
-            raise TIFlashError(result)
-
-        return result
-
-    def nop(self):
-        """No-op command. This essentially just calls the dss script with the
-        set arguments.
 
         Raises:
-            TIFlashError: raises error when expression error is raised
+            Exception if option id is invalid.
         """
-        # Make a copy of self.args so we are not modifying directly
-        args = self.args.copy()
+        try:
+            self._debugsession.set_option(option_id, value)
+        except Exception as e:
+            raise TIFlashError(e)
 
-        # call dss
-        (code, result) = self.__run_cmd(args)
+    def perform_operation(self, opcode):
+        """Performs flash operation
 
-        if not code:
-            raise TIFlashError(result)
+        Args:
+            opcode (str): name of operation to perform (opcode)
 
-        # No return on a no-op
-        #return result
+        Returns:
+            any: returns value of performing operation
+
+
+        Raises:
+            Exception if opcode is invalid.
+        """
+        try:
+            return self._debugsession.perform_operation(opcode)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def run(self, asynchronous=False):
+        """Issues the run command to the device
+
+        Args:
+            asynchronous (boolean, optional): run and return control immediately (default = False)
+        """
+        try:
+            self._debugsession.run(asynchronous=asynchronous)
+        except Exception as e:
+            raise TIFlashError(e)
+
+    def halt(self, wait=False):
+        """Halts the device
+
+        Args:
+            wait (boolean): wait until device is actually halted before returning
+        """
+        try:
+            self._debugsession.halt(wait=wait)
+        except Exception as e:
+            raise TIFlashError(e)
