@@ -118,22 +118,22 @@ class TestTIFlashSession:
             assert type(conns) is list
             assert len(conns) > 0  # at least one connection type should be installed
 
-        def test_get_list_of_cpus(self, tenv, tdev):
-            """Tests getting list of available cpus for device"""
+        def test_get_list_of_cores(self, tenv, tdev):
+            """Tests getting list of available cores for device"""
             ccxml = tdev["ccxml-path"]
             device = tiflash.TIFlashSession(ccxml=ccxml)
 
-            cpus = device.get_list_of_cpus()
+            cores = device.get_list_of_cores()
 
-            assert type(cpus) is list
-            assert len(cpus) > 0  # at least one cpu type should be installed
+            assert type(cores) is list
+            assert len(cores) > 0  # at least one cpu type should be installed
 
-        def test_get_list_of_cpus_when_no_config_set(self, tenv, tdev):
-            """Tests getting list of available cpus for device when no config set"""
+        def test_get_list_of_cores_when_no_config_set(self, tenv, tdev):
+            """Tests getting list of available cores for device when no config set"""
             device = tiflash.TIFlashSession()
 
             with pytest.raises(Exception):
-                cpus = device.get_list_of_cpus()
+                cores = device.get_list_of_cores()
 
         def test_get_list_of_devices(self, tenv, tdev):
             """Tests getting list of available devices"""

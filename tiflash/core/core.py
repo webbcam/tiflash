@@ -242,7 +242,7 @@ class TIFlashSession(object):
         except Exception as e:
             raise TIFlashError(e)
 
-    def get_list_of_cpus(self):
+    def get_list_of_cores(self):
         """Returns a list of available cpu/core names for the device in use
 
         Returns:
