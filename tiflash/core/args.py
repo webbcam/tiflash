@@ -259,6 +259,12 @@ ExpressionParser.add_argument(
 # Attach Parser
 AttachParser = argparse.ArgumentParser(add_help=False)
 
+# CreateConfig Parser
+CreateConfigParser = argparse.ArgumentParser(add_help=False)
+CreateConfigParser.add_argument(
+    "-o", "--output", dest="output", required=True, help="output file name"
+)
+
 # XDS110Reset Parser
 XDS110ResetParser = argparse.ArgumentParser(add_help=False)
 
