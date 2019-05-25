@@ -18,6 +18,7 @@ Commands
     detect
     options
     attach
+    create-config
     list
     info
 
@@ -91,6 +92,12 @@ Below is a list of commands you can call with TIFlash.
     :ref:`Attach <attach>`
 
 *attach a CCS session to device*
+
+.. container::
+
+    :ref:`Create Config <create-config>`
+
+*geneate a device config file*
 
 .. container::
 
