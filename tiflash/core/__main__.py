@@ -19,6 +19,7 @@ from tiflash.core.args import (
     RegisterWriteParser,
     ExpressionParser,
     AttachParser,
+    CreateConfigParser,
     XDS110ResetParser,
     XDS110UpgradeParser,
     XDS110ListParser,
@@ -172,6 +173,14 @@ def generate_parser():
         parents=[AttachParser],
         usage="tiflash [Session Arguments] attach",
         description="Open up CCS session & attach to device",
+    )
+
+    # Create Config
+    sub_parsers.add_parser(
+        "create-config",
+        parents=[CreateConfigParser],
+        usage="tiflash [Session Arguments] create-config [-o|--output]",
+        description="Creates a configuration file to the specified output",
     )
 
     # XDS110 Parsers
@@ -484,6 +493,16 @@ def handle_attach(args):
         __exit_with_error(e)
 
 
+def handle_create_config(args):
+    """Helper function for handling 'create-config' command"""
+    session_args = get_session_args(args)
+
+    try:
+        result = tiflash.create_config(output=args.output, **session_args)
+    except Exception as e:
+        __exit_with_error(e)
+
+
 def handle_xds110(args):
     """Helper function for handling 'xds110' command"""
     session_args = get_session_args(args)
@@ -601,6 +620,10 @@ def main(args=None):
     # Attach
     elif args.cmd == "attach":
         handle_attach(args)
+
+    # CreateConfig
+    elif args.cmd == "create-config":
+        handle_create_config(args)
 
     # XDS110
     elif (

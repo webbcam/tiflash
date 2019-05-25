@@ -28,6 +28,7 @@ from tiflash.core import (
     xds110_upgrade,
     detect_devices,
     get_info,
+    create_config,
 )
 
 from tiflash.version import version_string as __version__

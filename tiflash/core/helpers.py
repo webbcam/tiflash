@@ -79,6 +79,8 @@ def resolve_ccxml_path(ccxml=None, serno=None, devicetype=None):
     ccxml_path = None
 
     if ccxml is not None:
+        ccxml = os.path.expanduser(ccxml)
+        ccxml = os.path.expandvars(ccxml)
         if os.path.exists(ccxml):
             ccxml_path = ccxml
         else:

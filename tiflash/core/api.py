@@ -13,6 +13,7 @@ from tiflash.utils.ccxml import (
     get_serno,
     get_connection_xml,
     get_ccxml_path,
+    get_ccxml_directory,
 )
 from tiflash.utils.ccs import (
     find_ccs,
@@ -680,3 +681,41 @@ def get_info(ccs=None, **session_args):
     )
 
     return info_dict
+
+
+def create_config(output, ccs=None, **session_args):
+    """Creates a ccxml file using the given session args
+
+    Args:
+        output (str): path to output configuration file
+        ccs (str, optional): version number of CCS to use or path to custom installation
+        session_args (**dict): keyword arguments containing settings for
+            the device connection
+
+    Returns:
+        str: full path to file generated
+
+    Raises:
+        Exception: raised if invalid session_args
+
+    """
+    ccs_path = resolve_ccs_path(ccs)
+
+    serno = session_args.get("serno", None)
+    devicetype = session_args.get("devicetype", None)
+    connection = session_args.get("connection", None)
+    ccxml = session_args.get("ccxml", None)
+
+    session = resolve_session_args(
+        ccs_path, ccxml=ccxml, connection=connection, devicetype=devicetype, serno=serno
+    )
+
+    output = os.path.expanduser(output)
+    output = os.path.expandvars(output)
+    fullpath = os.path.abspath(output)
+
+    config_name = os.path.basename(fullpath) if output is not None else None
+    config_dir = os.path.dirname(fullpath) if output is not None else None
+
+    dev = TIFlashSession(ccs_path=ccs_path)
+    return dev.create_config(name=config_name, directory=config_dir, **session)
