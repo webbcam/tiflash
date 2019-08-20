@@ -28,19 +28,12 @@ Install via git repo
 ::
 
     # clone repo
-    git install https://github.com/webbcam/tiflash.git
-
-    # install required 3rd party modules
-    cd tiflash
-    pip install -r requirements.txt
+    git clone https://github.com/webbcam/tiflash.git
 
     # install tiflash via pip in develop mode
+    cd tiflash
     pip install -e .
 
-    # setup pre-commit hooks (style guide testing)
-    cd hooks
-    chmod +x install-hooks.sh pre-commit.sh
-    ./install-hooks.sh
 
 Running Tests
 -------------
@@ -48,55 +41,20 @@ Running Tests
 Before creating any pull requests you should be sure to run the tests
 (located in `tests <tests>`__ directory) locally.
 
-Prerequisites
-~~~~~~~~~~~~~
-
-You’ll need the `pytest <https://docs.pytest.org/en/latest/>`__ module
-to run the tests.
-
-::
-
-    # install pytest
-    pip install -U pytest
-
-You’ll also need at least one device connected to your PC to run the
-tests on. You’ll need to add the device(s) information to the
-tests/devices.cfg file. (Also include a valid image in this
-configuration file for flash tests).
-
-Running the tests
-~~~~~~~~~~~~~~~~~
-
 All tests are located in the `tests <tests>`__ directory. Please see the
-`README.md <tests/README.md>`__ in the tests directory for detailed
-information on running the tests.
+`README.rst <tests/README.rst>`__ in the tests directory for detailed
+information on setting up your testing environment and running the tests.
 
 You are able to run any tests ranging from an entire test suite to sub
 test suites to just a particular test. *(Note: upon submitting a pull
 request, we will run the entire test suite before merging).*
 
-::
-
-    cd tiflash/tests
-
-    # Entire Test Suite
-    py.test ./
-
-    # Sub Test Suite (i.e. core)
-    py.test core/
-
-    # Particular Test
-    py.test utils/ccsfinder.py
-
-\**Please see the README.md in the tests directory for more
-information\*
-
 Raising an Issue
 ----------------
 
 Please raise an issue for any bug, new feature or updates. You should
-use the `ISSUE_TEMPLATE.md <ISSUE_TEMPLATE.md>`__ as a starting place
-for your issue.
+use one of the `issue templates <.github/ISSUE_TEMPLATE>`__ as a starting
+place for your issue.
 
 Pull Requests
 -------------
@@ -107,10 +65,10 @@ steps:
 1. Run entire test suite on your local PC with the new changes and
    include report.html (generated with pytest-html plugin) with pull
    request.
-2. Update the appropriate README.md with details of changes to the
+2. Update the appropriate README.rst with details of changes to the
    project. This includes any new feature added, any new tests added
    (and expected result) for fixed bug, etc.
-3. Increase the version numbers in any examples files and the README.md
+3. Increase the version numbers in any examples files and the README.rst
    to the new version that this Pull Request would represent. The
    versioning scheme we use is `SemVer <http://semver.org/>`__.
 4. You may merge the Pull Request in once you have the sign-off of two
