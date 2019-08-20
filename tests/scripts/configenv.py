@@ -2,7 +2,7 @@
     test environment paths and device configurations.
 
     Warning:
-        Before running this script, you must edit the setup.cfg file in
+        Before running this script, you must edit the env.cfg file in
         the tests/ directory.
 
     Warning:
