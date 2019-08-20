@@ -53,7 +53,7 @@ Install via git repo (used for development)
 
     git install https://github.com/webbcam/tiflash.git
     cd tiflash
-    pip install -r requirements.txt
+    make init
     pip install -e .
 
 Quickstart
@@ -148,7 +148,7 @@ Acknowledgments
 .. |Docs| image::       https://readthedocs.org/projects/tiflash/badge/?version=latest
     :target:            https://tiflash.readthedocs.io
     :alt:               Documentation
-    
+
 .. |Downloads| image::  https://pepy.tech/badge/tiflash
     :target:            https://pepy.tech/project/tiflash
     :alt:               Downloads

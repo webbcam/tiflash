@@ -32,6 +32,7 @@ Install via git repo
 
     # install tiflash via pip in develop mode
     cd tiflash
+    make init
     pip install -e .
 
 
