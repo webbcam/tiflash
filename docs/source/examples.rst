@@ -3,13 +3,14 @@
 Examples
 ========
 
-Below are some generic examples of how to use tiflash on both the command line
+Below are some simple examples of how to use tiflash on both the command line
 and in Python.
 
-For more device specific functionality, please see the `Device Examples <device_examples.html>`_.
+Select a device type to view example usage:
 
 .. toctree::
-    :hidden:
-    :maxdepth: 2
+    :maxdepth: 1
 
-    device_examples
+    examples/cc13xx-cc26xx
+    examples/cc32xx
+    examples/msp432

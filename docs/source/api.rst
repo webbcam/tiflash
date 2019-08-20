@@ -10,17 +10,23 @@ Below is the TIFlash Python API.
     :hidden:
 
     api/session
-    api/core
+    api/basic
     api/advanced
 
 .. container::
 
     :ref:`Session Args <session_api>`
 
-the session args are a common set of arguments used for most functions
+the session args are a common set of keyword-arguments used for most functions
 
 .. container::
 
-    :ref:`TIFlash <core>`
+    :ref:`Basic <basic>`
 
-the tiflash module contains all the core functionality of TIFlash.
+the basic API contains simple commands that will suit most user's needs
+
+.. container::
+
+    :ref:`Advanced <advanced>`
+
+the advanced API allows for more control over a device

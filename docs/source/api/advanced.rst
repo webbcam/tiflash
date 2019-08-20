@@ -1,8 +1,8 @@
 .. _advanced:
 
-============
-Advanced API
-============
+========
+Advanced
+========
 
 .. py:module:: tiflash
 
