@@ -2,6 +2,8 @@ from setuptools import setup, find_packages
 from setuptools.command.install import install
 import os
 
+from tiflash.utils.config import init_config_dirs
+
 DESC = "Unofficial python module for flashing TI devices."
 URL = "https://github.com/webbcam/tiflash"
 DOCS_URL = "https://tiflash.readthedocs.io"
@@ -13,6 +15,10 @@ class CustomInstallCommand(install):
     def run(self):
         # Do Custom installation stuff here
         install.run(self)
+
+        # Create tiflash config directories
+        init_config_dirs()
+
 
 with open('README.rst') as f:
     long_description = f.read()

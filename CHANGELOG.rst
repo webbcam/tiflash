@@ -1,3 +1,11 @@
+1.2.9
+-----
+Date: 09.17.2019
+
+- fix default board_ids.json issue (`#86`_)
+
+.. _#86: https://github.com/webbcam/tiflash/issues/86
+
 1.2.8
 -----
 Date: 04.11.2019
