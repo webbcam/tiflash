@@ -13,6 +13,7 @@ import re
 import json
 
 from tiflash.utils import xmlhelper
+from tiflash.utils import config
 
 from tiflash.utils.connections import get_connections_directory
 from tiflash.utils.cpus import get_cpus_directory
@@ -314,36 +315,41 @@ def get_device_xml_from_serno(serno, ccs_path):
     """
     devices_directory = get_devices_directory(ccs_path)
 
-    # Allow for using custom boards_id file by placing custom file in utils/
-    custom_board_ids_path = os.path.normpath(os.path.dirname(__file__) + '/' +
-                                             CUSTOM_BOARD_IDS_FILE)
-
-    if os.path.isfile(custom_board_ids_path):
-        board_ids_path = custom_board_ids_path
-    else:
-        board_ids_path = os.path.normpath(ccs_path + "/" + BOARD_IDS_PATH)
+    board_ids_path = os.path.normpath(ccs_path + "/" + BOARD_IDS_PATH)
 
     if not os.path.isfile(board_ids_path):
         raise DeviceError("Could not find 'board_ids.json' file: %s"
                           % board_ids_path)
 
+    # Load default board_ids.json from CCS installation
     with open(board_ids_path) as board_ids_f:
         board_ids = json.load(board_ids_f)
 
-        sernos = board_ids.keys()
-        for s in sernos:
-            if serno.startswith(s):
-                dxml = board_ids[s]['deviceXml'] + ".xml"
-                break
-        else:
-            raise DeviceError(
-                "Could not determine devicetype from %s." % serno)
+    # Allow for using custom boards_id file by placing custom file in .tiflash/custom folder
+    custom_board_ids_path = os.path.normpath(config.get_custom_dir() + '/' +
+                                             CUSTOM_BOARD_IDS_FILE)
 
-        dxml_fullpath = os.path.abspath(devices_directory + "/" + dxml)
-        if not os.path.isfile(dxml_fullpath):
-            raise DeviceError("Could not find '%s' file." % dxml)
+    # Update default board ids with entries from custom file
+    if os.path.isfile(custom_board_ids_path):
+        with open(custom_board_ids_path) as custom_board_ids_f:
+            custom_board_ids = json.load(custom_board_ids_f)
 
-        return dxml_fullpath
+        board_ids.update(custom_board_ids)
+
+    sernos = board_ids.keys()
+    for s in sernos:
+        if serno.startswith(s):
+            dxml = board_ids[s]['deviceXml'] + ".xml"
+            break
+    else:
+        raise DeviceError(
+            "Could not determine devicetype from %s." % serno)
+
+    dxml_fullpath = os.path.abspath(devices_directory + "/" + dxml)
+    if not os.path.isfile(dxml_fullpath):
+        raise DeviceError("Could not find '%s' file." % dxml)
+
+    return dxml_fullpath
 
 
 def get_device_from_serno(serno, ccs_path):

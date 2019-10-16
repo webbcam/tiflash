@@ -1,3 +1,3 @@
-version = (1, 2, 8)
+version = (1, 2, 9)
 version_string = ".".join(map(str,version))
-release_date = "2019.04.11"
+release_date = "2019.08.23"
