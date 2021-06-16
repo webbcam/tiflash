@@ -25,7 +25,9 @@ function erase_entire_flash(session, scriptEnv)
         session.target.connect();
     }
 
-    session.flash.erase();
+    // Replacing Erase call due to existing issue with CCS DSS for agama 704 Launchpads
+    //session.flash.erase();
+    session.expression.evaluate("MassErase()")
 
     return true;
 }
