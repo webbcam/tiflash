@@ -20,7 +20,7 @@ MAX_CLIENTS = 1
 if pyversion[0] == 2:
     SOCK_TIMEOUT = None   # timeouts don't seem to work for py2
 else:
-    SOCK_TIMEOUT = 60   # timeout to wait for result
+    SOCK_TIMEOUT = 120   # timeout to wait for result #increased from 60 for CCS12 compatibility
 
 
 class ResultServerError(Exception):
@@ -83,11 +83,11 @@ class ResultServer(object):
                 If 'None' will block/wait forever. If '0' will not block.
 
         """
-        if self.server_thread.isAlive() is True:
+        if self.server_thread.is_alive() is True:
             self.server_thread.join(timeout=timeout)
 
             # Thread should only be alive if timeout was exceeded
-            if self.server_thread.isAlive is True:
+            if self.server_thread.is_alive is True:
                 return None
 
         if type(self.result) == str:
